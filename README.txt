@@ -16,3 +16,4 @@ DESPLIEGUE
 Desde esta carpeta:
 npm install
 npm run deploy
+AUTO DEPLOY ACTIVADO
