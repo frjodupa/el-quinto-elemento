@@ -1,19 +1,17 @@
-EL QUINTO ELEMENTO · v38 · CLOUDFLARE D1 SYNC
+EL QUINTO ELEMENTO · v39 · ESTABILIDAD Y CARGA RÁPIDA
 
-NUEVA FUNCIÓN: DUPLICAR BLOQUE DE ACORDES
-- En ⚙ Ajustes → Edición aparece "⧉ Duplicar bloque".
-- Paso 1: seleccionar con ♫ la primera línea del bloque ya acordado.
-- Paso 2: seleccionar la última línea.
-- Paso 3: seleccionar la primera línea del bloque de destino.
-- Copia acordes de línea y acordes colocados sobre palabras respetando sus posiciones relativas.
-- Si el bloque de destino ya tiene acordes, avisa antes de sustituirlos.
-- Si las líneas origen y destino tienen diferente número de palabras, la app avisa para que revises el encaje.
-- No duplica INTRO ni INSTRUMENTALES: solo el bloque de letra seleccionado.
-- La operación puede cancelarse en cualquier momento.
-- Los cambios se guardan, sincronizan con D1 y quedan cubiertos por las copias automáticas.
+CORRECCIÓN CRÍTICA
+- Eliminado el bucle de recargas provocado por la sincronización D1.
+- Los cambios recibidos desde Cloudflare se aplican en caliente, sin recargar toda la app.
+- La sincronización periódica ya no provoca recargas automáticas.
+- El arranque muestra primero los datos locales y sincroniza en segundo plano.
+- Navegación, index.html, version.json y sw.js se sirven con no-cache desde el Worker.
+- El Service Worker usa red primero con espera máxima corta y conserva fallback offline.
+- La comprobación de versión comienza antes, sin bloquear la interfaz.
+- Se conserva la función v38 de duplicar bloques de acordes.
 
-OBJETIVO DE ESTA VERSIÓN
-Probar funcionalmente si las repeticiones de estrofas y estribillos encajan correctamente antes de convertirlo en un flujo definitivo.
+OBJETIVO
+Carga inmediata, actualización fiable y funcionamiento offline sin bucles.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

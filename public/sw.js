@@ -1,8 +1,8 @@
-const CACHE='quinto-elemento-v38';
+const CACHE='quinto-elemento-v39';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=38',
+  './manifest.webmanifest?v=39',
   './version.json',
   './icon-192.png',
   './icon-512.png',
@@ -22,6 +22,28 @@ self.addEventListener('activate',event=>{
   );
 });
 
+function fetchWithTimeout(req,ms){
+  return new Promise((resolve,reject)=>{
+    let done=false;
+    const timer=setTimeout(()=>{
+      if(done)return;
+      done=true;
+      reject(new Error('timeout'));
+    },ms);
+    fetch(req,{cache:'no-store'}).then(resp=>{
+      if(done)return;
+      done=true;
+      clearTimeout(timer);
+      resolve(resp);
+    }).catch(err=>{
+      if(done)return;
+      done=true;
+      clearTimeout(timer);
+      reject(err);
+    });
+  });
+}
+
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
   const req=event.request;
@@ -35,7 +57,7 @@ self.addEventListener('fetch',event=>{
 
   if(url.pathname.endsWith('version.json')){
     event.respondWith(
-      fetch(req,{cache:'no-store'})
+      fetchWithTimeout(req,2500)
         .then(resp=>{
           const copy=resp.clone();
           caches.open(CACHE).then(cache=>cache.put('./version.json',copy));
@@ -48,7 +70,7 @@ self.addEventListener('fetch',event=>{
 
   if(req.mode==='navigate'){
     event.respondWith(
-      fetch(req,{cache:'no-store'})
+      fetchWithTimeout(req,2500)
         .then(resp=>{
           const copy=resp.clone();
           caches.open(CACHE).then(cache=>cache.put('./index.html',copy));

@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=38">
+<link rel="manifest" href="manifest.webmanifest?v=39">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1313,7 +1313,7 @@ body.lightTheme .duplicateChordBanner{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v38</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v39</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -2754,6 +2754,17 @@ buildPicker();render('');
     return true;
   }
 
+  function refreshAfterCloudPull(){
+    try{
+      if(typeof render==='function')render();
+      if(typeof current!=='undefined' && current>=0){
+        if(typeof getSongTitle==='function' && typeof st!=='undefined' && st)st.textContent=getSongTitle(current);
+        if(typeof renderLyrics==='function')renderLyrics();
+      }
+      if(window.updateTransposeUI)window.updateTransposeUI();
+    }catch(e){}
+  }
+
   async function pullRemote(allowReload){
     if(!navigator.onLine)return false;
     var res=await apiGet();
@@ -2766,10 +2777,8 @@ buildPicker();render('');
       applyState(remote);
       localStorage.setItem(META_REMOTE_TS,String(remoteTs));
       localStorage.setItem(META_DIRTY,'0');
-      if(allowReload){
-        sessionStorage.setItem('qeSync.justPulled','1');
-        location.reload();
-      }
+      refreshAfterCloudPull();
+      setStatus('☁ Sincronizado','Cambios recibidos sin recargar la app.');
       return true;
     }
     setStatus('☁ Sincronizado','Este dispositivo está al día.');
@@ -2794,11 +2803,8 @@ buildPicker();render('');
             applyState(remote.data);
             localStorage.setItem(META_REMOTE_TS,String(remoteTs));
             localStorage.setItem(META_DIRTY,'0');
-            if(manual){
-              setStatus('☁ Sincronizado','Datos recibidos. Recargando…');
-            }
-            sessionStorage.setItem('qeSync.justPulled','1');
-            location.reload();
+            refreshAfterCloudPull();
+            setStatus('☁ Sincronizado','Datos recibidos sin recargar la app.');
             return;
           }
         }else{
@@ -2847,17 +2853,11 @@ buildPicker();render('');
       return;
     }
 
-    var justPulled=sessionStorage.getItem('qeSync.justPulled');
-    if(justPulled){
-      sessionStorage.removeItem('qeSync.justPulled');
-      setStatus('☁ Sincronizado','Últimos cambios recibidos correctamente.');
-    }
-
     syncNow(false);
     clearInterval(pollingTimer);
     pollingTimer=setInterval(function(){
       if(navigator.onLine && localStorage.getItem(META_DIRTY)!=='1'){
-        pullRemote(true);
+        pullRemote(false);
       }
     },30000);
   });
@@ -2881,7 +2881,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=38;
+const APP_VERSION=39;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2970,10 +2970,10 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=38',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=39',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
-    setTimeout(function(){checkUpdate(false)},1200);
+    setTimeout(function(){checkUpdate(false)},350);
   });
 }
 </script>

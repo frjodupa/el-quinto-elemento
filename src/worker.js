@@ -22,6 +22,18 @@ async function ensureSchema(env) {
   `).run();
 }
 
+function withNoStore(response) {
+  const headers = new Headers(response.headers);
+  headers.set("cache-control", "no-store, no-cache, must-revalidate");
+  headers.set("pragma", "no-cache");
+  headers.set("expires", "0");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
@@ -191,6 +203,21 @@ export default {
       return new Response("Method Not Allowed", { status: 405 });
     }
 
-    return env.ASSETS.fetch(request);
+    const assetResponse = await env.ASSETS.fetch(request);
+
+    if (
+      request.method === "GET" &&
+      (
+        request.mode === "navigate" ||
+        url.pathname === "/" ||
+        url.pathname.endsWith("/index.html") ||
+        url.pathname.endsWith("/version.json") ||
+        url.pathname.endsWith("/sw.js")
+      )
+    ) {
+      return withNoStore(assetResponse);
+    }
+
+    return assetResponse;
   }
 };
