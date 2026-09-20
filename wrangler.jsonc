@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "crimson-rice-1fe1",
+  "main": "./src/worker.js",
+  "compatibility_date": "2026-09-20",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "quinto-elemento-db",
+      "database_id": "fae81352-ba93-4b11-a67d-016d4752bf21"
+    }
+  ]
+}

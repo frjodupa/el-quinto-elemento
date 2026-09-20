@@ -1,0 +1,2371 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0c"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="format-detection" content="telephone=no"><title>El Quinto Elemento · Cancionero Interactivo</title><style>
+:root{--bg:#0b0b0c;--panel:#151518;--fg:#f6f6f3;--muted:#aaa;--accent:#e6c36a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+button,input{font:inherit}.top{position:sticky;top:0;z-index:5;background:rgba(11,11,12,.96);backdrop-filter:blur(10px);padding:18px 20px;border-bottom:1px solid #2b2b30}
+.brand{font-weight:800;letter-spacing:.08em}.count{color:var(--muted);font-size:.9rem;margin-top:4px}.search{width:100%;margin-top:14px;padding:13px 15px;border:1px solid #333;border-radius:12px;background:#111;color:#fff}
+.grid{padding:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}.songBtn{border:1px solid #2d2d33;background:var(--panel);color:#fff;border-radius:12px;padding:16px;text-align:left;cursor:pointer}.songBtn:hover{border-color:var(--accent)}
+.view{display:none;position:fixed;inset:0;background:var(--bg);z-index:20;overflow:auto}.view.on{display:block}.bar{position:sticky;top:0;background:rgba(11,11,12,.97);border-bottom:1px solid #2b2b30;padding:10px 14px;display:flex;gap:8px;align-items:center;z-index:2}.bar button{background:#1a1a1e;color:#fff;border:1px solid #34343a;border-radius:10px;padding:9px 12px}.bar .spacer{flex:1}.title{font-size:clamp(1.8rem,5vw,3.8rem);line-height:1.05;margin:42px auto 24px;max-width:980px;padding:0 28px;color:var(--accent)}.lyrics{white-space:pre-wrap;font-size:clamp(1.35rem,3.4vw,2.35rem);line-height:1.45;max-width:980px;margin:0 auto 18vh;padding:0 28px;font-weight:650;letter-spacing:.01em}.empty{padding:40px;color:var(--muted);text-align:center}
+.chordBtn{border-color:#6d5b2e!important;color:var(--accent)!important}
+.chordBtn.active{background:var(--accent)!important;color:#111!important;border-color:var(--accent)!important}
+.clearChordBtn{display:none}
+.editing .clearChordBtn{display:inline-block}
+.lyrics.editingLyrics{white-space:normal}
+.lyricLine{position:relative;display:flex;align-items:flex-start;gap:10px;min-height:1.7em;margin:.08em 0}
+.lineChordBtn{display:none;flex:0 0 auto;margin-top:.18em;background:#17171b;color:var(--accent);border:1px dashed #665733;border-radius:8px;padding:4px 7px;font-size:.54em;line-height:1.1;cursor:pointer}
+.editingLyrics .lineChordBtn{display:inline-block}
+.lineBody{min-width:0;flex:1;white-space:pre-wrap}
+.lineChord{display:block;color:var(--accent);font-size:.62em;line-height:1.05;min-height:0;font-weight:800;letter-spacing:.02em;margin-bottom:.08em}
+.wordWrap{display:inline-flex;flex-direction:column;vertical-align:bottom;align-items:flex-start;margin-right:.24em;position:relative}
+.wordChord{color:var(--accent);font-size:.54em;line-height:1;min-height:.65em;font-weight:800;white-space:nowrap}
+.wordToken{white-space:pre}
+.editingLyrics .wordToken{cursor:pointer;border-bottom:1px dotted rgba(230,195,106,.55)}
+.editingLyrics .wordToken:hover{background:rgba(230,195,106,.12);border-radius:4px}
+.chordHelp{display:none;max-width:980px;margin:0 auto 12px;padding:10px 28px;color:#d2c49f;font-size:.95rem}
+.editing .chordHelp{display:block}
+.chordLegend{opacity:.8}
+@media(max-width:600px){.lineChordBtn{font-size:.48em}.chordHelp{padding-left:18px;padding-right:18px}.bar{flex-wrap:wrap}}
+@media(max-width:600px){.top{padding:14px}.grid{padding:12px}.title,.lyrics{padding-left:18px;padding-right:18px}.bar{padding:8px}}
+
+html{height:100%;background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-height:100%;min-height:-webkit-fill-available;overscroll-behavior-y:none;-webkit-overflow-scrolling:touch}
+button,input{-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
+button{min-height:44px;touch-action:manipulation}
+input{font-size:16px}
+.top{
+  padding-top:max(18px,env(safe-area-inset-top));
+  padding-left:max(20px,env(safe-area-inset-left));
+  padding-right:max(20px,env(safe-area-inset-right));
+  -webkit-backdrop-filter:blur(10px);
+}
+.view{
+  width:100%;
+  height:100vh;
+  min-height:-webkit-fill-available;
+  padding-bottom:env(safe-area-inset-bottom);
+  -webkit-overflow-scrolling:touch;
+}
+.bar{
+  padding-top:max(10px,env(safe-area-inset-top));
+  padding-left:max(14px,env(safe-area-inset-left));
+  padding-right:max(14px,env(safe-area-inset-right));
+  -webkit-backdrop-filter:blur(10px);
+}
+.songBtn,.bar button,.lineChordBtn{-webkit-user-select:none;user-select:none}
+.lyrics{-webkit-user-select:text;user-select:text}
+@supports(height:100dvh){.view{height:100dvh}}
+@media (orientation:portrait) and (min-width:700px){
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .title{font-size:3rem}
+  .lyrics{font-size:2rem}
+}
+@media (orientation:landscape) and (min-width:900px){
+  .grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .title{font-size:2.7rem}
+  .lyrics{font-size:1.75rem;max-width:1100px}
+}
+
+
+.chordModal{
+  position:fixed;inset:0;z-index:100000;display:none;
+  background:rgba(0,0,0,.72);padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+  align-items:center;justify-content:center;
+}
+.chordModal.on{display:flex}
+.chordPanel{
+  width:min(760px,96vw);max-height:88vh;overflow:auto;-webkit-overflow-scrolling:touch;
+  background:#111214;border:1px solid #3d3d43;border-radius:18px;padding:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55)
+}
+.chordPanel h2{margin:0 0 8px;font-size:1.35rem}
+.chordTarget{color:#cfcfcf;margin:0 0 14px;font-size:1rem}
+.chordCurrent{
+  min-height:52px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:10px 12px;border-radius:12px;background:#09090a;border:1px solid #2f2f34;
+  margin-bottom:14px;font-weight:800;color:#e6c36a;font-size:1.2rem
+}
+.chordGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:12px}
+.chordGrid button,.qualGrid button,.chordActions button{
+  min-height:48px;border-radius:12px;border:1px solid #3a3a40;background:#1a1b1f;color:#fff;
+  font-size:1.05rem;font-weight:700;padding:8px;touch-action:manipulation
+}
+.chordGrid button:active,.qualGrid button:active{background:#2a2b31}
+.chordGrid button.sel,.qualGrid button.sel{background:#e6c36a;color:#111;border-color:#e6c36a}
+.qualGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:8px 0 14px}
+.chordActions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;position:sticky;bottom:0;background:#111214;padding-top:10px}
+.chordActions .save{background:#e6c36a;color:#111;border-color:#e6c36a}
+.chordActions .danger{color:#ffb1b1;border-color:#6e3b3b}
+.chordHint{font-size:.9rem;color:#aaa;margin:0 0 8px}
+@media(max-width:520px){
+  .chordGrid,.qualGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .chordPanel{padding:14px}
+  .chordGrid button,.qualGrid button,.chordActions button{font-size:1rem}
+}
+
+
+.lyricEditBtn.active{background:#e6c36a!important;color:#111!important;border-color:#e6c36a!important}
+.lyricEditorModal{position:fixed;inset:0;z-index:120000;display:none;background:rgba(0,0,0,.78);padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));align-items:center;justify-content:center}
+.lyricEditorModal.on{display:flex}
+.lyricEditorPanel{width:min(980px,97vw);height:min(88vh,860px);display:flex;flex-direction:column;background:#111214;border:1px solid #3d3d43;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.lyricEditorHead{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #303036;background:#15161a;flex-wrap:wrap}
+.lyricEditorHead h2{margin:0;color:#e6c36a;font-size:1.3rem}.lyricEditorHead .spacer{flex:1}
+.lyricEditorBody{flex:1;min-height:0;padding:14px}
+#lyricEditorText{width:100%;height:100%;resize:none;background:#09090a;color:#fff;border:1px solid #35353b;border-radius:12px;padding:16px;font:600 1.2rem/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-appearance:none;appearance:none}
+.lyricEditorFoot{display:flex;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid #303036;background:#15161a;flex-wrap:wrap}
+.lyricEditorFoot .note{color:#aaa;font-size:.88rem;flex:1;min-width:220px}
+.lyricEditorFoot button{min-height:46px;border-radius:11px;border:1px solid #3a3a40;background:#1a1b1f;color:#fff;padding:8px 14px;font-weight:700}
+.lyricEditorFoot .save{background:#e6c36a;color:#111;border-color:#e6c36a}.lyricEditorFoot .danger{color:#ffb1b1;border-color:#6e3b3b}
+@media(max-width:600px){.lyricEditorPanel{height:94vh}#lyricEditorText{font-size:1.05rem}.lyricEditorHead h2{font-size:1.12rem}}
+
+
+.instrumentActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.instrumentActions button{
+  min-height:42px;border-radius:10px;border:1px solid #4d452b;background:#191712;color:#e6c36a;
+  padding:7px 12px;font-weight:800;touch-action:manipulation
+}
+.instrumentActions button.danger{color:#ffb1b1;border-color:#6e3b3b}
+.musicSection.selecting{outline:2px solid rgba(230,195,106,.35)}
+
+
+.appStatus{font-size:.78rem;color:#aaa;margin-top:4px}
+.appStatus.online{color:#a8d8a8}.appStatus.offline{color:#e6c36a}.appStatus.update{color:#ffd27a;font-weight:800}
+#appUpdateBtn{white-space:nowrap}
+.updateToast{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:150000;background:#17181b;color:#fff;border:1px solid #4a4a50;border-radius:14px;padding:11px 14px;display:none;align-items:center;gap:10px;max-width:min(92vw,620px);box-shadow:0 12px 40px rgba(0,0,0,.45)}
+.updateToast.on{display:flex}.updateToast button{min-height:42px;border-radius:10px;border:1px solid #e6c36a;background:#e6c36a;color:#111;font-weight:800;padding:7px 12px}
+
+
+.newSongBtn{margin-top:10px;min-height:44px;border-radius:11px;border:1px solid #4a432b;background:#17150f;color:#e6c36a;padding:8px 13px;font-weight:800}
+.newSongModal{position:fixed;inset:0;z-index:160000;display:none;background:rgba(0,0,0,.8);padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));align-items:center;justify-content:center}
+.newSongModal.on{display:flex}
+.newSongPanel{width:min(900px,97vw);max-height:92vh;display:flex;flex-direction:column;background:#111214;border:1px solid #3b3b41;border-radius:18px;overflow:hidden}
+.newSongHead{padding:14px 16px;border-bottom:1px solid #303036;color:#e6c36a;font-weight:900;font-size:1.25rem}
+.newSongBody{padding:14px;overflow:auto;-webkit-overflow-scrolling:touch}
+.newSongBody label{display:block;color:#ccc;font-weight:800;margin:8px 0 6px}
+.newSongBody input,.newSongBody textarea{width:100%;font-size:16px;background:#09090a;color:#fff;border:1px solid #35353b;border-radius:11px;padding:12px}
+.newSongBody textarea{min-height:320px;resize:vertical;font:600 1.1rem/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-transform:uppercase}
+.newSongActions{display:flex;gap:10px;justify-content:flex-end;padding:12px 14px;border-top:1px solid #303036;flex-wrap:wrap}
+.newSongActions button{min-height:46px;border-radius:11px;border:1px solid #3a3a40;background:#1a1b1f;color:#fff;padding:8px 14px;font-weight:800}
+.newSongActions .save{background:#e6c36a;color:#111;border-color:#e6c36a}
+
+
+.wordToken{text-transform:uppercase}
+#lyricEditorText{text-transform:uppercase}
+
+
+/* v10 · iPadOS 16.7.16 */
+.view .bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  white-space:nowrap;
+  padding-bottom:10px;
+}
+.view .bar::-webkit-scrollbar{display:none}
+.view .bar button{
+  flex:0 0 auto;
+  min-height:44px;
+  padding:8px 12px;
+}
+.view .bar .spacer{
+  flex:1 0 12px;
+  min-width:12px;
+}
+@media (max-width:1024px){
+  .view .bar{
+    position:sticky;
+    top:0;
+    z-index:50;
+    padding-left:max(10px,env(safe-area-inset-left));
+    padding-right:max(10px,env(safe-area-inset-right));
+  }
+  .view .bar button{
+    font-size:.96rem;
+    padding:8px 11px;
+  }
+}
+@media (max-width:820px){
+  .view .bar button{
+    font-size:.9rem;
+    padding:7px 10px;
+  }
+}
+
+
+/* v11 · títulos más compactos */
+.brand{font-size:.95rem;line-height:1.15}
+.songBtn{font-size:.96rem;padding:13px 14px}
+.title{
+  font-size:clamp(1.45rem,3.5vw,2.55rem)!important;
+  line-height:1.08!important;
+  margin:26px auto 16px!important;
+  padding:0 22px!important;
+}
+.lyricEditorHead h2{font-size:1.08rem!important}
+.newSongHead{font-size:1.08rem!important}
+#chordModalTitle{font-size:1.12rem!important}
+@media (max-width:1024px){
+  .brand{font-size:.86rem}
+  .title{
+    font-size:clamp(1.35rem,4.2vw,2.05rem)!important;
+    margin:20px auto 12px!important;
+    padding:0 18px!important;
+  }
+  .songBtn{font-size:.9rem;padding:12px 13px}
+}
+@media (max-width:820px){
+  .title{
+    font-size:clamp(1.25rem,4.8vw,1.8rem)!important;
+    margin:16px auto 10px!important;
+  }
+}
+
+
+/* v12 · Editor de canción optimizado para iPad/iPadOS 16 */
+.lyricEditorModal{
+  overflow:hidden!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  padding:
+    max(8px,env(safe-area-inset-top))
+    max(8px,env(safe-area-inset-right))
+    max(8px,env(safe-area-inset-bottom))
+    max(8px,env(safe-area-inset-left))!important;
+}
+.lyricEditorPanel{
+  width:min(980px,100%)!important;
+  height:100%!important;
+  max-height:100%!important;
+  margin:0 auto!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+.lyricEditorHead{
+  flex:0 0 auto!important;
+}
+.lyricEditorBody{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain;
+}
+#lyricEditorText{
+  height:auto!important;
+  min-height:420px!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.lyricEditorFoot{
+  flex:0 0 auto!important;
+  position:sticky!important;
+  bottom:0!important;
+  z-index:10!important;
+  background:#15161a!important;
+  padding-bottom:max(12px,env(safe-area-inset-bottom))!important;
+}
+@media (max-width:1024px){
+  .lyricEditorHead{
+    padding:10px 12px!important;
+  }
+  .lyricEditorBody{
+    padding:10px 12px!important;
+  }
+  #lyricEditorText{
+    min-height:360px!important;
+    font-size:1rem!important;
+    line-height:1.45!important;
+  }
+  .lyricEditorFoot{
+    padding:10px 12px max(10px,env(safe-area-inset-bottom))!important;
+    gap:8px!important;
+  }
+  .lyricEditorFoot .note{
+    display:none!important;
+  }
+  .lyricEditorFoot button{
+    min-height:44px!important;
+    flex:1 1 auto!important;
+  }
+}
+@media (max-width:820px){
+  .lyricEditorPanel{
+    border-radius:12px!important;
+  }
+  #lyricEditorText{
+    min-height:320px!important;
+  }
+}
+
+
+/* v13 · Auto-scroll */
+.autoScrollSpeedWrap{
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:44px;
+  padding:6px 10px;
+  border:1px solid #34343a;
+  border-radius:11px;
+  background:#15161a;
+  color:#d7d7d7;
+  font-size:.88rem;
+  font-weight:700;
+}
+#autoScrollSpeed{
+  width:120px;
+  accent-color:#e6c36a;
+}
+#autoScrollSpeedValue{
+  min-width:18px;
+  text-align:center;
+  color:#e6c36a;
+  font-weight:900;
+}
+#autoScrollBtn.active{
+  background:#e6c36a!important;
+  color:#111!important;
+  border-color:#e6c36a!important;
+}
+@media (max-width:1024px){
+  .autoScrollSpeedWrap{
+    padding:5px 8px;
+    font-size:.82rem;
+  }
+  #autoScrollSpeed{width:105px}
+}
+@media (max-width:820px){
+  .autoScrollSpeedWrap{
+    min-height:42px;
+  }
+  #autoScrollSpeed{width:92px}
+}
+
+
+/* v14 · botón Scroll visible y funcional */
+#autoScrollBtn{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  min-width:96px;
+  min-height:44px;
+  flex:0 0 auto;
+  border:1px solid #5b5031;
+  background:#1a1812;
+  color:#e6c36a;
+  font-weight:900;
+}
+#autoScrollBtn.active{
+  background:#e6c36a!important;
+  color:#111!important;
+  border-color:#e6c36a!important;
+}
+
+
+/* v20 · Tema claro / oscuro */
+body.lightTheme{
+  --bg:#f4f1e8;
+  --fg:#171717;
+  --panel:#ffffff;
+  --muted:#6b675f;
+  --accent:#9a7418;
+}
+body.lightTheme{
+  background:var(--bg);
+  color:var(--fg);
+}
+body.lightTheme .top,
+body.lightTheme .bar{
+  background:rgba(244,241,232,.97)!important;
+  border-color:#d8d1c0!important;
+}
+body.lightTheme .songBtn,
+body.lightTheme .bar button,
+body.lightTheme .sectionTool,
+body.lightTheme .newSongBtn,
+body.lightTheme .autoScrollSpeedWrap,
+body.lightTheme .musicSection,
+body.lightTheme .lyricEditorPanel,
+body.lightTheme .lyricEditorHead,
+body.lightTheme .lyricEditorFoot,
+body.lightTheme .newSongPanel{
+  background:#fff!important;
+  color:#1b1b1b!important;
+  border-color:#d0c8b6!important;
+}
+body.lightTheme .songBtn:hover{
+  border-color:var(--accent)!important;
+}
+body.lightTheme .search,
+body.lightTheme #lyricEditorText,
+body.lightTheme #lyricEditorSongTitle,
+body.lightTheme #newSongTitle,
+body.lightTheme #newSongLyrics{
+  background:#fff!important;
+  color:#171717!important;
+  border-color:#cfc6b3!important;
+}
+body.lightTheme .title,
+body.lightTheme .musicSectionTitle,
+body.lightTheme .lineChord,
+body.lightTheme .wordChord,
+body.lightTheme #autoScrollSpeedValue{
+  color:var(--accent)!important;
+}
+body.lightTheme .chordHelp,
+body.lightTheme .placingNote,
+body.lightTheme .count,
+body.lightTheme .appStatus{
+  color:#6b675f!important;
+}
+body.lightTheme .view{
+  background:var(--bg)!important;
+}
+body.lightTheme .updateToast{
+  background:#fff!important;
+  color:#171717!important;
+  border-color:#d0c8b6!important;
+}
+
+
+/* v21 · Slider de velocidad visible en iPad/Safari */
+#autoScrollSpeed{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  width:120px;
+  height:8px;
+  border-radius:999px;
+  background:#3b3525!important;
+  outline:none;
+}
+#autoScrollSpeed::-webkit-slider-runnable-track{
+  height:8px;
+  border-radius:999px;
+  background:#3b3525;
+  border:1px solid #5c5030;
+}
+#autoScrollSpeed::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#e6c36a;
+  border:2px solid #f2d77f;
+  margin-top:-7px;
+  box-shadow:0 0 0 1px rgba(0,0,0,.25);
+}
+#autoScrollSpeed::-moz-range-track{
+  height:8px;
+  border-radius:999px;
+  background:#3b3525;
+  border:1px solid #5c5030;
+}
+#autoScrollSpeed::-moz-range-thumb{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:#e6c36a;
+  border:2px solid #f2d77f;
+}
+body.lightTheme #autoScrollSpeed{
+  background:#d9cfb8!important;
+}
+body.lightTheme #autoScrollSpeed::-webkit-slider-runnable-track{
+  background:#d9cfb8;
+  border-color:#b9aa86;
+}
+body.lightTheme #autoScrollSpeed::-webkit-slider-thumb{
+  background:#9a7418;
+  border-color:#b58b25;
+}
+
+
+/* v22 · modo offline reforzado */
+.offlineBadge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid #5b5031;
+  color:#e6c36a;
+  background:#17150f;
+  font-size:.78rem;
+  font-weight:800;
+}
+body.lightTheme .offlineBadge{
+  background:#fff8e2;
+  color:#8a6817;
+  border-color:#c9b371;
+}
+
+
+/* v24 · Copia de seguridad y actuación visible */
+.backupModal{
+  position:fixed;inset:0;z-index:170000;display:none;
+  background:rgba(0,0,0,.78);padding:12px;
+  align-items:center;justify-content:center
+}
+.backupModal.on{display:flex}
+.backupPanel{
+  width:min(560px,96vw);background:#111214;color:#fff;
+  border:1px solid #3b3b41;border-radius:16px;overflow:hidden
+}
+.backupHead{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid #303036
+}
+.backupHead strong{flex:1;color:#e6c36a}
+.backupHead button,.backupBody button,.importLabel{
+  min-height:44px;border-radius:10px;border:1px solid #3a3a40;
+  background:#1a1b1f;color:#fff;padding:9px 13px;font-weight:800
+}
+.backupBody{padding:16px;display:grid;gap:12px}
+.importLabel{display:flex;align-items:center;justify-content:center;cursor:pointer}
+.importLabel input{display:none}
+#backupStatus{min-height:1.4em;color:#e6c36a;font-weight:700}
+body.lightTheme .backupPanel{background:#fff;color:#171717;border-color:#d0c8b6}
+body.lightTheme .backupHead{border-color:#d0c8b6}
+body.lightTheme .backupHead button,
+body.lightTheme .backupBody button,
+body.lightTheme .importLabel{background:#fff;color:#171717;border-color:#d0c8b6}
+
+
+/* v25 · Panel Ajustes */
+.settingsModal{
+  position:fixed;inset:0;z-index:175000;display:none;
+  background:rgba(0,0,0,.76);padding:12px;
+  align-items:center;justify-content:center
+}
+.settingsModal.on{display:flex}
+.settingsPanel{
+  width:min(720px,96vw);
+  max-height:92vh;
+  display:flex;flex-direction:column;
+  background:#111214;color:#fff;
+  border:1px solid #3b3b41;border-radius:18px;overflow:hidden
+}
+.settingsHead{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-bottom:1px solid #303036
+}
+.settingsHead strong{flex:1;color:#e6c36a;font-size:1.05rem;letter-spacing:.05em}
+.settingsHead button,
+.settingsGrid button,
+.settingsScrollRow button{
+  min-height:44px;border-radius:10px;border:1px solid #3a3a40;
+  background:#1a1b1f;color:#fff;padding:9px 13px;font-weight:800
+}
+.settingsBody{
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:14px
+}
+.settingsGroup{padding:2px 0 14px}
+.settingsGroup h3{
+  margin:4px 0 10px;color:#e6c36a;font-size:.95rem
+}
+.settingsGrid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px
+}
+.settingsGrid .danger{color:#ffb1b1;border-color:#6e3b3b}
+.settingsScrollRow{
+  display:grid;
+  grid-template-columns:auto auto minmax(120px,1fr) auto auto;
+  gap:9px;align-items:center
+}
+#settingsSpeed{
+  width:100%;
+  -webkit-appearance:none;appearance:none;
+  height:8px;border-radius:999px;background:#3b3525
+}
+#settingsSpeed::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:20px;height:20px;border-radius:50%;
+  background:#e6c36a;border:2px solid #f2d77f
+}
+#settingsSpeedValue{color:#e6c36a;font-weight:900;min-width:20px;text-align:center}
+body.lightTheme .settingsPanel{background:#fff;color:#171717;border-color:#d0c8b6}
+body.lightTheme .settingsHead{border-color:#d0c8b6}
+body.lightTheme .settingsHead button,
+body.lightTheme .settingsGrid button,
+body.lightTheme .settingsScrollRow button{
+  background:#fff;color:#171717;border-color:#d0c8b6
+}
+@media(max-width:700px){
+  .settingsGrid{grid-template-columns:1fr}
+  .settingsScrollRow{
+    grid-template-columns:1fr 1fr;
+  }
+  .settingsScrollRow label{grid-column:1}
+  #settingsSpeed{grid-column:1 / span 2}
+}
+
+.settingsPanel button:disabled{opacity:.4;cursor:not-allowed}
+
+/* v28 · Ajustes siempre visible */
+#settingsBtn,
+#settingsIndexBtn{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+
+/* v29 · Pases */
+.passSelectionBar{
+  display:none;
+  position:sticky;
+  top:0;
+  z-index:12;
+  align-items:center;
+  gap:10px;
+  padding:10px 18px;
+  background:#15161a;
+  border-bottom:1px solid #3a3a40;
+}
+.passSelectionBar.on{display:flex}
+.passSelectionBar strong{color:#e6c36a}
+.passSelectionBar span{color:#c9c9c9;flex:1}
+.passSelectionBar button,
+.passHead button,
+.passActions button,
+.passDetailTop button,
+.passRow button,
+.passSongRow button{
+  min-height:44px;
+  border-radius:10px;
+  border:1px solid #3a3a40;
+  background:#1a1b1f;
+  color:#fff;
+  padding:8px 12px;
+  font-weight:800;
+}
+.passSelectionBar .primary,
+.passActions .primary,
+.passDetailTop .primary{
+  background:#e6c36a!important;
+  color:#111!important;
+  border-color:#e6c36a!important;
+}
+.passModal{
+  position:fixed;inset:0;z-index:180000;display:none;
+  background:rgba(0,0,0,.78);
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right))
+          max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  align-items:center;justify-content:center
+}
+.passModal.on{display:flex}
+.passPanel{
+  width:min(760px,97vw);
+  max-height:92vh;
+  display:flex;flex-direction:column;
+  background:#111214;color:#fff;
+  border:1px solid #3b3b41;border-radius:18px;overflow:hidden
+}
+.passPanel.small{width:min(520px,96vw)}
+.passHead{
+  display:flex;gap:12px;align-items:center;
+  padding:14px 16px;border-bottom:1px solid #303036
+}
+.passHead strong{flex:1;color:#e6c36a}
+.passBody{padding:16px}
+.passBody label{display:block;font-weight:800;margin:0 0 7px;color:#d6d6d6}
+.passBody input{
+  width:100%;box-sizing:border-box;
+  min-height:46px;padding:10px 12px;
+  border-radius:10px;border:1px solid #3a3a40;
+  background:#09090a;color:#fff;font-size:16px;text-transform:uppercase
+}
+.passActions{display:flex;justify-content:flex-end;gap:9px;margin-top:14px}
+.passesList,.passDetailSongs{
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:12px
+}
+.passRow{
+  display:flex;align-items:center;gap:10px;
+  border:1px solid #2f3035;background:#17181b;
+  border-radius:12px;padding:10px;margin-bottom:9px
+}
+.passRowMain{flex:1;min-width:0}
+.passRowTitle{font-weight:900;color:#fff}
+.passRowMeta{font-size:.84rem;color:#aaa;margin-top:3px}
+.passDetailTop{
+  display:flex;gap:9px;flex-wrap:wrap;
+  padding:12px;border-bottom:1px solid #303036
+}
+.passDetailTop .danger{color:#ffb1b1;border-color:#6e3b3b}
+.passSongRow{
+  display:grid;
+  grid-template-columns:44px 1fr auto auto auto;
+  gap:8px;align-items:center;
+  border-bottom:1px solid #292a2e;
+  padding:8px 0
+}
+.passOrder{
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#e6c36a;color:#111;font-weight:900
+}
+.passSongTitle{font-weight:800;min-width:0}
+.songBtn.passSelecting{
+  position:relative;
+  padding-right:56px!important;
+}
+.songBtn.passSelected{
+  border-color:#e6c36a!important;
+  box-shadow:inset 0 0 0 1px #e6c36a;
+}
+.passOrderBadge{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#e6c36a;color:#111;font-weight:900
+}
+.passActiveBadge{
+  display:inline-flex;align-items:center;gap:6px;
+  color:#e6c36a;font-weight:800;font-size:.84rem;
+  margin-left:8px
+}
+body.lightTheme .passSelectionBar,
+body.lightTheme .passPanel,
+body.lightTheme .passRow{
+  background:#fff;color:#171717;border-color:#d0c8b6
+}
+body.lightTheme .passRowTitle,
+body.lightTheme .passBody input,
+body.lightTheme .passSongTitle{color:#171717}
+body.lightTheme .passBody input{background:#fff;border-color:#d0c8b6}
+@media(max-width:700px){
+  .passSelectionBar{flex-wrap:wrap;padding:9px 10px}
+  .passSelectionBar span{flex:1 0 100%}
+  .passSongRow{grid-template-columns:38px 1fr auto auto}
+  .passSongRow .removeSongBtn{grid-column:2 / span 3}
+}
+
+
+/* v30 · Slider de scroll siempre visible junto a Iniciar */
+#autoScrollSpeedWrap{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
+
+/* v31 · Sincronización Cloudflare D1 */
+.cloudSyncBox{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:12px;
+  align-items:center;
+  border:1px solid #34343a;
+  background:#17181b;
+  border-radius:12px;
+  padding:12px;
+}
+.cloudSyncBox strong{color:#e6c36a}
+.cloudSyncDetail{margin-top:4px;color:#aaa;font-size:.84rem;line-height:1.35}
+.cloudSyncBox button{
+  min-height:44px;border-radius:10px;border:1px solid #5b5031;
+  background:#1a1812;color:#e6c36a;padding:9px 13px;font-weight:900
+}
+body.lightTheme .cloudSyncBox{
+  background:#fff;border-color:#d0c8b6
+}
+body.lightTheme .cloudSyncDetail{color:#6b675f}
+@media(max-width:700px){
+  .cloudSyncBox{grid-template-columns:1fr}
+}
+
+</style>
+<link rel="manifest" href="manifest.webmanifest?v=32">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
+<meta name="application-name" content="El Quinto Elemento">
+
+
+<style id="v3-styles">
+.sectionTool{display:none}
+.editing .sectionTool{display:inline-block}
+.lineEditBtn{display:none;flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;border-radius:10px;border:1px dashed #665733;background:#17171b;color:#e6c36a;font-size:1.05rem;align-items:center;justify-content:center}
+.editingLyrics .lineEditBtn{display:flex}
+.musicSection{max-width:980px;margin:10px auto 18px;border:1px solid #4b432f;border-radius:14px;background:#11110f;padding:12px 14px}
+.musicSection.editable{cursor:pointer}
+.musicSection.editable:active{background:#18160f}
+.musicSectionTitle{font-size:.82rem;font-weight:900;letter-spacing:.12em;color:#e6c36a;margin-bottom:8px}
+.musicSectionChords{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.musicChordChip{display:inline-flex;align-items:center;min-height:34px;padding:5px 10px;border-radius:9px;background:#1d1b14;border:1px solid #5c5030;color:#f3d57c;font-weight:900;font-size:1rem}
+.instrumentSlot{display:none;max-width:980px;margin:7px auto;border:1px dashe<div id="saveToast" style="position:fixed;right:16px;bottom:16px;z-index:180000;display:none;background:#17181b;color:#e6c36a;border:1px solid #5b5031;border-radius:10px;padding:9px 12px;font-weight:800">✓ Cambios guardados</div>d #5c5030;border-radius:10px;background:transparent;color:#e6c36a;min-height:42px;width:calc(100% - 24px);cursor:pointer}
+.placingInstrumental .instrumentSlot{display:block}
+.placingNote{display:none;color:#d8c995;max-width:980px;margin:8px auto 12px;padding:0 6px;font-size:.92rem}
+.placingInstrumental .placingNote{display:block}
+.lineChord.clickable{cursor:pointer;border-bottom:1px dashed rgba(230,195,106,.5);padding-bottom:2px}
+.chordCurrent{gap:7px}
+.currentChip{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:9px;background:#211e15;border:1px solid #5c5030;color:#f3d57c;font-weight:900}
+.currentChip button{min-height:26px;width:26px;padding:0;border:0;border-radius:50%;background:#3c3021;color:#fff;font-size:1rem}
+.addChordBtn{display:none;width:100%;margin:0 0 12px;min-height:48px;border-radius:12px;border:1px solid #685b36;background:#242015;color:#e6c36a;font-weight:900;font-size:1rem}
+.sequenceMode .addChordBtn{display:block}
+.chordHint strong{color:#e6c36a}
+@media(max-width:700px){.musicSection{margin-left:10px;margin-right:10px}.lineEditBtn{flex-basis:42px;width:42px;height:42px}}
+</style>
+
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+</head><body>
+
+<div id="passNameModal" class="passModal" aria-hidden="true">
+  <div class="passPanel small">
+    <div class="passHead"><strong>Guardar pase</strong><button id="passNameClose" type="button">Cerrar</button></div>
+    <div class="passBody">
+      <label for="passNameInput">Nombre del pase</label>
+      <input id="passNameInput" type="text" maxlength="60" placeholder="EJ. PASE 1 · VERBENA">
+      <div class="passActions">
+        <button id="passNameCancel" type="button">Cancelar</button>
+        <button id="passNameSave" type="button" class="primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="passesModal" class="passModal" aria-hidden="true">
+  <div class="passPanel">
+    <div class="passHead"><strong>PASES</strong><button id="passesClose" type="button">Cerrar</button></div>
+    <div id="passesList" class="passesList"></div>
+  </div>
+</div>
+
+<div id="passDetailModal" class="passModal" aria-hidden="true">
+  <div class="passPanel">
+    <div class="passHead">
+      <strong id="passDetailTitle">PASE</strong>
+      <button id="passDetailClose" type="button">Cerrar</button>
+    </div>
+    <div class="passDetailTop">
+      <button id="startPassBtn" type="button" class="primary">▶ Empezar pase</button>
+      <button id="renamePassBtn" type="button">✎ Renombrar</button>
+      <button id="deletePassBtn" type="button" class="danger">Eliminar pase</button>
+    </div>
+    <div id="passDetailSongs" class="passDetailSongs"></div>
+  </div>
+</div>
+
+
+
+<div id="settingsModal" class="settingsModal" aria-hidden="true">
+  <div class="settingsPanel">
+    <div class="settingsHead">
+      <strong>AJUSTES</strong>
+      <button id="settingsClose" type="button">Cerrar</button>
+    </div>
+    <div class="settingsBody">
+      <section class="settingsGroup">
+        <h3>Edición</h3>
+        <div class="settingsGrid">
+          <button id="settingsChordMode" type="button">♫ Acordes</button>
+          <button id="settingsEditLyrics" type="button">✎ Editar canción</button>
+          <button id="settingsIntro" type="button">＋ Intro</button>
+          <button id="settingsInstrumental" type="button">＋ Instrumental</button>
+          <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Visualización</h3>
+        <div class="settingsGrid">
+          <button id="settingsTheme" type="button">☀ Tema claro</button>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Scroll</h3>
+        <div class="settingsScrollRow">
+          <button id="settingsScrollToggle" type="button">▶ Iniciar</button>
+          <label for="settingsSpeed">Velocidad</label>
+          <input id="settingsSpeed" type="range" min="1" max="10" step="1" value="5">
+          <span id="settingsSpeedValue">5</span>
+          <button id="settingsScrollReset" type="button">↺ Reiniciar</button>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Sincronización</h3>
+        <div class="cloudSyncBox">
+          <div>
+            <strong id="cloudSyncStatus">☁ Preparando sincronización…</strong>
+            <div id="cloudSyncDetail" class="cloudSyncDetail">Los cambios se sincronizarán entre Mac e iPads cuando haya internet.</div>
+          </div>
+          <button id="cloudSyncNow" type="button">☁ Sincronizar ahora</button>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>App</h3>
+        <div class="settingsGrid">
+          <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
+          <button id="settingsBackup" type="button">💾 Copia / Importar</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="backupModal" class="backupModal" aria-hidden="true">
+  <div class="backupPanel">
+    <div class="backupHead">
+      <strong>Copia de seguridad</strong>
+      <button id="backupClose" type="button">Cerrar</button>
+    </div>
+    <div class="backupBody">
+      <p>Exporta todos los cambios de este iPad e impórtalos en otro dispositivo.</p>
+      <button id="exportDataBtn" type="button">⬇ Exportar datos</button>
+      <label class="importLabel">
+        ⬆ Importar datos
+        <input id="importDataInput" type="file" accept="application/json,.json">
+      </label>
+      <div id="backupStatus"></div>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="newSongModal" class="newSongModal" aria-hidden="true">
+  <div class="newSongPanel">
+    <div class="newSongHead">Nueva canción</div>
+    <div class="newSongBody">
+      <label for="newSongTitle">Título</label>
+      <input id="newSongTitle" type="text" autocomplete="off" placeholder="TÍTULO DE LA CANCIÓN">
+      <label for="newSongLyrics">Letra</label>
+      <textarea id="newSongLyrics" spellcheck="true" placeholder="PEGA O ESCRIBE AQUÍ LA LETRA"></textarea>
+    </div>
+    <div class="newSongActions">
+      <button id="newSongCancel" type="button">Cancelar</button>
+      <button id="newSongSave" class="save" type="button">Guardar canción</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="updateToast" class="updateToast">
+  <span id="updateToastText">Hay una nueva versión disponible.</span>
+  <button id="updateNowBtn" type="button">Actualizar ahora</button>
+</div>
+
+
+
+<div id="lyricEditorModal" class="lyricEditorModal" aria-hidden="true">
+  <div class="lyricEditorPanel" role="dialog" aria-modal="true" aria-labelledby="lyricEditorTitle">
+    <div class="lyricEditorHead"><h2 id="lyricEditorTitle">Editar letra</h2><span class="spacer"></span><button id="lyricEditorCancel" type="button">Cancelar</button></div>
+    <div class="lyricEditorBody">
+      <label for="lyricEditorSongTitle" style="display:block;color:#cfcfcf;font-weight:800;margin:0 0 6px">Título</label>
+      <input id="lyricEditorSongTitle" type="text" autocomplete="off" style="width:100%;font-size:16px;background:#09090a;color:#fff;border:1px solid #35353b;border-radius:11px;padding:12px;margin-bottom:12px;text-transform:uppercase">
+      <label for="lyricEditorText" style="display:block;color:#cfcfcf;font-weight:800;margin:0 0 6px">Letra</label>
+      <textarea id="lyricEditorText" spellcheck="true" autocapitalize="sentences"></textarea>
+    </div>
+    <div class="lyricEditorFoot">
+      <div class="note">Los cambios se guardan en este dispositivo. Se conservan los acordes siempre que sea posible.</div>
+      <button id="lyricEditorRestore" class="danger" type="button">Restaurar original</button>
+      <button id="lyricEditorSave" class="save" type="button">Guardar letra</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="chordModal" class="chordModal" aria-hidden="true">
+  <div id="chordPanel" class="chordPanel" role="dialog" aria-modal="true" aria-labelledby="chordModalTitle">
+    <h2 id="chordModalTitle">Editar acorde</h2>
+    <div id="chordTarget" class="chordTarget"></div>
+    <div id="chordCurrent" class="chordCurrent">—</div>
+    <p class="chordHint">Elige <strong>nota</strong> y <strong>tipo</strong>. En INTRO, INSTRUMENTAL y línea puedes añadir tantos acordes como necesites.</p>
+    <div id="rootGrid" class="chordGrid"></div>
+    <div id="qualGrid" class="qualGrid"></div>
+    <button id="addChord" class="addChordBtn" type="button">＋ Añadir acorde a la secuencia</button>
+    <div class="chordActions">
+      <button id="chordDelete" class="danger" type="button">Borrar</button>
+      <button id="chordCancel" type="button">Cancelar</button>
+      <button id="chordSave" class="save" type="button">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<section id="index">
+  <div class="top">
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v32</span></div>
+    <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
+    <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
+  </div>
+  
+<div id="passSelectionBar" class="passSelectionBar" aria-hidden="true">
+  <strong>CREANDO PASE</strong>
+  <span id="passSelectionCount">0 canciones</span>
+  <button id="cancelPassSelection" type="button">Cancelar</button>
+  <button id="savePassSelection" type="button" class="primary">Guardar pase</button>
+</div>
+<div id="grid" class="grid"></div>
+</section>
+
+<section id="view" class="view">
+  <div class="bar">
+    <button id="back">← Índice</button>
+    <button id="prev">‹</button>
+    <button id="next">›</button>
+    <button id="settingsBtn" class="sectionTool">⚙ Ajustes</button>
+    <button id="chordMode" class="chordBtn" style="display:none">♫ Acordes</button>
+    <button id="introTool" class="sectionTool" style="display:none">＋ Intro</button>
+    <button id="instrumentTool" class="sectionTool" style="display:none">＋ Instrumental</button>
+    <button id="clearChords" class="clearChordBtn" style="display:none">Borrar acordes</button><button id="editLyrics" class="lyricEditBtn" style="display:none">✎ Editar letra</button>
+    <button id="autoScrollBtn" class="sectionTool">▶ Scroll</button>
+    <label id="autoScrollSpeedWrap" class="autoScrollSpeedWrap" for="autoScrollSpeed">
+      Velocidad
+      <input id="autoScrollSpeed" type="range" min="1" max="10" step="1" value="4" aria-label="Velocidad de scroll automático">
+      <span id="autoScrollSpeedValue">4</span>
+    </label><button id="appUpdateBtn" class="sectionTool" style="display:none">⟳ Actualizar app</button><button id="themeToggleView" class="sectionTool" style="display:none">☀ Tema claro</button>
+    <span class="spacer"></span>
+    <button id="minus">A−</button><button id="plus">A+</button>
+  </div>
+  <h1 id="st" class="title"></h1>
+  <div class="chordHelp"><b>Edición de acordes:</b> toca una palabra para poner un acorde. Usa <b>♫</b> para acordes de toda una línea. <b>Intro</b> crea una cabecera musical y <b>Instrumental</b> permite insertar una sección entre dos líneas. Todos los acordes pueden volver a editarse. Los instrumentales también se pueden mover, duplicar o eliminar.</div>
+  <div class="placingNote">Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.</div>
+  <div id="ly" class="lyrics"></div>
+</section>
+
+<script>
+let songs=[{"title": "20 DE ABRIL", "text": "DE ABRIL\nCELTAS CORTOS\nDE ABRIL DEL 90\nHOLA CHATA, ¿COMO ESTÁS?\n¿TE SORPRENDE QUE TE ESCRIBA?\nTANTO TIEMPO ES NORMAL\nPUES ES QUE ESTABA AQUI SOLO\nME HABIA PUESTO A RECORDAR\nME ENTRÓ LA MELANCOLÍA\nY TE TENÍA QUE HABLAR\n¿RECUERDAS AQUELLA NOCHE EN LA CABAÑA DEL TURMO,\nLAS RISAS QUE NOS HACÍAMOS ANTES TODOS JUNTOS?\nHOY NO QUEDA CASI NADIE DE LOS DE ANTES,\nY LOS QUE HAY HAN CAMBIADO, HAN CAMBIADO, SÍ.\nPERO BUENO, ¿TÚ QUÉ TAL? DI.\nLO MISMO HASTA TIENES CRIOS.\n¿QUÉ TAL TE VA CON EL TÍO ESE?\nESPERO SEA DIVERTIDO.\nYO, LA VERDAD, COMO SIEMPRE,\nSIGO CURRANDO EN LO MISMO.\nMÚSICA NO ME CANSA,\nPERO ME ENCUENTRO VACÍO.\n¿RECUERDAS AQUELLA NOCHE EN LA CABAÑA DEL TURMO,\nLAS RISAS QUE NOS HACÍAMOS ANTES TODOS JUNTOS?\nHOY NO QUEDA CASI NADIE DE LOS DE ANTES,\nY LOS QUE HAY HAN CAMBIADO, HAN CAMBIADO, SÍ.\nBUENO, PUES YA ME DESPIDO,\nTE MOLA ME CONTESTAS.\nESPERO QUE MIS PALABRAS\nDESORDENEN TU CONCIENCIA.\nPUES NADA, CHICA, LO DICHO,\nHASTA PRONTO SI NOS VEMOS.\nYO SIGO CON MIS CANCIONES\nY TÚ SIGUES CON TUS SUEÑOS.\n¿RECUERDAS AQUELLA NOCHE EN LA CABAÑA DE..."}, {"title": "A LA LUZ DEL LORENZO", "text": "LUZ DEL LORENZO\nLOS DELINQUENTES\nILLO DE LOCO\nEADGBE\nX5453X O X57575\nX6564X O X68686\nSI7* X24242\nMI7* 020100\nTO EL MUNDO VA DEL CUENTO DE YO ME LO PAGO, YO ME LO INVEN\nY ME PARECE COSA DE CARAJOTE\nCOSA DE CARAJOTE POR ESO HE DECIDIO YO QUITARME\nLAS MIGAS DEL BIGOTE\nY A LA LUZ DEL LORENZO YO DESAYUNO A LO FRESCO\nUNA TOSTÁ CON MERMELÁ\nSON LAS TRES DE LA TARDE Y NO QUIERO NI ACOSTARME\nCANIJO TÚ QUE QUIERES, QUIERO INVITARTE\nYO QUIERO INVITARTE A UN HUEVO DURO\nY A UNA RODAJA QUE DE TOMATE\nTÚ SÓLO QUIERES QUERERME CUANDO TU QUIERAS\nSI7* MI7*\nCUANDO HUELES LOS NARANJOS Y LA SANGRE SE TE ALTERA\nTÚ SÓLO QUIERES QUERERME EN PRIMAVERA\nSI7* MI7*\nPERO YO NO SOY PINOCHO QUE EL CORAZÓN TIENE DE MADERA\nVINO PAPÁ NOEL LA NOCHE DE NOCHEBUENA\nY ME DEJÓ UN REGALITO JUNTO A LA CANDELA\nCUANDO YO LO VI ENSEGUIDA LO ABRÍ\nY VI QUE ERA UNA PLANTA DE HIERBABUENA\nHIERBABUENA PAL PUCHERO, HIERBABUENA PA LA BERZA\nHIERBABUENA YO TE MERIENDO, HIERBABUENA PA LA CENA\nLOS AIRES SON SUSPIROS QUE VIENEN DE MI MACETA\nFLOR DE NARANJA ME TRAE POR ESTA CUENTA\nTU SÓLO QUIERES QUERERME CUANDO TU QUIERAS\nSI7* MI7*\nCUANDO HUELES LOS NARANJOS Y LA SANGRE SE TE ALTERA\nTU SÓLO QUIERES QUERERME EN PRIMAVERA\nSI7* MI7*\nPERO YO NO SOY PINOCHO QUE EL CORAZÓN TIENE DE MADERA\nCANIJO!!\nTÚ SÓLO QUIERES QUERERME CUANDO TU QUIERAS\nSI7* MI7*\nCUANDO HUELES LOS NARANJOS Y LA SANGRE SE TE ALTERA\nTÚ SÓLO QUIERES QUERERME EN PRIMAVERA\nSI7* MI7*\nPERO YO NO SOY PINOCHO QUE EL CORAZÓN TIENE DE MADERA"}, {"title": "AFRICANOS EN MADRID", "text": "ESTA CANCIÓN ESTÁ EN C# PARA MAYOR FACIILIDAD\n- SOL - LAM - DO - SOL - FA - SOL\n- SOL - LAM - DO - SOL - FA - SOL\nNOCHE SE VUELVE DE ESPARTO CUANDO LLEGA LA DESPEDIDA\nHAY UN HUECO A MEDIDA PARA EL POLIZONTE\nSE MARCHÓ LEJOS DE SU CASA CON EL CORAZÓN EN RODAJE\nCAMBIO DE ESE PASAJE VENDIÓ SU ALMA AL DIABLO\nHOY DE NUEVO LE VÍ PASAR ALGO TRISTE PERO AMABLE\nSIEMPRE INFATIGABLE TRAS EL PAN Y LA SAL\nHOY DE NUEVO LE VÍ PASAR TENÍA LOS OJOS ALEGRES\nALGUIEN LE DIÓ NOTICIAS BREVES DE SU PUEBLO NATAL\nEL PECADO DE SER AFRICANOS EN MADRID\nABRÍ LOS OJOS PARA VER QUE NO LLEGA EL SOL AQUÍ\nEL PECADO DE SER ÉBANO, SANGRE Y MARFIL\n- SOL - LAM - DO - SOL - FA - SOL\n- SOL - LAM - DO - SOL - FA - SOL\nQUIZÁS CON UN POCO DE SUERTE LLEGARÁS HASTA LA GRAN VÍA\nSIN QUE LA POLICÍA TE PIDA EL PASAPORTE\nLUNA ESTÁ DE SU PARTE POR VENTURA TENDRÁ SU CAMA\nHECHA DE HOJAS Y RAMAS EN LA PLAZA DE ESPAÑA\nHOY DE NUEVO LE VÍ PASAR ALGO TRISTE PERO AMABLE\nSIEMPRE INFATIGABLE TRAS EL PAN Y LA SAL\nHOY DE NUEVO LE VÍ PASAR TENÍA LOS OJOS ALEGRES\nALGUIEN LE DIÓ NOTICIAS BREVES DE SU PUEBLO NATAL\nEL PECADO DE SER AFRICANOS EN MADRID\nABRÍ LOS OJOS PARA VER QUE NO LLEGA EL SOL AQUÍ\nEL PECADO DE SER ÉBANO, SANGRE Y MARFIL\nEL PECADO DE SER AFRICANOS EN MADRID\nABRÍ LOS OJOS PARA VER QUE NO LLEGA EL SOL AQUÍ\nEL PECADO DE SER ÉBANO, SANGRE Y MARFIL\nEL PECADO DE SER AFRICANOS EN MADRID\nABRÍ LOS OJOS PARA VER QUE NO LLEGA EL SOL AQUÍ\nEL PECADO DE SER ÉBANO, SANGRE Y MARFIL"}, {"title": "AMA, AMA Y ENSANCHA EL ALMA", "text": "EXTREMODURO\nQUISIERA QUE MI VOZ FUERA TAN FUERTE\nQUE A VECES RETUMBARAN LAS MONTAÑAS\nY ESCUCHÁRAIS LAS MENTES-SOCIAL-ADORMECIDAS\nLAS PALABRAS DE AMOR DE MI GARGANTA.\nABRID LOS BRAZOS, LA MENTE Y REPARTÍOS\nQUE SÓLO OS ENSEÑARON EL ODIO Y LA AVARICIA\nY YO QUIERO QUE TODOS COMO HERMANOS\nREPARTAMOS AMORES, LÁGRIMAS Y SONRISAS.\nDE PEQUEÑO ME IMPUSIERON LAS COSTUMBRES\nME EDUCARON PARA HOMBRE ADINERADO\nPERO AHORA PREFIERO SER UN INDIO\nQUE UN IMPORTANTE ABOGADO.\nHAY QUE DEJAR EL CAMINO SOCIAL ALQUITRANADO\nPORQUE EN ÉL SE NOS QUEDAN PEGADAS LAS PEZUÑAS\nHAY QUE VOLAR LIBRE AL SOL Y AL VIENTO\nREPARTIENDO EL AMOR QUE TENGAS DENTRO.\nHEY CHAVALES! AQUI OS DEJO ESTO. SUENA BASTANTE BIEN, NO ES COMO LA\nORIGINAL, PERO PARA CANTAR EN EL PARQUE CON UNOS COLEGAS Y UNOS MINIS\nMAYTE, PORQUE SE QUE ESTA CANCIÓN LE GUSTA MUCHO Y PORQUE LE VIENE AL\nPELO. MAY CUANDO TE ATREVAS... LA CANTAMOS (HAY QUE VOLAR LIBRE)"}, {"title": "ÁNGEL PARA UN FINAL", "text": "CUENTAN QUE CUANDO UN SILENCIO\nAPARECÍA ENTRE DOS\nERA QUE PASABA UN ÁNGEL\nQUE LES ROBABA LA VOZ.\nY HUBO TAL SILENCIO EL DÍA\nQUE NOS TOCABA OLVIDAR\nQUE DE TAL SUERTE YO TODAVÍA\nNO TERMINÉ DE CALLAR.\nTODO EMPEZÓ EN LA SORPRESA\nEN UN ENCUENTRO CASUAL\nPERO LA NOCHE ES TRAVIESA\nCUANDO SE TEJE EL AZAR\nSIN QUERER SE HACE UNA OFRENDA\nQUE PACTA CON EL DOLOR\nO PASA UN ÁNGEL SE HACE LEYENDA\nY SE CONVIERTE EN AMOR.\nAHORA COMPRENDO CUAL ERA EL ÁNGEL\nQUE ENTRE NOSOTROS PASÓ ERA EL MÁS TERRIBLE, EL IMPLACABLE\nEL MÁS FEROZ.\nAHORA COMPRENDO EN TOTAL\nESTE SILENCIO MORTAL\nÁNGEL QUE PASA BESA Y TE ABRAZA\nÁNGEL PARA UN\nTODO EMPEZÓ EN LA SORPRESA\nEN UN ENCUENTRO CASUAL\nPERO LA NOCHE ES TRAVIESA\nCUANDO SE TEJE EL AZAR\nSIN QUERER SE HACE UNA OFRENDA\nQUE PACTA CON EL DOLOR\nO PASA UN ÁNGEL SE HACE LEYENDA\nY SE CONVIERTE EN AMOR.\nAHORA COMPRENDO CUAL ERA EL ÁNGEL\nQUE ENTRE NOSOTROS PASÓ ERA EL MÁS TERRIBLE, EL IMPLACABLE\nEL MÁS FEROZ.\nAHORA COMPRENDO EN TOTAL\nESTE SILENCIO MORTAL\nÁNGEL QUE PASA BESA Y TE ABRAZA\nÁNGEL PARA UN\nAX EX\nAX EX"}, {"title": "AQUÍ NO HAY PLAYA", "text": "THE REFRESCOS\n_____DO# ______ RE ________MI\nPODÉIS TENER RETIRO, CASA CAMPO Y ATENEO,\n_____DO# ______ RE ________MI\nPODÉIS TENER MIL CINES, MIL TEATROS, MIL MUSEOS.\n_____DO# ______ RE ________MI\nPODÉIS TENER CORRALA, ORGANILLOS Y CHULAPAS.\n_____DO# ______ RE ________MI\nPERO AL LLEGAR AGOSTO, ¡VAYA, VAYA!\n_____DO# ______ RE ________MI\nAQUÍ NO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\n_____DO# ______ RE ________MI\nNO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\n_____DO# ______ RE ________MI\n_____DO# ______ RE ________MI\nPODÉIS DECIR A GRITOS QUE ES LA CAPITAL DE EUROPA,\n_____DO# ______ RE ________MI\nPODÉIS GANAR LA LIGA, PODÉIS GANAR LA COPA.\n_____DO# ______ RE ________MI\nAFIRMARÉIS SEGUROS QUE ES LA CAPITAL DE ESPAÑA.\n_____DO# ______ RE ________MI\nPERO AL LLEGAR AGOSTO VAYA VAYA...\n_____DO# ______ RE ________MI\nAQUÍ NO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\n_____DO# ______ RE ________MI\nNO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\nY NO!\nNO!\nNO!\nNO!\n_____DO# ______ RE ________MI\nPODÉIS TENER HIPÓDROMO, JARAMA Y COMPLUTENSE,\n_____DO# ______ RE ________MI\nY AL LADO LA MONCLOA DONDE SIGUEN LOS DE SIEMPRE.\n_____DO# ______ RE ________MI\nPODÉIS TENER AL MANDO DEL IMPERIO EN VUESTRAS MANOS,\n_____DO# ______ RE ________MI\nPERO AL LLEGAR AGOSTO Y EL VERANO.\n_____DO# ______ RE ________MI\nPODÉIS TENER LA TELE Y LOS 40 PRINCIPALES,\n_____DO# ______ RE ________MI\nPODÉIS TNER LAS CORTES, ORGANISMOS OFICIALES,\n_____DO# ______ RE ________MI\nEL OSO Y EL MADROÑO, CIBELES, TORRESPAÑA...\n_____DO# ______ RE ________MI\nPERO AL LLEGAR AGOSTO VAYA VAYA...\n_____DO# ______ RE ________MI\nAQUÍ NO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\n_____DO# ______ RE ________MI\nNO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\nPODÉIS TENER MOVIDA ¡HACE TIEMPO!\nMOVIDA PROMOVIDA POR EL AYUNTAMIENTO,\nPODÉIS ROGAR A TIERNO\nO A BARRANCO O AL QUE HAYA...\nPERO AL LLEGAR AGOSTO VAYA VAYA...\n_____DO# ______ RE ________MI\nAQUÍ NO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\n_____DO# ______ RE ________MI\nNO HAY PLAYA,\n_____DO# ______ RE ________MI\n¡VAYA, VAYA!\nEN EL FINAL EL ESTRIBILLO SE REPITE MUCHAS\nVECES\nESTO ES EL PUNTEO DEL ESTRIBILLO:"}, {"title": "AUNQUE TU NO LO SEPAS", "text": "O. ESTA SACADA DE UNA VERSION ACÚSTICA DE QU\nI\nQ\nU\nO\nN\nZ\nÁ\nL\nZ. SOL\nM\nI\nM\nU\nN\nQ\nU\nT\nU\nN\nO\nL\nO\nS\nP\nS, SOL 9\nR\nM\nH\nI\nN\nV\nN\nT\nO\nT\nU\nN\nO\nM\nR\nM\nR\nO\nU\nÉ\nS\nI\nN\nR\nT\nR\nY\nH\nO\nR\nM\nI\nO\nN\nL\nO\nS\nO\nH\nS. DO RE AUNQUE TU NO LO ENTIENDAS, SOL SOL B / RE\nM\nI\nM\nN\nU\nN\nS\nR\nI\nO\nL\nR\nM\nI\nT\nN\nL\nS\nO\nR\nO\nR\nP\nO\nR\nN\nO\nJ\nR\nM\nI\nS\nH\nU\nL\nL\nS\nO\nR\nO\nR\nY\nS\nI\nU\nS\nT\nS\nQ\nU\nM\nH\nS\nT\nL\nI\nN\nL\nU\nN\nQ\nU\nT\nU\nN\nO\nL\nO\nS\nP\nS, ME HE ACOSTADO A TU E\nS\nP\nL\nU\nI\nN\nT\nS\nM\nO\nO\nS: SOL: 320032 SOL 9: 032033 MI M7: 022022 RE: 050430 SOL B/ RE:200232 MI M : 022000 DO: 030210\nEVIDENTEMENTE A LA HORA DE TOCAR SOLO DEBES PULSAR LAS CUE\nTXUS"}, {"title": "BOLILLÓN", "text": "NO ME PISES QUE LLEVO CHANCLAS\nNO ME PISES QUE LLEVO CHANCLAS\nEMPIEZA EN SIM\nCUANDO YO IBA POR EL BARRIO DE SANTA CRUZ\nME CRUCÉ CON UN MORO QUE ME DIJO JURUJÚ\nY AL CRUZAR LA PRIMERA ESQUINA Y A MANO DERECHA\nME DI CUENTA DE QUE AL MORO\nSE LE CAYÓ UNA PIEDRA DE HACHÍS\nLIE Y COGÍ UN BOLILLÓN.\nBOLILLÓN, BOLILLÓN, BO-LI-LLÓN\nBOLILLÓN, BOLILLÓN, BOLILLÓN....\nY AL CRUZAR LA SEGUNDA CALLE,\nMANO IZQUIERDA ESTA VEZ,\nME DI CUENTA DE QUE HABÍA OTRO MORO\nQUE ME DIJO VENGA USTED POR FAVOR\nY LO COGÍ EN BRAZOS PORQUE ESTABA DESMAYAO\nEN EL SUELO LO DEJÉ TIRAO Y LE COGÍ EL HACHÍS QUE TENÍA\nY ME PUSE BOLILLÓN.\nBOLILLÓN, BOLILLÓN, BO-LI-LLÓN\nBOLILLÓN, BOLILLÓN, BOLILLÓN....\nSIEMPRE EMBOLILLADO IBA POR EL BARRIO QUERIDO DE SANTA CRUZ\nDE SEVILLA CAPITAAAAAL\nY AL CRUZAR LA TERCERA ESQUINA,\nY A MANO PATRÁS ESTA VEZ,\nME DI CUENTA DE QUE HABÍA OTRO MORO QUE ME DIJO\nDANIEL, VENGA USTED PACÁ POR FAVOR\nQUE YASTAMOS BASTANTE EMBOLILLADOS\nEN ESTE BARRIO DE SANTA CRUZ\nDE SEVILLA CAPITAAAAL\nDE SEVILLA CAPITAAAAAL\nDE SEVILLA CAPITAAAAAL\nDE SEVILLA CAPITAL\nY ME PUSE BOLILLÓN\nBOLILLÓN, BOLILLÓN, BO-LI-LLÓN\nBOLILLÓN, BOLILLÓN, BOLILLÓN...."}, {"title": "BUEN ROLLITO", "text": "AMPARANOIA\nAMPARO SANCHEZ\nEL PODER DE MACHIN\nWELCOME TO TIJUANA\nTEQUILA, SEXO Y MARIHUANA.\nWELCOME TO TIJUANA,\nCON EL COYOTE NO HAY ADUANA,\nWELCOME TO TIJUANA... 2 VECES\nWELCOME TO TIJUANA... 2 VECES\nWELCOME WELCOME WELCOME TO TIJUANA...\nAL CRUZAR LA FRONTERA\nQUE NO ME PILLE LA PANA;\nLAS AMÉRICAS YO VOY BUSCANDO A MI HERMANA.\nME PELIE CON MIS AMIGOS.\nQUÉ PUEDEN ELLOS SABER\nDE TUS COSAS Y LAS MIAS QUE NI YO MISMA ME SÉ\nWELCOME TO TIJUANA..."}, {"title": "CADILLAC SOLITARIO", "text": "LOQUILLO\nSABINO MENDEZ\nSIEMPRE QUISE IR A L.A.\nDEJAR UN DIA ESTA CIUDAD.\nCRUZAR EL MAR EN TU COMPAÑIA\nPERO YA HACE TIEMPO QUE ME HAS DEJADO,\nY PROBABLEMENTE ME HABRAS OLVIDADO\nNO SE QUE AVENTURAS CORRER SIN TI.\n[ESTRIBILLO 1]\nY AHORA ESTOY AQUI SENTADO\nEN UN VIEJO CADILLAC DE SEGUNDA MANO\nJUNTO AL MERVELL, A MIS PIES MI CIUDAD,\nY HACE UN MOMENTO QUE ME HA DEJADO,\nAQUI EN LA LADERA DEL TIBIDABO,\nULTIMA RUBIA QUE ME VINO A PROBAR\nEL ASIENTO DE ATRAS.\nQUIZAS EL MARTINI ME HA HECHO RECORDAR,\nNENA, ¿POR QUE, NO VOLVISTE A LLAMAR?\nCREI QUE PODIA OLVIDARTE SIN MAS Y AUN A RATOS YA VES.\n[ESTRIBILLO 2]\nY AL IRSE LA RUBIA ME HE SENTIDO EXTRAÑO, ME HE QUEDADO\nNOSTALGIA DE TI,\nY DESDE ESTA CURVA DONDE ESTOY PARADO\nME HE SORPRENDIDO MIRANDO A TU BARRIO\nY ME HAN ATRAPADO LUCES DE CIUDAD.\nEL AMANECER ME SORPRENDERA DORMIDO, BORRACHO EN EL CADILLAC,\nY DICE LA GENTE QUE AHORA ERES FORMAL Y YO AQUI BORRACHO\nEL AMANECER ME SORPRENDERA DORMIDO, BORRACHO EN EL CADILLAC,\nY DICE LA GENTE QUE AHORA ERES FORMAL Y YO AQUI BORRACHO\nNENAAA!\nY NO ESTAS TU .....Y NO ESTAS TU... NENA NENA NENA"}, {"title": "CARA LUNA", "text": "BACILOS\n- RE - DO - DOM.\nQUIEN DICE QUE NO DUELE LAS HUELLAS EN LA ARENA\nQUE YA EL MAR SE LA LLEVO PERO LA LUNA SIGUE AHÍ\nESA LUNA ES MI CONDENA\nYO NACÍ UNA MAÑANA Y JUNTOS POR LA NOCHE\nY LA INSITIVA DEL RECUERDO\nSE DISFRAZAN DE INTUICIÓN\nY EN UNA POS TU VOZ SE ESCONDE\nY EN UNA POS TU VOZ SE ESCONDE\nY YO SÉ QUE TAL VEZ TU NUNCA ESCUCHES MI CANCIÓN LO SÉ\nY YO SÉ QUE TAL VEIIIEZZ SIGA USANDO ASÍ ROBANDOTE EN MI INSPIRACIÓ\nMIENTRAS SIGA VIENDO TU CARA EN LA CARA DE LA LUNA\nMIENTRAS YO SIGA ESCUCHANDO TU VOZ ENTRE LAS OLAS ENTRE LA ESPUMA\nMIENTRAS TENGA QUE CAMBIAR LA RADIO DE ESTACIÓN\nPOR QUE CADA CANCIÓN ME HABLE DE TÍ DE TI YY Y Y YYY\n' '\nVIDA SE ME ESCONDE Y ME HACE UNA PROMESA SI\nDE DONDE NACE ALGUNA INSPIRACIÓN DE DONDE NACE OTRA CANCIÓN\nY YA NO SE LO QUE SE ESCONDE YO YA NO SÉ LO QUE SE ESCONDE\nY YO SÉ QUE TAL VEZ TU NUNCA ESCUCHES MI CANCIÓN LO SÉ\nY YO SÉ QUE TAL VEIIIEZZ SIGA USANDO ASÍ ROBANDOTE EN MI INSPIRACIÓ\nMIENTRAS SIGA VIENDO TU CARA EN LA CARA DE LA LUNA\nMIENTRAS YO SIGA ESCUCHANDO TU VOZ ENTRE LAS OLAS ENTRE LA ESPUMA\nMIENTRAS TENGA QUE CAMBIAR LA RADIO DE ESTACIÓN\nPOR QUE CADA CANCIÓN ME HABLE DE TÍ DE TI YY Y Y YYY\nYO SEGUIRÉ BUSCANDO O SEGUIRÉ ESCAPANDO TAL VEZ DE TÍ\nTAL VEZ DE MÍ\nYO SEGUIRÉ BUSCANDO UNA EXPLICACIÓN DE ESTA CANCIÓN TAMBIENNNNNN\nMIENTRAS SIGA VIENDO TU CARA EN LA CARA DE LA LUNA\nMIENTRAS YO SIGA ESCUCHANDO TU VOZ ENTRE LAS OLAS ENTRE LA ESPUMA\nMIENTRAS TENGA QUE CAMBIAR LA RADIO DE ESTACIÓN\nPOR QUE CADA CANCIÓN ME HABLE DE TÍ DE TI YY Y Y YYY\nGRITO:.......DE VIP......"}, {"title": "CARBÓN Y RAMAS SECAS", "text": "MANOLO GARCÍA\nMANOLO GARCIA\nCARBÓN Y RAMAS SECAS - MANOLO GARCÍA\nSOBRE LOS TEJADOS SE ESCAPA LA TARDE, HUMO DE UN CIGARRO QUE FUMA GARDEL.\nEN EL DULCE LICOR QUE ME HIERE SALVAJE, EN LOS GARABATOS QUE HAGO EN EL MANTEL.\nESPERARÉ, POR SI TE PIERDES, SALDRÁ LA LUNA, FANALICO ENCENDIDO.\nTE REGALO MI CAPA, MI CAPA DE COLOR GRANA. MI TRISTE SONRISA ALZADA EN LAS RAMAS,\nEN LOS GALLARDETES, EN LAS BANDEROLAS.\nYO TE HARÉ UN VESTIDO DE UN ROJO AMAPOLA.\nNANA DEL MARINERO NUDO DE ANTOJOS, QUE NADIE TE AMARÁ TANTO COMO YO.\nAHORA PUDIESE ESTAR MIRANDO TUS OJOS IBA A ESTAR ESCRIBIENDO AQUÍ ESTA CANCIÓN.\nY DORMIRÉ ENTRE LIBROS PROHIBIDOS. AL OLVIDO DE UN TIEMPO QUE AÑORO.\nEL QUE VIVÍ CONTIGO.\nCABALLO NEGRO YO TE LO REGALO. CARBÓN, RAMAS SECAS AL ENAMORADO.\nPERDONARTE QUIERO MÁS NO TENGO PRISA. DISCULPA UN MOMENTO, QUE ME DESENREDO.\nTUYO ES EL TRIUNFO SABOR AMARGO, DEL SECO FRUTO DEL DESENCANTO.\nLAUREL DEL TRIUNFO, SABOR AMARGO DEL SECO FRUTO DEL DESENCANTO.\nQIUM LEYES"}, {"title": "CHIQUILLA", "text": "SEGURIDAD SOCIAL\nPOR LA MANANA YO ME LEVANTO,\nY VOY CORRIENDO DESDE MI CAMA,\nPARA PODER VER A ESA CHIQUILLA POR MI VENTANA\nESQUE YO LLEVO TODO EL DIA SUFRIENDO\nY ESQUE LA QUIERO CON TODO EL ALMA\nY LA PERSIGO EN MI PENSAMIENTO DE MADRUGADA\nTENGO UNA COSA QUE ME ARDE DENTRO,\nQUE NO ME DEJA PENSAR EN NADA,\nAY QUE NO SEA DE ESA CHIQUILLA Y DE SU MIRADA.\nY YO LA MIRO\nY ELLA NO ME DICE NADA\nPERO SUS DOS OJOS NEGROS,\nSE ME CLAVAN COMO ESPADAS\nPERO SUS DOS OJOS NEGROS,\nSE ME CLAVAN COMO ESPADAS\nAY, CHIQUILLA!\nESE SILENCIO QUE ME DESVIVE\nME DICE COSAS QUE SON TAN CLARAS\nQUE YO NO PUEDO, NO PUEDO\nNO PUEDO DEJAR DE MIRARLA\nY YO LE TENGO QUE DECIR PRONTO\nQUE ESTOY LOQUITO DE AMOR POR ELLA,\nY QUE SUS OJO LLEVAN EL FUEGO DE ALGUNA ESTRELLA\nQUE LAS PALABRAS SE QUEDAN CORTAS,\nPARA DECIR TODO LO QUE SIENTO,\nPUES MI CHIQUILLA ES LO MAS BONITO DE FIRMAMENTO\nY YO LA MIRO\nY ELLA NO ME DICE NADA\nPERO SUS DOS OJOS NEGROS,\nSE ME CLAVAN COMO ESPADAS\nPERO SUS DOS OJOS NEGROS\nSE ME CLAVAN COMO ESPADAS\nAY, CHIQUILLA!\nY YO LA QUIERO, COMO EL SOL, A LA MANANA\nCOMO LOS RAYOS DE LUZ A MI VENTANA\nYO LA QUIERO COMO\nLOS RAYOS DE LUZ A MI VENTANA,\nAY, CHIQUILLA!"}, {"title": "CLAVADO EN UN BAR", "text": "MANÁ\nFHER GONZALEZ\nSUEÑOS LIQUIDOS [1997]\nAQUI ME TIENE BIEN CLAVADO\nSON TANTAS LAS PENAS EN UN BAR\nBRINDANDO POR TU AMOR.\nAQUI ME TIENE ABANDONADO\nBEBIENDO TEQUILA PA'OLVIDAR\nY SACUDIRME HACIA EL DOLOR\nDONDE ESTAS BENDITA?\nDONDE TE HAS METIDO?\nABRE UN POCO EL CORAZON\nDEJA AMARTE CORAZON\nVEN Y SACAME DE ESTE BAR.\nESTOY CLAVADO,\nESTOY HERIDO,\nESTOY AHOGADO EN UN BAR\nDESESPERADO,\nEN EL OLVIDO AMOR,\nESTOY AHOGADO EN UN BAR\nSE QUE TE GUSTAN DEMASIADOS\nQUE TE PRETENDE CANTIDAD\nPERO ESO NO ES FELICIDAD\nY MI AMOR NUNCA SE RAJA\nY MI AMOR NUNCA JAMAS TE VA A FALLAR\nNUNCA JAMAS\nDONDE ESTAS BENDITA?\nDONDE TE HAS METIDO?\nABRE UN POCO EL CORAZON\nDEJA AMARTE CORAZON\nVEN Y SACAME DE ESTE BAR.\nESTOY CLAVADO,\nESTOY HERIDO,\nESTOY AHOGADO EN UN BAR\nDESESPERADO,\nEN EL OLVIDO AMOR,\nESTOY AHOGADO EN UN BAR\nMUY DESESPERADO,\nMUY EN EL OLVIDO,\nESTOY AHOGADO EN UN BAR.\nDEJATE QUERER AMOR\nQUIERO SER TU TODO\nY TU CORAZON\nVEN A RESCATARME AMOR\nYO QUIERO SER TU SOL\nYO QUIERO SER TU MAR.\nAHORA EL SOLO:\n3.--12-14P12---12-----12-14-12--12~-----|\nAQUI ME TIENEN EMBRIAGADO\nLLORANDO DE RABIA EN UN BAR\nBRINDANDO POR SU AMOR\nAQUI ME TIENE BIEN BORRACHO\nBEBIENDO TEQUILA PA'OLVIDAR TODO\nNO ES JUSTO AMOR"}, {"title": "COMO CAMARÓN", "text": "ESTOPA\nDAVID MUÑOZ, JOSÉ MUÑOZ\nESTOPA\nSUPERIOR A MI....\nES LA FUERZA QUE ME LLEVA EN EL PULSO QUE MANTENGO\nCON LA OSCURIDAD QUE TIÑEN DE OSCURO TUS OJOS NEGROS\nY QUE ME CUENTAS DEL TIEMPO QUE PASA EN TU PESTAÑEO\nQUE ME TRAE POR ESTA CALLE DE AMARGURA Y DE LAMENTO\n-----ESTRIBILLO-----\nQUE YO SE QUE LA SONRISA QUE SE DIBUJA EN MI CARA\nTIENE QUE VER CON LA BRISA QUE ABANICA TU MIRADA\nTAN DESPACIO Y TAN DEPRISA, TAN NORMAL Y TAN EXTRAÑA\nYO ME PARTO LA CAMISA COMO CAMARÓN\nTU ME ROMPES LAS ENTRAÑAS, ME TREPAS COMO UNA ARAÑA\nBEBES DEL SUDOR QUE EMPAÑA EL CRISTAL DE MI HABITACION\nY DESPUES POR LA MAÑANA DESPIERTO Y NO TENGO ALAS\nLLEVO DIEZ HORAS DURMIENDO Y MI ALMOHADA ESTA EMPAPADA\nTODO HABIA SIDO UN SUEÑO MUY REAL Y MUY PROFUNDO\nTUS OJOS NO TIENEN DUEÑO PORQUE NO SON DE ESTE MUNDO...\nQUE NO TE QUIERO MIRAR\nPERO ES QUE CIERRO LOS OJOS Y HASTA TE VEO POR DENTRO\nTE VEO EN UN LADO Y EN OTRO, EN CADA FOTO, EN CADA ESPEJO\nY EN LAS PARADAS DEL METRO Y EN LOS OJOS DE LA GENTE\nHASTA EN LAS SOPAS MAS CALIENTES LOCO ME ESTOY VOLVIENDO\n-----ESTRIBILLO-----\nQUE YO SE QUE LA SONRISA QUE SE DIBUJA EN MI CARA\nTIENE QUE VER CON LA BRISA QUE ABANICA TU MIRADA\nTAN DESPACIO Y TAN DEPRISA, TAN NORMAL Y TAN EXTRAÑA\nYO ME PARTO LA CAMISA COMO CAMARÓN\nTU ME ROMPES LAS ENTRAÑAS, ME TREPAS COMO UNA ARAÑA\nBEBES DEL SUDOR QUE EMPAÑA EL CRISTAL DE MI HABITACION\nY DESPUES POR LA MAÑANA DESPIERTO Y NO TENGO ALAS\nLLEVO DIEZ HORAS DURMIENDO Y MI ALMOHADA ESTA EMPAPADA\nTODO HABIA SIDO UN SUEÑO MUY REAL Y MUY PROFUNDO\nTUS OJOS NO TIENEN DUEÑO PORQUE NO SON DE ESTE MUNDO...\nVECES ME CONFUNDO Y PICO A TU VECINA\nESA DEL SEGUNDO QUE VENDE COSA FINA\nVECES TE ESPERO EN EL BAR DE LA ESQUINA\nCON LA MIRADA FIJA EN TU PORTERIA\nVECES ME COMO DE UN BOCAO EL MUNDO\nVECES TE SIENTO Y A VECES TE TUMBO\nVECES TE LEO COMO UN BESO EN LOS LABIOS\nCOMO YO NO ME ATREVO ME CORTO Y ME ABRO\n-----ESTRIBILLO-----\nQUE YO SE QUE LA SONRISA QUE SE DIBUJA EN MI CARA\nTIENE QUE VER CON LA BRISA QUE ABANICA TU MIRADA\nTAN DESPACIO Y TAN DEPRISA, TAN NORMAL Y TAN EXTRAÑA\nYO ME PARTO LA CAMISA COMO CAMARÓN\nTU ME ROMPES LAS ENTRAÑAS, ME TREPAS COMO UNA ARAÑA\nBEBES DEL SUDOR QUE EMPAÑA EL CRISTAL DE MI HABITACION\nY DESPUES POR LA MAÑANA DESPIERTO Y NO TENGO ALAS\nLLEVO DIEZ HORAS DURMIENDO Y MI ALMOHADA ESTA EMPAPADA\nTODO HABIA SIDO UN SUEÑO MUY REAL Y MUY PROFUNDO\nTUS OJOS NO TIENEN DUEÑO PORQUE NO SON DE ESTE MUNDO..."}, {"title": "COMO UN BURRO AMARRADO", "text": "MANOLO GARCÍA\nMANOLO GARCÍA, QUIMI PORTET\nASTRONOMÍA RAZONABLE (EL ÚLTIMO DE LA FILA) [1993]\nME DICES \"GOOD BYE\" EN TU NOTA TAN RICAMENTE,\nY NO ME HAGO A LA IDEA DE NO VOLVER A VERTE.\nME TIRÉ DE CABEZA Y ME ARRASTRÓ LA CORRIENTE.\nESTE ES MI DESTINO, AL CABO DE LA CALLE ESTOY,\nME SIENTO COMO AQUEL LADRÓN QUE BUSCA SU FORTUNA\nEN UN CALLEJÓN POR DONDE NUNCA PASA NADIE.\nCOMO UN BURRO AMARRADO EN LA PUERTA DEL BAILE.\nPRIMO, QUE TIENE UN BAR, DESDE SIEMPRE ME HA DICHO,\nY ME CONSTA QUE TODO LO DICE DE MUY BUENA FE:\nTANTO TIENES, TANTO VALES, NO SE PUEDE REMEDIAR.\nERES DE LOS QUE NO TIENEN, A GALERAS A REMAR.\nY SI SÓLO TENGO AMOR,\n¿QUÉ ES LO QUE VALGO YO?\nTENGO GANAS DE BAILAR,\n¿PARA QUÉ VOY A ESPERAR?\nAHORA NECESITO AMOR,\nES MI ÚNICA AMBICIÓN;\nCOMO YO NO SÉ BAILAR,\nGALERAS A REMAR.\nBAILA CONMIGO, AMOR, QUE SOY MUY CARIÑOSO, GUAPA,\nQUE AUNQUE MUY CHICO Y MUY FEO, PILOTO DE AEROPLANO\nSOY.\nLLÉVAME AL CINE, AMOR, Y A COMER UN ARROCITO A\nCASTELLÓ.\nTOTAL SON CUATRO DÍAS, \"PA\" QUÉ VAS A EXPRIMIRTE EL\nLIMÓN.\n\"ESCOLTA\", PIQUER, DAME AIRE CON TU ABANICO,\n\"QUE SOC DE BARCELONA I EM MORO DE CALOR\"\nY SI SÓLO TENGO AMOR,\n¿QUÉ ES LO QUE TENGO YO?\nTENGO GANAS DE BAILAR,\n¿PARA QUÉ VOY A ESPERAR?\nAHORA NECESITO AMOR,\nES MI ÚNICA AMBICIÓN;\nY COMO YO NO SÉ BAILAR,\nGALERAS A REMAR.\nY SI SÓLO TENGO \"LOVE\",\n¿QUÉ ES LO QUE VALGO YO?\nTENGO GANAS DE BAILAR,\n¿PARA QUÉ VOY A ESPERAR?\nAHORA NECESITO AMOR\nPORQUE MI NOVIA ME DEJÓ.\nCOMO YO NO SÉ BAILAR,\nGALERAS A REMAR.\nAHORA NECESITO AMOR."}, {"title": "CORAZÓN DE NEÓN", "text": "L. CORAZÓN, CORAZÓN, CORAZÓN, CORAZÓN DE CEMENTO. CORAZÓN, CORAZÓN, CORAZÓN, CORAZÓN DE HORMIGÓN. CORAZÓN, CORAZÓN, CORAZÓN, ENFERMO DE POLUCIÓN. CORAZÓN, CORAZÓN, CORAZÓN, CORAZÓN DE NEÓN. LA CIUDAD DONDE VIVO ES UN MON\nS\nT\nR\nU\nO\nO\nN\nS\nI\nT\nZ\nS\nS\nU\nN\nP\nÁ\nJ\nR\nO\nH\nR\nI\nO\nN\nV\nU\nL\nT\nO\nN\nP\nP\nL\nL\nO\nÁ\nN. UN INMENSO BARRIL DE CERVE\nZ\nQ\nU\nR\nP\nN\nT\nP\nU\nS\nT\nL\nL\nR\nL\nI\nU\nO\nN\nV\nI\nV\nO\nS\nU\nN\nT\nM\nP\nL\nO\nL\nI\nN\nY\nL\nM\nL. CORAZÓN, CORAZÓN, CORAZÓN, CORAZ\nÓ\nN\nM\nN\nT\nO... BARCELONA, MOSCÚ, CASABLANCA, BRUSELAS, MADRID, ROMA, TOKIO, LOS ANGELES, NÁPOLES, LONDRES, BERLÍN, NUEVA YORK, ESTOCOLMO, DONOSTI, MÉXICO, RÍO, TANGER, PARÍS, NUEVA DELHI, CARACAS, EL CAIRO, VARSOVIA, MADRID. ESTA ES LA PRIMERA CANCIÓN QUE SUBO. LA SAQUÉ A MEDIAS CON UN AMIGO (GRACIAS ADRI). ×\nESPERO QUE OS GUSTE."}, {"title": "CORAZÓN DE TIZA", "text": "RADIO FUTURA\nAUSERON\nY SI TE VUELVO A PINTAR\nUN CORAZON DE TIZA EN LA PARED\nTE VOY A DAR UNA PALIZA POR HABER\nESCRITO MI NOMBRE DENTRO.\nTU LO HAS HECHO PORQUE AYER YO TE INVITE\nCUANDO IBAS CON TU AMIGA DE LA MANO\nSE ACABABAN DE ENCENDER TODAS LAS LUCES\nERA TARDE Y NOS REIAMOS LOS TRES.\n[CORO]\nLUEGO ESTUVE ESPERANDOTE EN LA PLAZA\nY LAS HORAS SE MARCHABAN SIN SABER QUE HACER\nCUANDO AL FIN TE VI VENIR YO TE LLAME POR TU NOMBRE\nPERO TU NO DEJASTE DE CORRER.\n[CORO]Y SI TE VUELVO A VER PINTAR UN CORAZON DE TIZA\nEN LA PARED\nME PARECE QUE AQUEL DIA TU EMPEZASTE A SER MAYOR\nME PREGUNTO COMO TE HAN CONVENCIDO A TI\nTE DIJERON QUE JUGAR ES UN PECADO\nO ES QUE VISTE EN EL CINE ALGUN FINAL ASI.\nYO TENIA LA INTENCION DE OLVIDARLO\nY AL SALIR AL OTRO DIA NO PENSABA EN TI\nPERO VI JUSTO EN MI PUERTA DIBUJADO UN CORAZON\nY MI NOMBRE ESTABA ESCRITO JUNTO AL TUYO.\n[CORO]\nY SI TE VUELVO A VER PINTAR UN CORAZON DE TIZA EN LA PARED\nY SI TE VUELVO A VER PINTAR UN CORAZON DE TIZA EN LA PARED\nY SI TE VUELVO A VER PINTAR UN CORAZON DE TIZA EN LA PARED\nY SI TE VUELVO A VER PINTAR UN CORAZON DE TIZA EN LA PARED"}, {"title": "DÉJAME", "text": "LOS SECRETOS\nDÉJAME, NO JUEGUES MÁS CONMIGO.\nESTA VEZ EN SERIO TE LO DIGO.\nTUVISTE UNA OPORTUNIDAD\nY LA DEJASTE ESCAPAR.\nDÉJAME, NO VUELVAS A MI LADO.\nUNA VEZ ESTUVE EQUIVOCADO,\nPERO AHORA TODO ESO PASÓ,\nNO QUEDA NADA DE ESE AMOR.\nNO HAY NADA QUE AHORA YA PUEDAS HACER\nPORQUE A TU LADO YO NO VOLVERÉ, NO VOLVERÉ.\nDÉJAME, YA NO TIENE SENTIDO.\nES MEJOR QUE SIGAS TU CAMINO,\nQUE YO EL MÍO SEGUIRÉ,\nPOR ESO AHORA DÉJAME.\nNO HAY NADA QUE AHORA...\nDÉJAME, YA NO TIENE SENTIDO....\nTUVISTE UNA OPORTUNIDAD... AH, AH, AH\nY LA DEJASTE ESCAPAR."}, {"title": "DEPENDE", "text": "JARABE DE PALO\nJARABE DE PALO\nDEPENDE [1998]\nQUE EL BLANCO SEA BLANCO\nY QUE EL NEGRO SEA NEGRO,\nQUE UNO Y UNO SEAN DOS\nPORQUE EXACTOS SON LOS NÚMEROS . . . DEPENDE\nQUE AQUÍ ESTAMOS DE PRESTAO,\nQUE HOY EL CIELO ESTÁ NUBLAO,\nQUE UNO NACE Y LUEGO MUERE,\nY ESTE CUENTO SE HA ACABAO . . . DEPENDE\nDEPENDE, DE QUÉ DEPENDE,\nDE SEGÚN COMO SE MIRE TODO DEPENDE.\nDEPENDE, DE QUÉ DEPENDE,\nDE SEGÚN COMO SE MIRE TODO DEPENDE.\nQUE BONITO ES EL AMOR,\nMÁS QUE NUNCA EN PRIMAVERA,\nQUE MAÑANA SALE EL SOL\nPORQUE ESTAMOS EN AGOSTO . . . DEPENDE\nQUE CON EL PASO DEL TIEMPO\nEL VINO SE HACE BUENO,\nQUE TODO LO QUE SUBE BAJA\nDE ABAJO A ARRIBA Y DE ARRIBA A ABAJO . . . DEPENDE\n( ESTRIBILLO )\nQUE NO HAS CONOCIDO A NADIE\nQUE TE BESE COMMO YO,\nQUE NO HAY OTRO HOMBRE EN TU VIDA\nQUE DE TI SE BENEFICIE . . . DEPENDE\nQUE SI QUIERE DECIR SÍ\nCADA VEZ QUE ABRES LA BOCA,\nQUE TE HACE MUY FELIZ\nQUE HOY SEA EL DIA DE TU BODA . . . DEPENDE\n( ESTRIBILLO ) X 3."}, {"title": "DÍAS DE ESCUELA", "text": "ASFALTO\nJ.L. JIMENEZ-J, CASTEJON-LELE LAINA-E.CAJIDE\nCAPITAN TRUENO [1978]\nBIEN ABRIGADO\nLLEGABA AL COLEGIO\nHACE POCO TIEMPO\nFORMADOS FRENTE A LA CRUZ\nY A CIERTOS RETRATOS\nENTRE BOSTEZO Y BOSTEZO GLORIOSOS HIMNOS PESADOS.\nDESPERTAMOS EN PUPITRES DE DOS EN DOS\nAUN RECUERDO EL ESTRECHO BIGOTE DE DON RAMÓN\nY LA Y LAESTUFA DE CARBON FRENTE AL PROFESOR RE LA\nDICHOSA ESTUFA QUE NO CALIENTA NI A DIOS\nSUENA EL TIMBRE AL FIN...!\nBOCADILLO RECREO, EVASIÓN\nUNA TORTURA MÁS, ANTES DEL JUEGO\nLECHE EN POLVO U EL QUESO AMERICANO\nSALES TU, Y EL GORDO DESPUÉS\nTE CAMBIO LOS CROMOS, TE JUEGO AL TACÓN\nSALES TU LA LIGO YO\nAPUREMOS EL TIEMPO QUE YA NOS METEN DENTRO.\nMIM..DO ..LA ..SI (2VECES)\nDOS HORAS DE CATECISMO\nEN MAYO LA COMUNIÓN\nLETRA CON SANGRE ENTRA, OTRO CAPÓN!\nTAREA PARA MAÑANA PUESTO EL ABRIGO\nOTRA COPLA A LOS DEL CUADRO Y HASTA MAÑANA DON RAMÓN\nY AHORA TU QUE PENSARAS, SI CUANDO MÁS ME OPRIMÍA MAS AME LA LIBERTAD.\nES ATI A QUIEN CANTO HOY, ENSEÑA A TUS HIJOS\n. SOL..RE..LA\nENSEÑA A TUS HIJOS A AMAR LA LIBERTAD.\nTRANSCRICION ES DE UN FANS ..FERNANDO G.BARATAS"}, {"title": "ECHO DE MENOS", "text": "CAMA REVUELTA\nESE ZUMO DE NARANJA\nY LAS REVISTAS ABIERTAS\nEN EL ESPEJO\nYA NO ENCUENTRO TU MIRADA\nNO HAY BESOS EN LA DUCHA\nNI PELOS, NI NADA\nENTRE NOSOTROS\nUN MURO DE METACRILATO\nNO NOS DEJA OLERNOS\nNI MANOSEARNOS\nY POR LAS NOCHES\nTODO ES CAMBIO DE POSTURA\nENCUENTRO TELARANAS\nPOR LAS COSTURAS\n... LO MISMO TE ECHO DE MENOS, LO MISMO,\nQUE ANTES TE ECHABA DE MAS..\n\nTU NO TE DAS CUENTA DE LO QUE VALES\nEL MUNDO ES UNA TONTERIA\nVAS DEJANDO QUE SE ESCAPE\nLO QUE MAS QUERIAS\nEL CRUJIR DE TUS TOSTADAS\nSENTIR POR EL PASILLO\nTU GATO QUE ARAÑA.\nEN MI CAMISA\nLLEVO TU AROMA PRESO\nY EL ROJO DE TUS LABIOS POR EL CUELLO\nENTRE NOSOTROS\nUN MURO DE METACRILATO\nNO NOS DEJA OLERNOS\nNI MANOSEARNOS\nY POR LAS NOCHES\nTODO ES CAMBIO DE POSTURA\nENCUENTRO TELARANAS\nPOR LAS COSTURAS\nECHO DE MENOS KIKO VENENO"}, {"title": "EL BLUES DEL AUTOBÚS", "text": "NO TEXT COULD BE PARSED FROM DOCUMENT 'EL BLUES DEL AUTOBUS, MIGUEL RÍOS_ ACORDES C3.PDF' WHICH CONTAINS 1 PAGES."}, {"title": "EL VALS DEL OBRERO", "text": "ORGULLOSO DE ESTAR EN EL PROLETARIADO\nES DIFÍCIL LLEGAR A FIN DE MES SIN TENER KE SUDAR Y SUDAR\nPA GANAR NUESTRO PAN\nESTE ES MI SITIO ESTA ES MI GENTE SOMOS OBREROS LA KLASE PREFERENTE\nPOR ESO HERMANO PROLETARIO KON ORGULLO YO TE KANTO ESTA KANCION\nSOMOS LA REVOLUCION\nSEÑOR LA REVOLUCION\nSEÑOR SI SEÑOR SOMOS LA REVOLUCION\nTU ENEMIGO ES EL PATRÓN\nSEÑOR SI SEÑOR SOMOS LA REVOLUCION\nVIVA LA REVOLUCION\nESTOY HASTA LOS KOJONES DE AGUANTAR A SANGUIJUELAS\nLOS KE ME ROBAN MI VITILIDAD\nVIDA SE KONSUME SOPORTANDO ESTA\nRUTINA KE ME AHOGA KADA DIA MAS\nFELIPE EL EMPRESARIO, MAS KALLES EN MIS MANOS\nMIS RIÑONES VAN A REVENTAR\nNO TENGO UN PUTO DURO PERO SIGO\nKOTIZANDO ME HA KOSTADO EL BIENESTAR ARRIBA\nBAILA HERMANO EL VALS DEL OBRERO\nESTE ES MI SITIO, ÉSTA ES MI GENTE\nSOMOS OBREROS, LA CLASE PREFERENTE\nPOR ESO, HERMANO PROLETARIO, CON ORGULLO\nYO TE CANTO ESTA CANCIÓN, SOMOS LA REVOLUCIÓN.\n¡SI SEÑOR!, LA REVOLUCIÓN,\n¡SI SEÑOR!,¡SI SEÑOR!, SOMOS LA REVOLUCIÓN,\nTU ENEMIGO ES EL PATRÓN,\n¡SI SEÑOR!, ¡SI SEÑOR!, SOMOS LA REVOLUCIÓN,\nVIVA LA REVOLUCIÓN.\nEN ESTA DEMOCRACIA HAY MUCHO LISTO QUE SE\nLUCRA EXPRIMIENDO A NUESTRA CLASE SOCIAL.\nLES IMPORTA CUATRO HUEVOS SI TIENES CATORCE\nHIJOS Y LA ABUELA NO SE PUEDE OPERAR.\nSOMOS LOS OBREROS, LA BASE DE ESTE JUEGO\nEN EL QUE SIEMPRE PIERDE EL MISMO \"PRINGAO\",\nUN JUEGO BIEN PENSADO, EN EL QUE NOS TIENEN\nCALLADOS Y TE JODEN SI NO QUIERES JUGAR.\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\nSKA, SKA, SKA, SKA\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡¡INSISTIMOS!!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡RESISTENCIA!\n¡DE-SO-BE-DEN-CIA!"}, {"title": "EN ALGÚN LUGAR", "text": "EN ALGUN LUGAR DE UN GRAN PAIS\nOLVIDARON CONSTRUIR\nUN LUGAR DONDE NO QUEME EL SOL\nY AL NACER NO HAYA QUE MORIR\nY EN LA SOMBRA\nMUEREN GENIOS SIN SABER\nDE SU MAGIA\nCONCEDIDA SIN PEDIRLO\nMUCHO TIEMPO ANTES DE NACER [SOL RE LAM DO] X 2\nNO HAY CAMINO QUE, LLEGUE HASTA AQUI\nY LUEGO PRETENDA SALIR\nCON EL FUEGO DE EL ATARDECER\nARDE LA HIERBA\nEN ALGUN LUGAR DE UN GRAN PAIS\nOLVIDARON CONSTRUIR\nUN LUGAR DONDE NO QUEME EL SOL\nY AL NACER NO HAYA QUE MORIR\nUN SILBIDO,\nCRUZA EL PUEBLO Y SE VE,\nUN JINETE\nQUE SE MARCHA CON EL VIENTO\nMIENTRAS GRITA QUE NO VA A VOLVER\nY LA TIERRA AQUI ES DE OTRO COLOR\nEL POLVO NO TE DEJA VER\nLOS HOMBRES YA NO SABEN SI LO SON\nPERO LO QUIEREN CREER\nLAS MADRES QUE YA NO SABEN LLORAR\nVEN A SUS HIJOS PARTIR\nTRISTEZA AQUI NO TIENE LUGAR\nCUANDO LO TRISTE ES VIVIR\n(AL162960@MAIL.MTY.ITESM.MX)"}, {"title": "ESO QUE TÚ ME DAS", "text": "/ RE / MI / LA)\nES MUCHO MÁS DE LO QUE PIDO\nTODO LO QUE ME DAS\nES LO QUE AHORA NECESITO.\nNO CREO LO TENGA MERECIDO\nPOR TODO LO QUE ME DAS\nTE ESTARÉ SIEMPRE AGRADECIDO.\nASÍ QUE GRACIAS POR ESTAR\nPOR TU AMISTAD Y TU COMPAÑÍA\nERES LO, LO MEJOR QUE ME HA DADO LA VIDA.\nPOR TODO LO QUE RECIBÍ\nESTAR AQUÍ VALE LA PENA\nGRACIAS A TI SEGUÍ\nREMANDO CONTRA LA MAREA.\nCON TODO LO QUE RECIBÍ\nAHORA SÉ QUE NO ESTOY SOLO\nAHORA TE TENGO A TI\nAMIGO MÍO MI TESORO.\nASÍ QUE GRACIAS POR ESTAR\n(SOLO DE VIOLÍN)\n/ FA# / MI / SI / MI / DO#M / MI / FA# / X2\nTODO TE LO VOY A DAR\nPOR TU CALIDAD POR TU ALEGRÍA\nME AYUDASTE A REMONTAR\nSUPERARME DÍA A DÍA.\nTODO TE LO VOY A DAR\nFUISTE MI MEDI MEDICINA\nTODO TE LO DARÉ\nSEA LO QUE SEA LO QUE PIDAS.\nESO QUE TÚ ME DAAAAAAAAAAAS\nES MUCHO MÁS\nES MUCHO MÁS\nDE LO QUE NUNCA TE HE PEDIDO.\nTODO LO QUE ME DAAAAAAAAAS\nES MUCHO MÁS\nES MUCHO MÁS\nDE LO QUE NUNCA HE MERECIDO.\nTODO LO QUE ME DAAAAAS\nES MUCHO MÁS\nES MUCHO MAS\nDE LO QUE NUNCA TE HE PEDIDO\nESO QUE TU ME DAS - JARABE DE PALO"}, {"title": "ESPALDAS MOJADAS", "text": "TAM TAM GO\nHE DEJADO MI CASA, ME PERSIGUEN Y NO SÉ QUÉ ME PASA\nSIN PASAPORTE Y SIN VISA VOY, NAVEGO CONTRA LA CORRIENTE Y LA BRISA\nY SI LLEGO A LA RIBERA TENDRÉ LA ESPALDA MOJADA Y LASTERA\nTÚ SERÁS MI REFUGIO, QUÉ LARGA Y TRISTE ES ESTA QUIMERA\nESPÉRAME, LA VIDA FUE MUY DURA ALLÍ, AL OTRO LA`O\nQUE LLEGARÉ, NO PIENSES QUE TE HE OLVIDADO, DESESPERES NO\nVOY CRUZANDO EL RÍO, SABES QUE TE QUIERO\nNO HAY MUCHO DINERO, LO HE PASADO MAL (LO HE PASADO MAL)\nY SI ME ALCANZA EL ACERO RECUÉRDAME CÓMO HE SIDO EN LA LUCHA\nHE SIDO BRAVO Y SINCERO, POR FAVOR QUÉDATE TÚ CON MI SOMBRERO\nESPÉRAME, LA VIDA FUE MUY DURA ALLÍ, AL OTRO LA`O\nQUE LLEGARÉ, NO PIENSES QUE TE HE OLVIDADO, DESESPERES NO\nVOY CRUZANDO EL RÍO, SABES QUE TE QUIERO\nNO HAY MUCHO DINERO, LO HE PASADO MAL\nALGO ME PASA NO OLVIDES, MI ESTRELLA NO ES DE ESTE MUNDO DE VIVOS\nPERO LA CAUSA TE DIGO, EXISTE SIEMPRE DÓNDE HAY UN AMIGO\nVOY CRUZANDO EL RÍO, SABES QUE TE QUIERO\nNO HAY MUCHO DINERO, LO HE PASADO MAL\nVOY CRUZANDO EL RÍO,ME RIO SABES QUE TE QUIERO ME MUERO\nNO HAY MUCHO DINERO, LO HE PASADO MAL, LO HE PASADO MAL\nVOY CRUZANDO EL RIO TODOS CON VOCES\nTU ME QUIERES...YO TE QUIERO TUMEQUIERESYOTQUIERO ME LIBERO"}, {"title": "FLACA", "text": "FLACA, NO ME CLAVES\nTUS PUÑALES, POR LA ESPALDA\nTAN PROFUNDO, NO ME DUELEN\nNO ME HACEN MAL.\nLEJOS, EN EL CENTRO\nDE LA TIERRA, LAS RAÍCES\nDEL AMOR, DONDE ESTABAN\nQUEDARÁN.\nENTRE NO ME OLVIDES ME DEJÉ NUESTROS ABRILES\nOLVIDADOS, EN EL FONDE DEL PLACARD\nEN EL CUARTO DE INVITADOS, ERAN TIEMPOS DORADOS\nUN PASADO MEJOR.\nAUNQUE CASI ME EQUIVOCO Y TE DIGO POCO A POCO\nNO ME MIENTAS, NO ME DIGAS LA VERDAD\nNO TE QUEDES CALLADA, NO LEVANTES LA VOZ\nNI ME PIDAS PERDÓN.\nAUNQUE CASI TE CONFIESO QUE TAMBIÉN HE SIDO\nUN\nPERRO COMPAÑERO, UN PERRO IDEAL\nQUE APRENDIÓ A LADRAR Y A VOLVER AL HOGAR, PARA PODER COMER\nFLACA ANDRES CALAMARO\nBAJANDO..................."}, {"title": "FRÍO", "text": "ALARMA\n[INTRO]\nEL RELOJ DE LA SUERTE MARCA LA PROFECÍA,\nDESEO ANGUSTIA SANGRE Y DESAMOR\nVIDA LLENA Y MI ALMA VACÍA,\nYO SOY EL PÚBLICO Y EL ÚNICO ACTOR\nDOM#\nLAS OLAS ROMPEN EL CASTILLO DE ARENA,\nDOM#\nCEREMONIA DE LA DESOLACIÓN\nDOM#\nSOY UN EXTRAÑO EN EL PARAÍSO,\nSOY EL JUGUETE DE LA DESILUSIÓN\nESTOY ARDIENDO Y SIENTO,\nFRÍO, .....\nGRITO LOS NOMBRES PERO NADIE RESPONDE,\nPERDÍ EL CAMINO DE VUELTA AL HOGAR\nSÉ QUE ESTOY YENDO PERO NO SE HACIA DÓNDE,\nBUSCO EL PRINCIPIO Y SOLO ENCUENTRO EL FINAL\nDOM#\nLAS OLAS ROMPEN EL CASTILLO DE ARENA,\nDOM#\nCEREMONIA DE LA DESOLACIÓN\nDOM#\nSOY UN EXTRAÑO EN EL PARAÍSO,\nSOY EL JUGUETE DE LA DESILUSIÓN\nESTOY ARDIENDO Y SIENTO,\nFRÍO, FRÍOOO\nFRÍO, FRÍOOO\nTERMINA EL SUEÑO SUENA EL DISPARO,\nSOY EL DELIRIO SOY LA CONFUSIÓN\nSOY SOLO UN VERSO QUE ESTÁ EQUIVOCADO,\nMIENTRAS LA MUERTE DEJA CAER EL TELÓN.\nDOM#\nLAS OLAS ROMPEN EL CASTILLO DE ARENA,\nDOM#\nCEREMONIA DE LA DESOLACIÓN\nDOM#\nSOY UN EXTRAÑO EN EL PARAÍSO,\nSOY EL JUGUETE DE LA DESILUSIÓN\nESTOY ARDIENDO Y SIENTO,\n[INSTRUMENTAL]\nFRÍO, FRÍOOO [X4]"}, {"title": "GRITA", "text": "HACE DIAS QUE TE OBSEVO, HE CONTADO CON LOS DEDOS,\nCUANTAS VECES TE HAS REIDO, UNA MANO ME HA VALIDO.\nHACE DIAS QUE ME FIJO, NO SE QUE GUARDAS AHÍ DENTRO\nJUZGAR POR LO QUE VEO, NADA BUENO, NADA BUENO.\nDE QUÉ TIENES MIEDO, A REIR Y A LLORAR LUEGO,\nROMPER EL HIELO, QUE RECUBRE TU SILENCIO.\nSUÉLTATE YA! Y CUÉNTAME, QUE AQUÍ ESTAMOS PARA ESO,\n\"PA\" LO BUENO Y \"PA\" LO MALO, LLORA AHORA Y RÍE LUEGO.\nSALGO CORRIENDO, TÚ ME AGARRAS POR EL CUELLO,\nY SI NO TE ESCUCHO, GRITA!\nTE TIENDO LA MANO, TÚ AGARRA TODO EL BRAZO,\nY SI QUIERES MÁS PUES, GRITA! INSTRUMENTAL\nHACE TIEMPO ALGUIEN ME DIJO CUAL ERA EL MEJOR REMEDIO\nCUANDO SIN MOTIVO ALGUNO SE TE IBA EL MUNDO AL SUELO\nY SI QUIERES YO TE EXPLICO EN QUÉ CONSISTE EL MISTERIO\nQUE NO HAY CIELO, MAR NI TIERRA; QUE LA VIDA ES UN SUEÑO.\nSALGO CORRIENDO...\nGRITA, GRITA, GRITA, GRITA SI SALGO CORRIENDO...GRITA"}, {"title": "INSURRECCIÓN", "text": "EL ULTIMO DE LA FILA\nM. GARCIA, Q. PORTET\nENEMIGOS DE LO AJENO [1986]\nESTROFA\nDONDE ESTABAS ENTONCES\nCUANDO TANTO TE NECESITE...\nNADIE ES MEJOR QUE NADIE,\nPERO TU CREISTE VENCER\nLLORE ANTE TU PUERTA\nDE NADA SIRVIO\nBARRAS DE BAR, VERTEDEROS DE AMOR,\nOS ENSENE' MI TROCITO PEOR\nRETALES DE MI VIDA,\nFOTOS AL CONTRALUZ\nME SIENTO HOY, COMO UN HALCON\nHERIDO POR LAS FLECHAS DE LA INCERTIDUMBRE\nESTROFA\nME CORTO EL PELO UNA Y OTRA VEZ,\nME QUIERO DEFENDER...\nDAME MI ALMA Y DEJAME EN PAZ,\nQUIERO INTENTAR NO VOLVER A CAER\nPEQUENAS TRETAS,\nPARA CONTINUAR EN LA BRECHA\nME SIENTO HOY, COMO UN HALCON\nLLAMADO A LAS FILAS DE LA INSURRECCION..."}, {"title": "LA CASA POR EL TEJADO", "text": "CASA POR EL TEJADO\nFITO & FITIPALDIS\nFITO CABRALES\nAHORA SÍ, PARECE QUE YA EMPIEZO A ENTENDER\nLAS COSAS IMPORTANTES AQUÍ\nSON LAS QUE ESTÁN DETRÁS DE LA PIEL.\nY TODO LO DEMÁS\nEMPIEZA DONDE ACABAN MIS PIES.\nDESPUÉS DE MUCHO TIEMPO APRENDÍ\nQUE HAY COSAS QUE MEJOR NO APRENDER.\nEL COLEGIO POCO ME ENSEÑÓ.\nES POR ESOS LIBROS NUNCA APRENDO\nCOGER EL CIELO CON LAS MANOS,\nREÍR Y A LLORAR LO QUE TE CANTO,\nCOSER MI ALMA ROTA,\nPERDER EL MIEDO A QUEDAR COMO UN IDIOTA,\nY A EMPEZAR LA CASA POR EL TEJADO,\nPODER DORMIR CUANDO TÚ NO ESTÁS A MI LADO.\nMENOS MAL QUE FUI UN POCO GRANUJA,\nTODO LO QUE SÉ ME LO ENSEÑÓ UNA BRUJA\n×\n×× RE5\n×× DO5\nAM7^G\n?\nRUINAS... ¿NO VES QUE POR DENTRO ESTOY EN RUINAS?\nCIGARRO VA QUEMANDO EL TIEMPO,\nTIEMPO QUE SE CONVIRTIÓ EN CENIZAS\nRARO!! ... NO DIGO DIFERENTE DIGO RARO!!\nYA NO SÉ SI EL MUNDO ESTÁ AL REVÉS\nO SOY YO EL QUE ESTÁ CABEZA ABAJO\nEL COLEGIO POCO ME ENSEÑÓ.\nES POR EL MAESTRO NUNCA APRENDO[...]"}, {"title": "LA FIESTA", "text": "FIESTA\nQUINTAFRICA EN TIKTOK\nBEBÍ, FUMÉ, ME ENAMORÉ, METÍ LA PATA, METÍ EL PIE\nME DI DOS PALOS, MEDITÉ, ME DI EL ABRAZO Y EL CAFÉ\nME DIO UN DOLOR DE NO SÉ QUÉ, BUSQUÉ LA CAUSA EN INTERNET\nDICE QUE VOY A MORIRME DE ALGO, Y QUE NO ES DE LA RISA\nCUANDO ME VAYA, QUE NO ME LLOREN\nCOMPREN VINO, NO QUIERO FLORES\nCON TODO LO CAMINADO, A MÍ NO ME HAN CONTADO\nYO ME MEREZCO LA SIESTA\nY A MIS AMIGOS, QUE NO ME LLOREN\nCOMPREN VINO, NO TRAIGAN FLORES\nME VOY A MORIR SOLAMENTE UNA VEZ\nME MEREZCO LA FIESTA\nYO ME MEREZCO LA FIESTA\n(INSTRUMENTAL Y CONO TU TU RURU)\nTU, TU-TU, TU-RU...\nY SE FUE EL TREN\nVARIOS TROPIEZOS EN EL CAMINO, PERO ME FUE BIEN\nVIVÍ, CUMPLÍ CON MI DESTINO, FUI LO QUE SOÑÉ\nNO ME DESPIDO, MIS AMIGOS, YO VUELVO OTRA VEZ\nOYE, PORQUE REM\nGENTE BUENA NO SE ENTIERRA, SE SIEMBRA\nNUESTRO CONTRATO ES UN CONTRATO DE RENTA\nYO NO ME DUERMO, SOLO TOMO LA SIESTA\nASÍ REPOSAN LOS OJOS, Y EL ALMA DESPIERTA\nCUANDO ME VAYA, QUE NO ME LLOREN\nCOMPREN VINO, NO QUIERO FLORES\nCON TODO LO CAMINADO, A MÍ NO ME HAN CONTADO\nYO ME MEREZCO LA SIESTA\nY A MIS AMIGOS, QUE NO ME LLOREN\nCOMPREN VINO, NO TRAIGAN FLORES\nME VOY A MORIR SOLAMENTE UNA VEZ\nME MEREZCO LA FIESTA\nME MEREZCO LA FIESTA REM\nGENTE BUENA NO SE ENTIERRA, SE SIEMBRA\nNUESTRO CONTRATO ES UN CONTRATO DE RENTA\nGENTE BUENA NO SE ENTIERRA, SE SIEMBRA\nGENTE BUENA\nGENTE BUENA\nNO, NO, NO, NO, NO ME LLOREN\nMUCHO VINO, NO QUIERO FLORES\nCON LO QUE HE CAMINADO, A MÍ NO ME HAN CONTADO\nYO ME MEREZCO LA SIESTA\nY A MIS AMIGOS, QUE NO ME LLOREN\nCOMPREN VINO, NO TRAIGAN FLORES\nME VOY A MORIR SOLAMENTE UNA VEZ\nME MEREZCO LA FIESTA\nPUERTA ESTÁ ABIERTA\nENTRA, ENTRA\nPÁSENLA BIEN, COÑO\nOS GUSTÓ SEGUIDME EN TIKTOK \"QUINTAFRICA\"\nY DI SI VIENES DE AQUI- GRACIAS !!!"}, {"title": "LA FLACA", "text": "FLACA\nJARABE DE PALO\nJARABE DE PALO\nFLACA\nEN LA VIDA CONOCÍ MUJER IGUAL A LA FLACA\nCORAL NEGRO DE LA HABANA,TREMENDÍSIMA MULATA\nCIEN LIBRAS DE PIEL Y HUESO,CUARENTA KILOS DE SALSA\nY EN LA CARA DOS SOLES QUE SIN PALABRAS HABLAN\nQUE SIN PALABRAS HABLAN\nFLACA DUERME DE DÍA,DICE QUE ASÍ AL HAMBRE ENGAÑA\nCUANDO CAE LA NOCHE BAJA A BAILAR A LA TASCA\nY BAILAR Y BAILAR Y TOMAR Y TOMAR\nUNA CERVEZA TRAS OTRA, PERO ELLA NUNCA ENGORDA\nPERO ELLA NUNCA ENGORDA\nPOR UN BESO DE LA FLACA DARÍA LO QUE FUERA\nPOR UN BESO DE ELLA AUNQUE SÓLO UNO FUERA\nPOR UN BESO DE LA FLACA DARÍA LO QUE FUERA\nPOR UN BESO DE ELLA AUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA\nMOJÉ MIS SABANAS BLANCAS, COMO DICE LA CANCIÓN\nRECORDANDO LAS CARICIAS QUE ME BRINDÓ EL PRIMER DÍA\nY ENLOQUEZCO DE GANAS DE DORMIR A SU LADITO\nPORQUE DIOS QUE ESTA FLACA A MÍ ME TIENE LOQUITO\nMÍ ME TIENE LOQUITO\nPOR UN BESO DE LA FLACA YO DARÍA LO QUE FUERA\nPOR UN BESO DE ELLA AUNQUE SÓLO UNO FUERA\nPOR UN BESO DE LA FLACA YO DARÍA LO QUE FUERA\nPOR UN BESO DE ELLA AUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA AUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA AUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA\nAUNQUE SÓLO UNO FUERA AUNQUE SÓLO UNO FUERA\nAUNQUE SOLO UNO FUERA\nAUNQUE SOLO UNO FUERA\nAUNQUE SOLO UNO FUERA\nAUNQUE SOLO UNO FUERA"}, {"title": "LA LISTA DE LA COMPRA", "text": "LISTA DE LA COMPRA\nCABRA MECÁNICA\nEN EL MISMO FOLIO,LA LISTA DE LA COMPRA\nY UNA CANCIÓN COMO UN CUPÓN DE LOS CIEGOS\nPRIMA LA SOLEDAD CON EL ATÚN EN ACEITE VEGETAL\nY EN OFERTA,VAYA PRECIOS SIN COMPETENCIA\nUNA MANO PIDE EL CIELO, LA OTRA EN EL CAJÓN DEL PAN,\nHAY MANCHAS DE GRASA, DE LLANTO, DE TINTA\nESTOY HARTO DE TANTO FROTAR\nTÚ, QUE ERES TAN GUAPA Y TAN LISTA\nTÚ, QUE TE MERECES UN PRÍNCIPE, UN DENTISTA,\nTU, TE QUEDAS A MI LADO Y EL MUNDO ME PARECE\nMÁS AMABLE,MÁS HUMANO, MENOS RARO\nQUÉ BONITO EL MAR, CUANDO LO MIRO A TU LADO\nOLVIDO LAS PATERAS,LAS MAREAS NEGRAS,\nLOS ALIJOS INCAUTADOS,\nLAS PLAYAS DONDE SE DEJAN MORIR LAS BALLENAS,\nESTE INFUMABLE PLATO COMBINADO\nUNA MANO PIDE EL CIELO, LA OTRA EN EL CAJÓN DEL PAN,\nHAY MANCHAS DE GRASA, DE LLANTO, DE TINTA\nESTOY HARTO DE TANTO FROTAR...\nYO QUE SOY TAN GUAPA Y TAN LISTA\nYO QUE ME MEREZCO UN PRÍNCIPE, UN DENTISTA,\nYO, ME QUEDO AQUI A TU LADO Y EL MUNDO ME PARECE\nMÁS AMABLE,MÁS HUMANO, MENOS RARO...\nY AUNQUE ME ENGAÑE Y ME DIGA QUE NO,\nSIEMPRE ESTÁS TÚ DETRÁS DE MI MEJOR YO\nY AUNQUE NO SOY PA' TÍ, QUE SOY PA' CONTIGO\nEL MUNDO ES TAN REDONDO COMO EL PIERCING DE TU OMBLIGO\nCOSA SE PONE DURA,SIN TU ALIENTO SIENTO CON AMARGURA\nQUE ESTOY PERDIENDO LA FRESCURA\nQUE SE VUELVE FRÍO SIN TU CALOR, Y SIN DROGA DURA,\nQUE TÚ..."}, {"title": "LA NEGRA FLOR", "text": "NEGRA FLOR. RADIO FUTURA\nDIME DONDE VAS, DIME DONDE VAS\nAL CAER EL SOL POR LA PUERTA DE ATRÁS\nNO HAY NADA QUE HACER Y YA PASO EL CALOR.\nY AL FINAL DE LA RAMBLA ME ENCONTRÉ\nCON LA NEGRA FLOR.\nESTUVE BUSCANDO, PERO NO LA ENCONTRÉ\nY SU AMIGA ME DIJO: ESTÁ TOMANDO CAFÉ\nEN EL BAR EL CAMARERO, ME DIJO: NO SÉ,\nBÚSCALA EN LA PLAYA, Y EN LA PLAYA BUSQUÉ.\nY LA VI DE LEJOS CAMINAR POR LA ARENA\nLOS ZAPATOS EN LA MANO Y EN LA CARA UNA PENA\nY UNA LÁGRIMA SUYA, COMO DIJO PERET\nEN LA ARENA CAYÓ.\nAL FINAL DE LA RAMBLA ME ENCONTRÉ\nCON LA NEGRA FLOR.\nQUIÉN TE HA HECHO MAL, DIME\nQUIEN TE HA HECHO MAL\nY RIÉNDOSE A MEDIAS DIJO MIRA CHAVAL\nHACE FALTA UN HOMBRE PARA HACERME MAL\nPORQUE YO HAGO LO QUE QUIERO\nY ME GANO MI DINERO\nY SI QUIERES YO TE QUIERO\nPERO PÁGAME PRIMERO, ¿EH?\nY DIJE: CHICA, NO PUEDES ESPERAR\nTÚ QUIERES DINERO YO TE VOY A DAR\nPORQUE HICE UN TRABAJITO Y ME LO VAN A PAGAR\nPERO ANTES DE QUE COBRE YA LO QUIERES GASTAR\n¡UH!\nY LUEGO ME VENDRÁS CON QUE “HACE FALTA MÁS”\n“HACE FALTA MÁS”, “HACE FALTA MÁS”\nPOR MUCHO QUE TE DÉ SIEMPRE “HACE FALTA\nMÁS”.\nY SI LA BOLSA SONA, SI LA BOLSA SONA\nTE PONES LOS ZAPATOS Y TE VAS POR BARCELONA\nCON TU COLA DE GATO Y TUS OJOS DE LEONA\nY MIRAS A ALGÚN TIPO Y TE PONES A BAILAR\nY PONME MÚSICA UN POCO MÁS.\nY ESA QUE VES BAILANDO AHORA\nQUIERE SER UNA SEÑORA\nCON UN PISO PUESTO, CON UN CHALET\nCON PISCINA PRIVADA Y UN SALÓN DE TÉ\nUN SALÓN DE TÉ, UN SALÓN DE TÉ\n¿CON ESA MALA LECHE Y UN SALÓN DE TÉ?\n¿LO QUIERE USTED ESTA NOCHE\nO MEJOR POR LA MAÑANA?\nVER COMO TE VEO MANEJAR LA PORCELANA\nQUE LE VAS A DAR UN GOLPE\nQUE LA VAS A ROMPER\nQUE SI TU NO ROMPES ALGO\nNO SABES QUE HACER\nNAOOOO WAO…\n¡ANDA YA! ME DIJO ¡ANDA YA!\nPERO TÚ QUE TE HAS CREÍDO SI NO VALES PA'NÁ\nQUE TE VOY A DAR EL GOLPE A TI\nY TE VAS A ENTERAR, DI\n¿POR QUÉ NO TE LARGAS Y ME DEJAS EN PAZ?\nY ES QUE ME GUSTA TU CARA\nY ME GUSTA TU PELO\nY LAS UÑAS TAN LARGAS\nY LA FALDA DE VUELO\nLO QUE NO ME GUSTA NADA\nES QUE SIEMPRE ESTÁS\nDONDE HAY MÁS PROBLEMAS\nMETIDA EN EL BAR\nCUANDO HAY GRITOS EN LA CALLE\nTE VEO PASAR\nY CUANDO LLEGA LA PASMA\nECHAR A VOLAR\nPERO NO TE HAS PREGUNTADO\nCUÁNTO PUEDE DURAR\nIR TIRANDO DE PRESTADO\nY SIN PODER PAGAR.\nTÚ DÓNDE VAS\nOYE, MUCHACHO\nQUE TAL TU MAMÁ\nPOR QUÉ NO VAS A VERLA\nQUE YA DEBE ESTAR\nESPERANDO POR TI\nY TE VA A REGAÑAR\nVUÉLVETE A LA TIENDA\nY PONTE A CURRAR\nY TE BUSCAS UNA NOVIA\nQUE TE QUIERA ESCUCHAR\nY TE CUELGAS DE ELLA\nO TE TIRAS AL MAR.\nVAYA UNA IDEA DE TIRARSE AL MAR...\nBRR..., Y SE ME ESTA HACIENDO TARDE\nY EMPIEZA A REFRESCAR\nY SE ESTA NUBLANDO EL CIELO\nY NOS VAMOS A MOJAR ASI QUE\nADIÓS CARIÑO\nADIÓS MI AMOR.\nAL FINAL DE LA RAMBLA\nME ENCONTRÉ CON LA NEGRA FLOR."}, {"title": "LA RAJA DE TU FALDA", "text": "RAJA DE TU FALDA\nESTOPA\nERA UNA TARDE TONTA Y CALIENTE DE ESAS QUE TE QUEMAN EL SOL LA FRENTE\nY ERA EL VERANO DEL 97, Y YO ME MORIA POR VERTE\nUNICA IDEA ERA CAMELARTE ERA LLEVARTE A CUALQUIER PARTE\nYO ESE DIA TOCABA EN EL BAR SIN NOMBRE Y ALLI ESPARABA ENCONTRARTE\nME PUSE UN PANTALOCINTO ESTRCHO LA CAMISETA DE LOS CONCIERTOS\nVAMOS JOSELE TIRA PAL COCHE PORQUE ESTA NOCHE NOS LA COMEMOS\nY AL PASAR POR TU CALLE ALLI ESTABAS TU ESPERANDO EN LA\nPARADA DEL AUTOBUS COMIENDOTE CON GRACIA AQUEL CHUPA CHU QUE VICIO\nQUE VICIO. NO SE QUE ME DIO POR LA ESPALDA CUANDO VI LA RAJA DE\nTU FALDA QUE UN SEAT PANDE SE ME CRUZÓ Y SE COMIO EL PARACHOQUE DE MI\nFORD SCORD.\nPOR LA RAJA DE TU FALDA YO TUVE UN PIÑAZO CON UN SEAT PANDA\nPOR LA RAJA DE TU FALDA YO TUVE UN PIÑAZO CON UN SEAT PANDA\n10:40 POST MERIDIAN, LLEGAMOS TARDE PARA NO VARIAR, Y EL\nTENOR GARITO ESTA MOSQUEAO PORQUE AUN NO HAY NADA MONTAO\nY LA GENTE ENTRA QUE TE ENTRA, Y YO ENCHUFA QUE TE ENCHUFA\nHERMANO PRUEBA QUE TE PRUEBA Y ESTO SE ESCUCHA O NO SE ESCUCHA\nEL CALOR DE LA GENTE ALMA DEL AMBIENTE LOS FOCOS DESCLUMBRANTES SON\nPMUY POTENTES EL PUBLICO DELANTE MUY EXPECTANTE, CALIENTE\nY ME TEMBLARON LAS PIERNAS AL VER DE NUEVO LA RAJA DE TU FALDA\nY AHORA YA HA PASADO EL TIEMPO, PARECE QUE FUERA AYER DESDE QUE\nDESAPARECISTE DEL CONCIERTO YO NO TE HE VUELTO A VER, YA NO RECUERDO\nTU CARA NI SIQUIERA TU MIRADA TAN SOLO PUEDO ACORDARME DE LA RAJA DE\nTU FALDA\nCORO3: POR LA RAJA DE TU FALDA YO ME OBSECIONAO Y VOY DE BARRA EN BARRA\nPOR LA RAJA DE TU FALDA YO TUVE UN PIÑAZO CON UN SEAT PANDA\nPOR LA RAJA DE TU FALDA YO TUVE UN PIÑAZO CON UN SEAT PANDA\nPOR LA RAJA DE TU FALDA YO TUVE UN SINIESTRO CON UN SEAT PANDA"}, {"title": "LA SENDA DEL TIEMPO", "text": "CELTAS CORTOS\nHOLA!! QUE TAL HE AQUÍ UNA ME MIS CANCIONES FAVORITAS VALE, EL INTRO\nESTE ES EL INTRO:\nVECES LLEGA UN MOMENTO EN QUE\nTE HACES VIEJO DE REPENTE\nSIN ARRUGAS EN LA FRENTE\nPERO CON GANAS DE MORIR\nPASEANDO POR LAS CALLES\nTODO TIENE IGUAL COLOR\nSIENTO QUE ALGO HECHO EN FALTA\nNO SE SI SERÁ EL AMOR\nME DESPIERTO POR LAS NOCHES\nENTRE UNA GRAN CONFUSIÓN\nESTA GRAN MELANCOLÍA\nESTA ACABANDO CONMIGO\nSIENTO QUE ME VUELVO LOCO\nME SUMERJO EN EL ALCOHOL\nLAS ESTRELLAS POR LA NOCHE\nHAN PERDIDO SU ESPLENDOR\nHE BUSCADO EN LOS DESIERTOS\nDE LA TIERRA DEL DOLOR\nY NO HE HALLADO MAS RESPUESTA\nQUE ESPEJISMOS DE ILUSIÓN\nHE HABLADO CON LAS MONTAÑAS\nDE LA DESESPERACIÓN\nY SU RESPUESTA ERA SOLO\nEL ECO SORDO DE MI VOZ\nVECES..."}, {"title": "LLANTO DE PASIÓN", "text": "ME HE ACORDADO MUCHAS VECES DE TI\nY HOY PENSADO EN VOLVERTE A ESCRIBIR.\nQUIERO CONTARTE QUE BUSCANDO ENTRE MIS LIBROS\nVI TUS DIBUJOS Y CASI TE OI DECIR;\nHOLA QUE TAL JUAN MANUEL. QUE TAL!\nVAMOS, PERO DANDO LA VUELTA.\nESPERA, NO ME COJAS AUN\nQUE ESTA MI MADRE EN EL BALCOOOOOOOOOON.\nYO VIVO EN EL MISMO LUGAR\nEXISTE AUN AQUEL BAR Y EL RINCON\nDONDE SOLIAMOS HABLAR\nDONDE ESCUCHABAMOS NUESTRA CANCION.\nAHORA YA NO VAN A MERENDAR\nLOS DE LA FÁBRICA DE GAS.\nY AHORA YA NO HAY PALOMAS\nNI AQUEL GATO QUE ERA CAZADOR.\nARRANCARON EL ÁRBOL.\nQUE HACIA SOMBRA EN TU PUERTA.\nY CASI TE OIGO DECIR.\nHOLA, QUE TAL JUAN MANUEL?\nCASI TE PUEDO IMAGINAR\nAL VER TU FIRMA EN UN PAPEL.\nAUN TE RECUERDO MUCHAS VECES PIENSO EN TI.\nY HOY HE PENSADO EN VOLVERTE A ESCRIBIR\nLLANTO DE PASION,\nAGUA DE\nLLUVIA, AGUA DE DÍAS QUE VENDRÁN.\nME DESPERTE SIN TI. NO VOLVERÁS JAMÁS.\nADIÓS MANUEL,LICO MANUEL,\nME VOY HACIA EL FONDO, AL MAR DE LA NADA.\nY YO AQUÍ TENDIDO ESTOY\nEN ESTE LECHO DE LLANTO.\nARRIBA, VENGA PONTE DE PIE.\nLO QUE PASO YA NO EXISTE, PUES BIEN\nHACE YA MÁS DE UN MES.\nAHORA ES MEJOR OLVIDAR...INSTRUMEN.\nLLANTO DE PASIÓN NO RECUERDO QUIEN FUE\nQUE TANTO AME QUE CANSADO QUE ESTOY\nRECUERDOS QUE AL FINAL SON UN CRUCE DE CAMINOS\nQUE TAL LICO MANUEL YA VES, VUELVO A\nDONDE EMPECÉ."}, {"title": "LOS OLVIDADOS", "text": "PEDRO PASTOR\nPEDRO PASTOR\nVUELTAS [2021]\nLOS QUE RETUMBAN EN LA MEMORIA\nLOS PERSEGUIDOS\nDE ANOCHECIDA EN MITAD DEL CERRO\nLOS EXILIADOS\nLOS QUE JAMÁS VOLVIERON A VER\nCORRER A SUS HIJOS\nLAS OLVIDADAS\nLAS QUE ESCONDÍAN PAN EN EL MIMBRE\nLAS PERSEGUIDAS\nY SEÑALADAS EN TODO EL PUEBLO\n?\nLAS EXILIADAS\nLAS QUE JAMÁS VOLVIERON A VER\nCORRER A SUS HIJAS\nNO OLVIDARÉ\nPARA QUE HAYA SERVIDO DE ALGO TANTO DESVELO\nNO OLVIDARÉ\nPARA PODER HABLARLE A MIS HIJOS DЕ LOS ABUELOS\nPARA QUE UN DÍA AL FIN DESCANSEN, JUSTOS, LOS HUESOS\nNO OLVIDARÉ...\nLAS MAESTRAS\nQUE TANTO HICIERON POR ESTA LETRA\nY A LAS ARTISTAS\nLAS QUE BURLARAN A LA CENSURA\nLAS GUERRILLERAS\nQUE RESISTIERAN LOS BOMBARDEOS\nEN LAS TRINCHERAS\nLOS ESCONDIDOS\nPOR TREINTA AÑOS TRAS UN ARMARIO\nLOS ACUSADOS\nY FUSILADOS POR SUS IDEAS\nLOS EXTINGUIDOS\nSIN UNA ROSA\nLAS SILENCIADAS\nLAS QUE DEL MIEDO QUEDARON MUDAS\nLAS QUE PARIERON\nY LES PRIVARON DE LA SEMILLA\nLAS INVISIBLES\nHOY LAS NOMBRAMOS PA’ QUE SU LLAMA\nNUNCA SE EXTINGA\nNO OLVIDARÉ\nPARA QUE HAYA SERVIDO DE ALGO TANTO DESVELO\nNO OLVIDARÉ\nPARA PODER HABLARLE A MIS HIJOS DЕ LOS ABUELOS\nPARA QUE UN DÍA AL FIN DESCANSEN, JUSTOS, LOS HUESOS\nNO OLVIDARÉ..."}, {"title": "MACETAS DE COLORES", "text": "EL DESVÁN DEL DUENDE\nNOCHE ESTA MANCHANDO LAS PAREDES\nCON POMPAS DE JABÓN Y CHOCOLATE.\nPOR CÁCERES REVIENTAN LOS CLAVELES\nPARA GRITAR QUE NO, QUE YA ES BASTANTE.\n(¡EXTREMADURA!)\nNOCHE ESTÁ MANCHANDO LAS PAREDES\nCON POMPAS DE JABÓN Y CHOCOLATE.\nDEBAJO DE LA PIEDRAS LOS CLAVELES\nGRITAN QUE NO, QUE YA ES BASTANTE.\nLAS FALDAS DE MI NIÑA ESTÁN COLGADAS\nDE LA COPA DE UN PINO PIÑONERO.\nLE SOBRA LA MAÑANA UNA CIGARRA,\nY DOS CENCERROS, Y EL SOL DE ENERO.\nSIENTO QUE LA VIDA ES DIFERENTE AQUÍ,\nY BUSCO EL COLOR DE SU MIRADA.\nLUZ QUE INVENTO,\nLUZ QUE SALTA CADA DÍA,\nEL SUEÑO QUE SE AVALANZA.\n(¡CANIJO, VENTE PA CÁCERES!)\nEL CHAPARRÓN REGANDO TAGARNINAS,\nUNA VIEJA QUE BAILA POR LAS ESQUINAS,\nDEBAJO DE MACETAS DE COLORES\nPARA GRITAR QUE NO, QUE YA ES BASTANTE.\nSE TRATA DE VIVIR ENAMORADO.\nTE DOY UN PUÑAITO DE PALABRAS.\nSE TRATA DE LA LLUVIA EN LOS TEJADOS,\n(GARRAPATERO, EN EL DESVÁN DEL ABUELO,\nAQUÍ TE ESPERO,\nEN EL DESVÁN DEL DUENDE...)\nEY, PRIMO, LA VIDA ES BELLA,\nTÚ VERÁS COMO...\nCOMO DEBAJO DEL INVIERNO SUBE LA PRIMAVERA.\nPRIMAVERA\nEY PRIMO CANTA, CANTA PORQUE DEBAJO DEL\nINFIERNO SUBE SUBE LA PRIMAVERA LA\nPRIMAVERA"}, {"title": "MALDITA DULZURA", "text": "VETUSTA MORLA\nVETUSTA MORLA\nUN DÍA EN EL MUNDO\nHABLEMOS DE RUINA Y ESPINA\nHABLEMOS DE POLVO Y HERIDA\nDE MI MIEDO A LAS ALTURAS\nLO QUE QUIERAS PERO HABLEMOS\nDE TODO MENOS DEL TIEMPO\nQUE SE ESCURRE ENTRE LOS DEDOS\nHABLEMOS PARA NO OIRNOS\nBEBAMOS PARA NO VERNOS\nHABLANDO PASAN LOS DIAS\nQUE NOS QUEDAN PARA IRNOS\nYO AL BUCLE DE TU OLVIDO\nTU AL REDIL DE MIS INSTINTOS\nMALDITA DULZURA LA TUYA\nMALDITA DULZURA LA TUYA\nMALDITA.. DULZURA.. LA TUYA..\nME HABLAS DE RUINA Y ESPINA\nTE CLAVAS EL POLVO EN LA HERIDA\nME CULPAS DE LAS ALTURAS\nQUE VES DESDE TUS ZAPATOS\nNO QUIERES HABLAR DEL TIEMPO\nAUNQUE ESTE DE NUESTRO LADO\nY HABLAS PARA NO OIRME\nY BEBES PARA NO VERME\nYO CALLO Y RIO Y BEBO\nNO DOY TREGUA NI CONSUELO\nY NO ES POR MALDAD LO JURO\nES QUE ME DIVIERTE EL JUEGO\nMALDITA DULZURA LA MIA\nMALDITA DULZURA LA MIA\nMALDITA DULZURA LA MIA\nMALDITA DULZURA LA NUESTRA...\nOOOOOOOOOOO,AAAAAAAAAA"}, {"title": "ME OLVIDÉ DE VIVIR", "text": "/LA\nMMM, DE TANTO CORRER POR LA VIDA SIN FRENO\nME OLVIDÉ QUE LA VIDA SE VIVE UN MOMENTO\nDE TANTO QUERER SER EN TODO EL PRIMERO,\nME OLVIDÉ DE VIVIR, LOS DETALLES PEQUEÑOS\nDE TANTO JUGAR CON LOS SENTIMIENTOS\nVIVIENDO DE APLAUSOS ENVUELTOS EN SUEÑOS\nDE TANTO GRITAR MIS CANCIONES AL VIENTO\nYA NO SOY COMO AYER, YA NO SÉ LO QUE SIENTO\nME OLVIDÉ DE VIVIR, ME OLVIDÉ DE VIVIR\nME OLVIDÉ DE VIVIR, ME OLVIDÉ DE VIVIR\nDE TANTO CANTARLE AL AMOR Y A LA VIDA\nME QUEDÉ SIN AMOR UNA NOCHE DE UN DÍA\nDE TANTO JUGAR CON QUIEN YO MÁS QUERÍA\nPERDÍ SIN QUERER LO MEJOR QUE TENÍA\nDE TANTO OCULTAR LA VERDAD CON MENTIRAS\nME ENGAÑÉ SIN SABER QUE ERA YO QUIEN PERDÍA\nDE TANTO ESPERAR, YO QUE NUNCA OFRECÍA\nHOY ME TOCA LLORAR, YO QUE SIEMPRE REÍA\nME OLVIDÉ DE VIVIR, ME OLVIDÉ DE VIVIR\nDE TANTO CORRER POR GANAR TIEMPO AL TIEMPO\nQUERIENDO ROBARLE A MIS NOCHES EL SUEÑO\nDE TANTOS FRACASOS DE TANTOS INTENTOS\nPOR QUERER DESCUBRIR CADA DÍA ALGO NUEVO\nMM, DE TANTO JUGAR CON LOS SENTIMIENTOS..."}, {"title": "MI AGÜITA AMARILLA", "text": "POR FAVOR ME DAS UNA CERVEZA...\nY CREO QUE HE BEBIDO MAS\nDE CUARENTA CERVEZAS HOY\nY CREO QUE TENDRE QUE EXPULSARLAS\nFUERA DE MI\nY SUBO AL WATER\nQUE HAY ARRIBA EN EL BAR\nY ME EMPIEZO MEAR Y ME HECHO A REIR\nJAJAJAJAJAJAJ\nY SALE DE MI\nUNA AGÜITA AMARILLA CALIDA Y TIBIA\nY BAJA POR UNA TUBERIA\nPASA POR DEBAJO DE TU CASA\nPASA POR DEBAJO DE TU FAMILIA\nPASA POR DEBAJO DE TU LUGAR DE TRABAJO\nAGÜITA AMARILLA\nMMM!! MI AGÜITA AMARILLA\nHA HARA HAAA\nY LLEGA UN RIO, LA BEBE EL PASTOR\nBEBEN LAS VAQUITAS, RIEGA LOS CAMPOS\nAGÜITA AMARILLA\nOHH OHHHH!!\nAGÜITA AMARILLA!!!\nY BAJA AL MAR\nJUEGA CON LOS PECECILLOS\nJUEGA CON LOS CALAMARES\nJUEGA CON LAS MEDUSAS\nY CON LAS MERLUZAS, QUE TU TE COMES\nAGÜITA AMARILLA\nUUUU HAHA, MI AGÜITA AMARILLA...HA HAHAH\nAGUITA AMARRILLLLA ...LALALALALALALA\nEL SOL CALIENTA\nAGÜITA AMARILLA\nPONE A CIEN GRADOS\nMANDA PARA ARRIBA\nVIAJA Y POR EL CIELO LLEGUA A TU CUIDAD\nY EMPIEZA A DILUVIAR!! AHHHHH AHHHHH\nAHA\nMOJA LAS CALLES\nMOJA A TU PADRE\nTU MADRE LAVA LA VAJILLA\nCON MI AGÜITA AMARILLA\nLARA LARAAA\nMOJA EL PATIO DEL COLEGIO\nMOJA EN AYUNTAMIENTO\nAGUITA AMARILLA, MIA GUITA AMARILLA\nAGUITA AMARILLA, MIA GUITA AMARILLA\nLALA, LALA LALA UAAAA\nY CREO QUE HE BEBIDO\nMAS DE CUARENTA CERVEZAS HOY\nY CREO QUE TENDRE QUE EXPULSARLAS\nFUERA DE MI, Y SUBO AL WATER QUE HAY ARRIBA\nEN EL BAR Y ME HECHO A MEAR\nY ME HECHO A REIR\nY ME PONGO A PENSAR\nDONDE IRA, DONDE IRA, DONDE IRA , DONDE IRA??\nSE ESPARCIRA POR EL MUNDO\nPONDRA VERDE LA SELVA\nY LO QUE MAS ME ALEGRA ES QUE MI AGÜITA\nAMARILLA ES UN LIQUIDO INMUNDO ---\nLALALALALALAL\nAGUITAAMARILLA....LALALALALALALALA\nAGUITA AMARILLA"}, {"title": "MI GRAN NOCHE", "text": "GRAN NOCHE\nRAPHAEL\nSALVATORE ADAMO\nPUNTO Y SEQUIDO\nHOY PARA MI ES UN DIA ESPECIAL, HOY SALDRE POR LA NOCHE.\nPODRE VIVIR LO QUE EL MUNDO NOS DA CUANDO EL SOL YA SE ESCONDE.\nPODRE CANTAR UNA DULCE CANCION A LA LUZ DE LA LUNA,\nY ACARICIAR Y BESAR A MI AMOR COMO NO LO HICE NUNCA\n¿QUE PASARA, QUE MISTERIO HABRA? PUEDE SER MI GRAN NOCHE,\nY AL DESPERTAR YA MI VIDA SABRA ALGO QUE NO CONOCE\nCAMINARE ABRAZADO A MI AMOR POR LAS CALLES SIN RUMBO.\nDESCUBRIRE QUE EL AMOR ES MEJOR CUANDO TODO ESTA OSCURO.\nY SIN HABLAR NUESTROS PASOS SE IRAN A BUSCAR OTRA PUERTA\nQUE SE ABRIRA COMO MI CORAZON CUANDO ELLA SE ACERCA.\n¿QUE PASARA, QUE MISTERIO HABRA? PUEDE SER MI GRAN NOCHE,\nY AL DESPERTAR YA MI VIDA SABRA ALGO QUE NO CONOCE\nSERA, SERA ESTA NOCHE IDEAL QUE YA NUNCA SE OLVIDA.\nPODRE REIR Y CANTAR Y BAILAR DISFRUTANDO LA VIDA.\nOLVIDARE LA TRISTEZA Y EL MAL Y LAS PENAS DEL MUNDO,\nY ESCUCHARE LOS VIOLINES CANTAR EN LA NOCHE SIN RUMBO.\n¿QUE PASARA, QUE MISTERIO HABRA? PUEDE SER MI GRAN NOCHE,\nY AL DESPERTAR YA MI VIDA SABRA ALGO QUE NO CONOCE"}, {"title": "MORIRÍA POR VOS", "text": "AMARAL\nJUAN AGUIRRE, EVA AMARAL\nESTRELLA DE MAR\nOLA MAJ0S !! STA KANSION ES MU FASIL0TA PA TOKALA I M0LA UN WEB0\nDISFRUTAD !!\nCOMO NICOLAS CAGE EN LIVING LAS VEGAS\nVEO CAER LA NIEVE EN LA HIERBA,\nUN ROBINSON EN UNA ISLA DESIERTA\nCOMO NICOLAS CAGE EN LIVING LAS VEGAS\nSOY EL INVIERNO CONTRA TU PRIMAVERA,\nUN DORIAN GRAY SIN PASADO NI PATRIA NI BANDERA\nSERÁ TU VOZ, SERÁ EL LICOR,\nSERÁN LAS LUCES DE ESTA HABITACIÓN\nSERÁ EL PODER DE UNA CANCIÓN,\nPERO ESTA NOCHE MORIRÍA POR VOS..........INTRO\nCOMO NICOLAS CAGE EN LIVING LAS VEGAS\nNO TENGO PLANES MÁS ALLÁ DE ESTA CENA,\nES UN MISTERIO HACIA DÓNDE LA NOCHE NOS LLEVA\nCOMO NICOLAS CAGE EN LIVING LAS VEGAS\nVAMOS, MI NIÑO, A PERDER LA CABEZA\nCOMO SI FUERA NUESTRO ÚLTIMO DÍA EN LA TIERRA\nSERÁ TU VOZ, SERÁ EL LICOR,\nSERÁN LAS LUCES DE ESTA HABITACIÓN\nSERÁ QUE SUENA MARQUEE MOON\nPERO ESTA NOCHE MORIRÍA POR VOS\nSERÁ EL CHAMPAGNE, SERÁ EL COLOR DE TUS OJOS VERDES\nDE CIENCIA FICCIÓN\nULTIMA CENA PARA LOS DOS\nPERO ESTA NOCHE MORIRÍA POR VOS\nSERÁ TU VOZ, SERÁ EL LICOR,\nSERÁN LAS LUCES DE ESTA HABITACIÓN\nSERÁ EL PODER DE UNA CANCIÓN,\nPERO ESTA NOCHE MORIRÍA POR VOS.\nSERÁ EL CHAMPAGNE, SERÁ EL COLOR DE TUS OJOS VERDES\nDE CIENCIA FICCIÓN\nULTIMA CENA PARA LOS DOS\nPERO ESTA NOCHE MORIRÍA POR VOS\n*** OTRA VEZ LOS AKORDES D SIEMPRE: DO FA LAM SOL\n*** EL ULTIMO D TODOS ES: DO\nALE, TALUEHS MAJ0S :D"}, {"title": "NO ESTAMOS LOKOS ( KALIKEÑO)", "text": "KETAMA\nANTONIO CARMONA JUAN CARMONA JOSE SOTO\nNO ESTAMOS LOKOS .... Y BUSCARE\nME DESPERTE ESTA MAÑANA\nLA-/DO, SI7)\nY EMPIEZA DE NUEVO UN DIA\nDESPUES DE UNA BORRACHERRA\nLA-/DO, SI7)\nME TOMAO UNA MANZANILLA\nVOY EN BUSCA DEL CAMBORIO\nQUE SE LO FUMA EN ARGUILA\nTENGO QUE TANQUILIZARME\nLA-/DO, SI7)\nME DESMADRO TOS LOS DIAS\nNO ESTAMOS LOKOS\nQUE SABEMOS LO QUE QUEREMOS\nVIVE LA VIDA\nLA-/DO SI7\nIGUAL QUE SI FUERA UN SUEÑO\nPERO QUE NUNCA TERMINA\nQUE SE PIERDE CON EL TIEMPO\nLA-/DO SI7\nY BUSCARE, HOYE PERO BUSCARE\nNO ESTAMOS LOKOS\nQUE SABEMOS LO QUE QUEREMOS\nVIVE LA VIDA\nLA-/DO SI7\nIGUAL QUE SI FUERA UN SUEÑO\nPERO QUE NUNCA TERMINA\nQUE SE PIERDE CON EL TIEMPO\nFO FA#7\nY BUSCARE EEEEEHH EEEHHH..\nFO FA#7\nME GUSTA VIVIR LA VIDA\nY A NADIE DAR EXPLICACIONES\nSOY BOHEMIO Y SOÑADOR\nPREGONANDO EN MIS RINCONES\nFA6(B5)\nNOCHE A MI ME SEDUCE\nLA-/DO, SI7\nY EMBRUJA MI FANTASIA\nFA6(B5)\nY ES QUE LA NOCHE ME INSPIRA\nY ES MI ADORADA ENEMIGA\nNO ESTAMOS LOKOS.....\n- ESTE TEMA AUNQUE PARECE MUY DIFICIL NO LO ES.\nDIFICULTAD.\nXICU ROVIRA"}, {"title": "NO PUEDO VIVIR SIN TI", "text": "COQUE MALLA\nCOQUE MALLA\nSINGLE ACÚSTICO PARA CAMPAÑA IKEA [2007]\nVERSIÓN ACÚSTICA POR COQUE MALLA PARA LA CAMPAÑA DE IKEA\n| DO | MI7 | MI7 | FA | FA | MI7 | SOL7/6\nLLEVAS AÑOS ENREDADA EN MIS MANOS,\nEN MI PELO, EN MI CABEZA,\nSOL7/6\nY NO PUEDO MÁS, NO PUEDO MÁS.\nDEBERÍA ESTAR CANSADO DE TUS MANOS,\nDE TU PELO, DE TUS RAREZAS,\nSOL7/6\nPERO QUIERO MÁS, YO QUIERO MÁS.\nNO PUEDO VIVIR SIN TI,\nNO HAY MANERA,\nNO PUEDO ESTAR SIN TI,\nSOL7/6 DO\nNO HAY MANERA.\n| C | E7 | E7 | F | F | E7 | G7/6\nME DIJISTE QUE TE IRÍAS,\nPERO LLEVAS EN MI CASA TODA LA VIDA.\nSÉ QUE NO TE IRÁS, TÚ NO TE IRÁS.\nHAS COLGADO TU BANDERA, TRASPASADO LA FRONTERA,\nERES LA REINA,\nSIEMPRE REINARÁS, SIEMPRE REINARÁS.\nNO PUEDO VIVIR SIN TI,\nNO HAY MANERA,\nNO PUEDO ESTAR SIN TI,\nNO HAY MANERA.\n| C | E7 | E7 | F | F | E7 | G7/6\nY AHORA ESTOY AQUÍ ESPERANDO A QUE VENGAN A BUSCARME,\nTÚ NO TE MUEVAS,\nNO ME ENCONTRARÁN, NO ME ENCONTRARÁN.\nYO ME QUEDO PARA SIEMPRE CON MI REINA Y SU BANDERA,\nYA NO HAY FRONTERAS,\nME DEJARÉ LLEVAR A NINGÚN LUGAR.\nNO PUEDO VIVIR SIN TI,\nNO HAY MANERA,\nNO PUEDO ESTAR SIN TI,\nNO HAY MANERA.\nNO PUEDO VIVIR SIN TI,\nNO HAY MANERA,\nNO PUEDO ESTAR SIN TI,\nNO HAY MANERA."}, {"title": "PÁJAROS DE BARRO", "text": "POR SI EL TIEMPO ME ARRASTRA\nPLAYAS DESIERTAS,\nHOY CIERRO YO EL LIBRO\nDE LAS HORAS MUERTAS.\nHAGO PÁJAROS DE BARRO,\nHAGO PÁJAROS DE BARRO Y LOS HECHO A VOLAR.\nPOR SI EL TIEMPO ME ARRASTRA\nPLAYAS DESIERTAS\nHOY RECHAZO LA BAJEZA\nDEL ABANDONO Y LA PENA.\nNI UNA PÁGINA EN BLANCO MÁS.\nSIENTO EL ASOMBRO DE UN TRANSEÚNTE SOLITARIO.\nEN LOS MAPAS ME PIERDO,\nPOR SUS HOJAS NAVEGO.\nAHORA SOPLA EL VIENTO,\nCUANDO EL MAR QUEDÓ LEJOS HACE TIEMPO.\nHAY YA NO SUBO LA CUESTA\nQUE ME LLEVA A TU CASA.\nHAY YA NO DUERME MI PERRO\nJUNTO A TU CANDELA.\nEN LOS VÉRTICES DEL TIEMPO ANIDAN LOS SENTIMIENTOS.\nHOY SON PÁJAROS DE BARRO QUE QUIEREN VOLAR.\nEN LOS VALLES ME PIERDO,\nEN LAS CARRETERAS DUERMO.\nAHORA SOPLA EL VIENTO,\nCUANDO EL MAR QUEDÓ LEJOS HACE TIEMPO.\nCUANDO NO TENGO BARCA,\nCUANDO YA NO CANTA\nEL RUISEÑOR DE LA MAÑANA.\nAHORA SOPLA EL VIENTO...\nCUANDO EL MAR QUEDÓ LEJOS HACE TIEMPO.\nEN LOS VALLES ME PIERDO\nEN LAS CARRETERAS DUERMO\nCUANDO EL MAR QUEDÓ LEJOS HACE TIEMPO.\nPARADA......."}, {"title": "PARA NO OLVIDAR", "text": "ANDRÉS CALAMARO\nANDRES CALAMARO\nDE UN TIEMPO PERDIDO,\nESTA PARTE ESTA NOCHE HA VENIDO,\nUN RECUERDO ENCONTRADO,\nPARA QUEDARSE CONMIGO.\nDE UN TIEMPO LEJANO,\nESTA PARTE HA VENIDO ESTA NOCHE,\nOTRO RECUERDO PROHIBIDO,\nOLVIDADO EN EL OLVIDO.\nSENTIMENTALMENTE PARA REMEDIARLO,\nVOY A QUEDARME CONTIGO PARA SIEMPRE,\nPERO PUEDE QUE TE ENCUENTRE ÚLTIMAMENTE,\nENTRE TANTO ME CONFUNDO CON LA GENTE. OHOH OHOH\nSENTIMENTALMENTE NUESTRO POR AHORA, OHOH OHOH\nES EL NIDO QUE EL OLVIDO A DESTRUIDO, OHOH OHOH\nY SI EL VIENTO ME DEVUELVE A TUS ORILLAS,\nSERENAMENTE SERA DORMIDO, SERENAMENTE SERA DORMIDO.\nDE UN TIEMPO LEJANO,\nESTA PARTE HA VENIDO PERDIDO,\nSIN TOCARME LA PUERTA,\nRECUERDO ENTROMETIDO.\nDE UN TIEMPO OLVIDADO,\nHA VENIDO UN RECUERDO MOJADO,\nDE UN TARDE DE LLUVIA,\nDE TU PELO ENREDADO.\nCOMO SIEMPRE QUE SE CAMBIAN LOS PAPELES,\nVOY A QUEDARME DORMIDO EN TU CINTURA,\nY SI ME DESPIERTA EL DÍA PRESUMIDO,\nDÉJAME QUEDARME UN POCO EN LAS ALTURAS, OHOH OHOH\nPARA QUE CONTAR EL TIEMPO QUE NOS QUEDA, QUE NOS QUEDA\nPARA QUE CONTAR EL TIEMPO QUE SE HA IDO, QUE SE HA IDO\nVIVIR ES UN REGALO Y UN PRESENTE,\nMITAD ES CIERTO MITAD DORMIDO, MITAD ABIERTO MITAD DORMIDO.\nPRESENTE MIS CREDENCIALES A TU RISA,\nY ME CLAVASTE UNA LANZA EN EL COSTADO, OHOH OHOH\nCREO QUE NO TE DEJE JUGAR CON FUEGO, AY CON FUEGO\nY SI UN DÍA ENCONTRARE UNA MAÑANA,\nSERA POSIBLE SERA DORMIDO, SERA POSIBLE SERA DORMIDO.\nOH OHOH OH OH OH OHOH OH OH OHOH\nOH OHOH OH OH OH OHOH OH OH OHOH\nY SI UN DÍA ENCONTRARE UNA MAÑANA,\nSERA POSIBLE SERA DORMIDO, SERA POSIBLE SERA DORMIDO."}, {"title": "POR LA BOCA VIVE EL PEZ", "text": "SUENA IGUAL, PERO ES ALGO MAS COMPRENSIBLE. A VER SI GUSTA.\nA-ALGO, LO QUE ME INVADE,\nTODO VIENE DE DENTRO.\nNUNCA LO QUE ME SACIE,\nSIEMPRE QUIERO, LOBO HAMBRIENTO.\nA-TODO ME QUEDA GRANDE\nPARA NO ESTAR CONTIGO\n¿SABES?, QUISIERA AMARTE\nSIEMPRE UN POCO MÁS DE LO QUE TE PIDO.\nB-SABES QUE SOÑARÉ\nNO ESTÁS, QUE ME DESPIERTO CONTIGO\nSABES QUE QUIERO MÁS,\nNO SÉ VIVIR SÓLO CON CINCO SENTIDOS.\nESTE MAR CADA VEZ GUARDA MÁS BARCOS HUNDIDOS\nC-TU ERES AIRE. YO, PAPEL.\nDONDE VAYAS YO ME IRÉ\nME QUEDO A OSCURAS\nLUZ DE LA LOCURA, VEN Y ALÚMBRAME.\nC-ALGUIEN DIJO ALGUNA VEZ\n\"POR LA BOCA VIVE EL PEZ\"\nY YO LO ESTOY DICIENDO,\nTE LO ESTOY DICIENDO, OTRA VEZ...\nA-DIME POR QUÉ PREGUNTAS\nCUÁNTO TE HE ECHADO DE MENOS\nEN CADA CANCIÓN QUE ESCRIBO,\nCORAZÓN, ERES TÚ EL ACENTO\nA-NO QUIERO ESTRELLA ERRANTE\nNO QUIERO VER LA AURORA\nQUIERO MIRAR TUS OJOS\nDEL COLOR DE LA COCA-COLA\nB-SABES QUE SOÑARÉ\nNO ESTÁS, QUE ME DESPIERTO CONTIGO\nSABES QUE QUIERO MÁS,\nNO SE VIVIR SOLO CON CINCO SENTIDOS\nESTE MAR CADA VEZ GUARDA MÁS BARCOS HUNDIDOS\nD-NO ESTÁS CONMIGO SIEMPRE QUE TE CANTO\nYO HAGO CANCIONES PARA ESTAR CONTIGO\nPORQUE ESCRIBO IGUAL QUE SANGRO\nPORQUE SANGRO TODO LO QUE ESCRIBO\nD-ME HE DADO CUENTA, CADA VEZ QUE CANTO,\nQUE SI NO CANTO NO SÉ LO QUE DIGO\nPENA ESTÁ BAILANDO CON EL LLANTO\nY CUANDO QUIERA BAILARÁ CONMIGO\nVIDA ETERNA SÓLO DURA UN RATO\nQUE ES LO QUE TENGO PARA ESTAR CONTIGO\nPARA DECIRTE LO QUE NUNCA CANTO\nPARA CANTARTE LO QUE NUNCA DIGO"}, {"title": "QUÉ NAVIDAD TAN ESPECIAL", "text": "🎄“QUÉ NAVIDAD TAN ESPECIAL” (LETRA\n– MIM – FA – REM – SIM – SOL# - SOL\nWONDERFUL WORLD”)\nVEO LUCES BRILLAR,\nLAS CALLES AL PASAR,\nFAMILIAS QUE SE ABRAZAN\nVOLVIENDO A EMPEZAR.\nY PIENSO PARA MÍ…\nQUÉ NAVIDAD TAN ESPECIAL.\n– MIM – FA – REM – SIM – SOL# - SOL\nESCUCHO AL CELEBRAR\nRISAS EN EL HOGAR,\nNIÑOS QUE CON SUS SUEÑOS\nNO DEJAN DE JUGAR.\nY PIENSO PARA MÍ…\nQUÉ NAVIDAD TAN ESPECIAL.\n– MIM – FA – REM – SIM – SOL# - SOL\nPUENTE\nGENTE AL CAMINAR\nSE DESEA LO MEJOR,\nY EN CADA CORAZÓN\nSE ENCIENDE UN POCO DE AMOR.\nLAS MESAS CON SABOR,\nRECUERDOS Y CALOR,\nVIDA NOS REGALA\nMOMENTOS DE VALOR.\nY PIENSO PARA MÍ…\nQUÉ NAVIDAD TAN ESPECIAL.\n– MIM – FA – REM – SIM – SOL# - SOL\nSÍ… PIENSO PARA MÍ…"}, {"title": "QUERIDA MILAGROS", "text": "ESTA MAÑANA, AL SALIR A PATRULLAR,\nHAYAMOS MUERTO AL SOLDADO ADRIAN\nCOMO MANDA EL REGLAMENTE, PROCEDIMOS A BUSCAR\nLOS OBJETOS QUE LLEVABA, SOLO HALLAMOS ESTA CARTA\nQUERIDA MILAGROS, LLEVO SEIS DÍAS AQUÍ\nTE ECHO DE MENOS NO PUEDO VIVIR SIN TI.\nHE VISTO LAS EXPLOSIONES BRILLANDO A MÍ ALREDEDOR\nTENGO MIEDO NO LO OCULTO SOLO ME QUEDA TU AMOR\nESTRI.\nPOR AHORA LA SUERTE ME HA SONREIDO,\nNECESITO VERTE AQUI NO HAY AMIGOS\nNO ESTARÍA DE MAS QUE ALGUIEN ME EXPLICARA\nQUE TIENE ESTO QUE VER CONTIGO Y CONMIGO\nQUERIDA MILAGROS, QUEDA TANTO POR VIVIR\nSERÍA ABSURDO DEJARSE LA PIEL AQUÍ.\nQUERIDA MILAGROS AUN NO HE PODIDO DORMIR\nUN SUEÑO FRÍO ME ANUNCIA QUE LLEGA EL FIN\nCUANDO LEAS ESTA CARTA HÁBLALES A LAS ESTRELLAS\nDESDE QUE HE LLEGADO AQUÍ, SOLO HE HABLADO CON ELLAS\nESTRI.\nHE VISTO A LOS HOMBRES LLORAR COMO NIÑOS\nHE VISTO A LA MUERTE COMO UN AVE EXTRAÑA\nPLANEAR EN SILENCIO SOBRE LOS CAMINOS\nDEVORANDO AL SOL QUE ES TUYO Y ES MÍO\nQUERIDA MILAGROS, LLEVO SEIS DÍAS AQUÍ\nTE ECHO DE MENOS, NO PUEDO VIVIR SIN TI\nQUERIDA MILAGROS, QUEDA TANTO POR VIVIR\nSERÍA ABSURDO DEJARSE LA PIEL AQUÍ\nQUERIDA MILAGROS, LLEVO SEIS DÍAS AQUÍ\nMUCHOS HAN MUERTO, CASI TODOS MORIRÁN\nQUERIDA MILAGROS, ME TENGO QUE DESPEDIR\nSIEMPRE TE QUIERE TU SOLDADO ADRIAN"}, {"title": "RAYANDO EL SOL", "text": "MANÁ\nALEX FHER\nFALTA AMOR [1990]\n- LA - SIM - SOL\n- FA#M - SOL - LA - SIM\nRAYANDO POR TI\nESTA PENA ME DUELE\nME QUEMA SIN TU AMOR\nNO ME HAS LLAMADO\nESTOY DESESPERADO\nSON MUCHAS LUNAS\nLAS QUE TE HE LLORADO\nRAYANDO EL SOL, OE OH\nDESESPERACION\nES MAS FACIL LLEGAR AL SOL\nQUE A TU CORAZON\nME MUERO POR TI , OE OH\nVIVIENDO SIN TI\nY NO AGUANTO ME DUELE TANTO\nESTAR ASI, RAYANDO EL SOL\nTU CASA YO FUI\nY NO TE ENCONTRE\nEN EL PARQUE, EN LA PLAZA, EN EL CINE\nYO TE BUSQUE\nTE TENGO ATRAPADA\nENTRE MI PIEL Y MI ALMA\nMAS YA NO PUEDO TANTO\nY QUIERO ESTAR JUNTO A TI\nRAYANDO EL SOL..."}, {"title": "SALTA", "text": "TEQUILA\nEN EL 5º PARA QUE SUENE MAS COMO LA CANCIÓN ORIGINAL. EL EM7 SERÍA\nSALÍ DE CASA CON LA SONRISA PUESTA,\nHOY ME HE LEVANTADO CONTENTO DE VERDAD.\nEL SOL DE LA MAÑANA BRILLA EN MI CAMA,\nUNA BRISA FRESCA ME AYUDA A DESPERTAR\nYO DIGO: ¡OI!\nCIUDAD PARECE MI AMIGA,\nHOY ES MI DÍA Y NADIE ME LO VA A ARRUINAR.\nLAS CHICAS DE LA ESQUINA RIEN CON PICARDÍA,\nYO SE LO QUE QUIEREN Y SE LO VOY A DAR.\nYO DIGO: SALTA, SALTA CONMIGO.\nYO DIGO: SALTA, SALTA CONMIGO,\nSALTA, SALTA CONMIGO, OOOOOOEHEH.\nVOY POR MI CAMINO SIN PREOCUPACIÓN,\nPASA LA GENTE Y ME MIRA MAL.\nPERO NO ME INPORTA A MÍ ME DA LO MISMO,\nHOY ESTOY A LEGRE Y TENGO GANAS DE SALTAR.\nYO DIGO: SALTA, SALTA CONMIGO.\nYO DIGO: SALTA, SALTA CONMIGO, SALTA.\nSALTA CONMIGO TURUTUTUTUTU, SALTAAAAA,\nSALTA, SALTAAAAAUI.\nYO DIGO: SALTA, SALTA CONMIGO.\nYO DIGO: SALTA, SALTA CONMIGO, SALTA.\nSALTA CONMIGO TURUTUTUTUTU, SALTAAAAA.\nSALTA, SALTA CONMIGO,\nSALTA CONMIGO, SALTA CONMIGO SALTA..."}, {"title": "SEMILLA NEGRA", "text": "LIGA DEL SUEÑO\nMUNDO CACHINA\nESE BESO ENTREGADO AL AIRE ES PARA TI\nFRUTA Q HAS DE COMER MAÑANA\nGUARDA LA SEMILLA POR Q ESTOY EN EL Y\nHAZME\nCRECER EN UNA TIERRA LEJANA\nME LLEVAS CONTIGO\nPROMETO SER LIGERO COMO LA BRISA\nY DECIRTE AL OIDO\nSECRETOS Q HARAN BROTAR TU RISA\nRISA\nPOR LA MATERIA QUE ME UNE A TI\nPOR LA MATERIA QUE ME UNE A TI\nPOR LA MATERIA QUE ME UNE A TI\nPOR LA MATERIA QUE ME UNE A TI\n(SOLO DE TROMPETA)\nESOS OJOS DETRAS DEL CRISTAL\nSON DOS NEGROS CAUTIVOS CRUZANDO EL MAR\nPOR LA NOCHE ESTARE SOLO EN LA SELVA\nQUE VOY A HACER\n- G (RASGEO SUAVE)\nESPERANDO QUE VUELVAS\nME LLEVAS CONTIGO\nPROMETO SER LIGERO COMO LA BRISA\nY DECIRTE AL OIDO\nSECRETOS Q HARAN BROTAR TU RISA\nRISA\nYO TENGO UN PENSAMIENTO BAGAVUNDO\nPOR SEGUIR TUS PASOS POR EL MUNDO\nYA QUE TU QUE NO ESTAS AQUI\n- G (RASGEO SUAVE)\nTE SEGUIRÉ\nEN UN BARQUITO DEL SUEÑO ALCANZAREMOS LA ORILLA\nEN UN BARQUITO DEL SUEÑO ALCANZAREMOS LA ORILLA\nPLANTAREMOS LA SEMILLA\nEN UNA TIERRA SIN DUEÑO\nLLEVARE,LLEVARE,LLEVARE PALLA BIS 4 YA ME\nVOY, YA ME VOY, ME VOY, ME VOY\nTUMBAO\n- FA - SOL"}, {"title": "SI ME DAS A ELEGIR", "text": "ME DAS A ELEGIR\nMANU CHAO\nME DAS A ELEGIR\nENTRE TÚ Y MIS IDEAS\nQUE YO SIN ELLAS\nSOY UN HOMBRE PERDIDO\nME DAS A ELEGIR\nENTRE TU Y LA GLORIA\nPA QUE LLEVE LA HISTORIA DE MI\nAY, POR LOS SIGLOS\nME DAS A ELEGIR\nENTRE TU Y ESE CIELO\nDONDE LIBRE ES EL VUELO\nPARA LLEGAR AL OLVIDO\nME DAS A ELEGIR\nME QUEDO CONTIGO\nPORQUE ME ENAMORADO\nY TE QUIERO Y TE QUIERO\nY SOLO DESEO\nESTAR A TU LADO\nSOÑAR CON TUS OJOS\nBESARTE LOS LABIOS\nME DAS A ELEGIR\nENTRE TÚ Y MIS IDEAS\nQUE YO SIN ELLAS\nSOY UN HOMBRE PERDIDO\nME DAS A ELEGIR\nME QUEDO CONTIGO\n(SKA)\nPUES ME ENAMORADO\nY TE QUIERO Y TE QUIERO\nY SOLO DESEO\nESTAR A TU LADO\nSOÑAR CON TUS OJOS\nBESARTE LOS LABIOS\nME DAS A ELEGIR\nENTRE TU Y LA GLORIA\nPA QUE LLEVE LA HISTORIA DE MI\nAY, POR LOS SIGLOS\nME DAS A ELEGIR\nME QUEDO CONTIGO\n(FIN SKA)\nME DAS A ELEGIR\nENTRE TÚ Y MIS IDEAS\nQUE YO SIN ELLAS\nSOY UN HOMBRE PERDIDO\nME DAS A ELEGIR\nME QUEDO CONTIGO\nPORQUE ME ENAMORADO\nY TE QUIERO Y TE QUIERO\nESTAR A TU LADO\nSOÑAR CON TUS OJOS\nBESARTE LOS LABIOS\n(SKA)\nME DAS A ELEGIR\nENTRE TU Y LA GLORIA\nPA QUE LLEVE LA HISTORIA DE MI\nAY, POR LOS SIGLOS\nME DAS A ELEGIR\nME QUEDO CONTIGO\nPORQUE ME ENAMORADO\nY TE QUIERO Y TE QUIERO\nY SOLO DESEO\nESTAR A TU LADO\nSOÑAR CON TUS OJOS\nBESARTE LOS LABIOS\nSENTIRME EN TUS BRAZOS\nQUE SOY MUY FELIZ\nME DAS A ELEGIR\nENTRE TÚ Y MIS IDEAS\nQUE YO SIN ELLAS\nSOY UN HOMBRE PERDIDO\nME DAS A ELEGIR\nENTRE TU Y ESE CIELO\nDONDE LIBRE ES EL VUELO\nPARA LLEGAR AL OLVIDO\n(FIN SKA)\nNADA ES PARA SIEMPRE"}, {"title": "SIN ALIENTO", "text": "CALLA Y QUE EL SECRETO NUNCA\nSALGA DE NUESTROS LABIOS\nDE NUESTROS LABIOS\nMORDIENDO LA MANZANA\nSELLAMOS ESTE PACTO\nES MÁGICO\nES LO MAS ÍNTIMO\nY TE PREGUNTAS POR QUÉ DOY\nTANTAS VUELTAS, SOY UN POSESO\nESTOY PRISIONERO\nYO ME CONOZCO\nALGO TIRA DE MÍ (MIM MIM SOL LAM\nEN MÁS DE UNA OCASIÓN\nME HABRÁS ENCONTRADO\nUN POCO IDO, QUIZÁS TRASTORNADO\nESCÚCHAME COMO VOY A EXPLICARTE\nQUE ALGO TIRA DE MÍ\nQUE ALGO TIRA DE MÍ\nSIN TOMAR ALIENTO ESTOY\nRODEADO DE CALOR\nESCUCHA TENGO QUE\nRESPIRAR Y RESPIRAR (X2) (MIM MIM SOL LAM)\nPARA, MÍRAME A LOS OJOS\nY TOMA MIS MANOS, COGE MIS MANOS\nY NO TE PREGUNTES POR QUÉ\nDAS TANTAS VUELTAS NO TE CONOCES\nESTÁS PRISIONERO\nALGO TIRA DE MÍ\nALGO TIRA DE MÍ\nSIN TOMAR ALIENTO ESTOY\nRODEADO DE CALOR\nESCUCHA TENGO QUE\nRESPIRAR Y RESPIRAR (X3)\nSIN TOMAR ALIENTO ESTOY\nRODEADO DE CALOR\nESCUCHA TENGO QUE\nRESPIRAR Y RESPIRAR (X4)\nSIN TOMAR ALIENTO ESTOY...\nSIN TOMAR ALIENTO ESTOY...\nSIN TOMAR ALIENTO ESTOY...\n-ESPERO QUE LES GUSTE, ES UNA GRAN CANCIÓN ESCRITA POR UNA\nDE LAS BANDAS QUE MEJOR UTILIZÓ EL NEW WAVE DE LOS '80 DE\nHABLA HISPANA, ORIUNDOS DE TORREMOLINOS Y MÁLAGA.\nVA DEDICADÍSIMA PARA MI HERMANOTE ALEX. ¡UN ABRAZO GORILA!\nGERARDO"}, {"title": "SO PAYASO", "text": "PUEDE QUE ME DEJE LLEVAR,\nMIM* MIM* SIM\nO PUEDE QUE LEVANTE LA VOZ\nMIM* MIM* SIM\nY PUEDE QUE ME ARRANQUE SIN MAS,\nMIM* MIM* SIM DO\nVER QUE ME DICE DESPUES...\nMIM* MIM* SIM\nQUIERO SER TU PERRO FIEL,\nMIM* MIM* SIM\nTU ESCLAVO SIN RECHISTAR\nMIM* MIM* SIM\nQUE LUEGO ME DESATO Y VERAS,\nMIM* MIM* SIM DO MIM\nVER QUE ME DICE DESPUES SO PAYASO\nME TIEMBLAN LOS PIES A SU LADO\nME DICE QUE ESTOY DESCOLORIO Y\nEMPIEZO A BESAR...\nVER QUE ME DICE DESPUES SO CRETINO\nY ME TIEMBLAN LOS PIES, A SU LADO\nME DICE QUE ESTOY DESCOLORIO\nY EMPIEZO A PENSAR......A VER QUE ME DICE DESPUES\nMIM* MIM* SIM\nMIM* MIM* SIM\nACERCATE Y YA VERAS,\nMIM* MIM* SIM\nQUE NO SE COMO HACERLO PEROR\nMIM* MIM* SIM\nPO DESPACITO PERO MU MAL\nMIM* MIM* SIM\nVER QUE ME DICE DESPUES.......\nMIM* MIM* SIM\nHAGO CASAS DE CARTON\nMIM* MIM* SIM\nAYER BEBI HASTA JURAR\nMIM* MIM* SIM\nPERO HOY NO ME LEVANTA NI DIOS\nMIM* MIM* SIM DO MIM\nY A VER QUE ME DICE DESPUES SO PAYASO\nME TIEMBLAN LOS PIES A SU LADO\nME DICE QUE ESTOY DESCOLORIO\nEMPIEZO A BESAR......\nVER QUE ME DICE DESPUES SO CRETINO\nY ME TIEMBLAN LOS PIES A SU LADO\nME DICE QUE ESTOY DESCONOCIO\nY EMPIEZO A PENSAR..... A VER QUE ME DICE DESPUES.\nMIM* MIM* SIM\nMIM* MIM* SIM DO MIM\nY A VER QUE ME DICE DESPUES SO PAYASO\nME TIEMBLAN LOS PIES A SU LADO\nME DICE QUE ESTOY DESCOLORIO\nEMPIEZO A BESAR......\nVER QUE ME DICE DESPUES SO CRETINO\nY ME TIEMBLAN LOS PIES A SU LADO\nME DICE QUE ESTOY DESCONOCIO\nY EMPIEZO A PENSAR..... A VER QUE ME DICE DESPUES."}, {"title": "SUCEDE", "text": "KEY: E MINOR\nSUCEDE QUE ME CANSO DE SER HOMBRE\nSUCEDE QUE ME CANSO DE MI PIEL Y DE MI CARA\nSUCEDE QUE SE ME HA ALEGRADO EL DÍA, COÑO\nALBERAZOS SECÁNDOSE EN TU VENTANA TUS BRAVAS\nEMPIEZAS SOLA, SIGO POR TI, NO COMPRENDO NADA\nTE SACO TORMENTA SIN RECHIZAR\nSÁCAME A UN DÍA DEL CURRAR, NECESITO SALIR\nHEY, LEJOS DE MÍ\nDEJA QUE CORRA EL AIRE Y NOTE QUE ME VA A SALIR EL SOL, SOL\nDÉJAME EN PAZ\nLUNA ME ILUMINA, EN ESTA RUINA ENTRA LA CLARIDAD\n¿QUIÉN QUIERE SABER?\nESTOY QUEMADO, ESCONDO UN CORAZÓN HELADO Y QUEMA MI SER\nNO HE VUELTO A SER EL MISMO\nDESDE QUE SE FUE GILLES PIZZA PA' MERCURY CAMARÓN\nY ME SIENTO MEJOR\nSÉ QUE TENGO UNA ESTRELLITA PEQUEÑITA PERO FIRME\nPERO FIRME\nPERO FIRME\nYO ME QUEDÉ CON SU OLOR, ELLA ME ARRANCÓ LA PIEL\nME DIJO JUSTO AL FINAL NO QUIERO VOLVERTE A VER\nHEY, LEJOS DE MÍ\nDEJA QUE CORRA EL AIRE, NOTE QUE ME VA A SALIR EL SOL, SOL\nDÉJAME EN PAZ\nLUNA ME ILUMINA, EN ESTA RUINA ENTRA LA CLARIDAD\n¿QUIÉN QUIERE SABER?\nESTOY QUEMADO, ESCONDO UN CORAZÓN HEGADO Y QUEMA MI SER\nNO HE VUELTO A SER EL MISMO\nDESDE QUE SE FUE GILES, PIZAPÁ, MERCURI Y CAMARÓN\nY ME SIENTO MEJOR\nSÉ QUE TENGO UNA ESTRELLITA PEQUEÑITA PERO FIRME\nPERO FIRME (PERO FIRME) PERO FIRME (PERO FIRME)"}, {"title": "SUFRE MAMON", "text": "ESTOY LLORANDO EN MI HABITACION\nTODO SE NUBLA A MI ALREDEDOR.\nELLA SE FUE CON UN NI~O PIJO\nEN UN FORD FIESTA BLANCO\nY UN JERSEY AMARILLO.\nPOR EL PARQUE LOS VEO PASAR\nCUANDO SE BESAN LO PASO FATAL.\nVOY A VENGARME DE ESE MARICA\nVOY A LLENARLE EL CUELLO\nDE POLVOS PICA-PICA.\nSUFRE, MAMON\nDEVUELVEME A MI CHICA\nO TE RETORSERAS\nENTRE POLVOS PICA-PICA.\nSUFRE, MAMON\nDEVUELVEME A MI CHICA\nO TE RETORSERAS\nENTRE POLVOS PICA-PICA.\nLE HE QUEMADO SU JERSEY\nSE HA COMPRADO CINCO O SEIS.\nVOY A DESTROZARLE EL COCHE\nLO TENGO PREPARADO\nVOY ESTA NOCHE.\nNO TE REIRAS NUNCA MAS DE MI\nLO SIENTO NENE VAS A MORIR.\nHOY ME QUITASTE LO QUE MAS QUERIA\nY VOLVERA CONMIGO\nVOLVERA ALGUN DIA.\nSUFRE MAMON..."}, {"title": "TE QUIERO IGUAL", "text": "ANDRÉS CALAMARO\nANDRÉS CALAMARO, C. PONIEMAN\nHONESTIDAD BRUTAL\n- FA/MI (ARPEGIADOS) REM]\n- FA/MI (ARPEGIADOS) REM]\nTE QUIERO PERO TE LLEVASTE LA FLOR Y ME DEJASTE EL FLORERO.\nTE QUIERO ME DEJASTE LA CENIZA Y TE LLEVASTE EL CENICERO.\nTE QUIERO PERO TE LLEVASTE MARZO Y TE RENDISTE EN FEBRERO.\n- FA/MI (ARPEGIADOS) REM]\nPIMERO TE QUIERO IGUAL.\nTE QUIERO , TE LLEVASTE LA CABEZA Y ME DEJASTE EL SOMBRERO.\nTE QUIERO PERO TE OLVIDASTE ABRIL EN EL ROPERO PERO IGUAL\nTE QUIERO .NO ME GUSTA ESPERAR PERO IGUAL TE ESPERO.\nPRIMERO TE QUIERO IGUAL.\nTE QUIERO ME DEJASTE EL FLORERO Y TE LLEVASTE LA FLOR PERO IGUAL\nTE QUIERO. ME DEJASTE EL VESTIDO Y TE LLEVASTE EL AMOR .\nTE QUIERO PERO TE OLVIDASTE ABRIL EN EL ROPERO.\nPRIMERO TE QUIERO IGUAL .\nNO SÉ SI ESTOY DESPIERTO O TENGO LOS OJOS ABIERTOS\nNO SÉ SI ESTOY DESPIERTO O TENGO LOS OJOS ABIERTOS\nTE QUIERO, NO SÉ SI ESTOY DESPIERTO O TENGO LOS OJOS ABIERTOS,\nSÉ QUE TE QUIERO Y QUE ME ESPERAN MÁS AEROPUERTOS.\nTE QUIERO TE LLEVASTE LA VELA Y ME DEJASTE EL ENTIERRO.\nPRIMERO TE QUIERO IGUAL.\nTE QUIERO PERO TE LLEVASTE LA FLOR Y ME DEJASTE EL FLORERO.\nTE QUIERO ME DEJASTE LA CENIZA Y TE LLEVASTE EL CENICERO.\nTE QUIERO PERO TE LLEVASTE MARZO Y TE RENDISTE EN FEBRERO.\nPRIMERO TE QUIERO IGUAL\nFIN:\nNOTAS DE LA MELODIA:\nEQUIVALE A CUALQUIER VERSO: \"TE QUIERO......\"\n] -> \"PRIMERO, TE QUIERO IGUAL\""}, {"title": "TE SIGO SOÑANDO", "text": "DEPEDRO\nJAIRO ZABALA\nDEPEDRO [2008]\nALGUNA VEZ HUI DE MI VIDA CONTIGO\nPERDÓNAME, CARIÑO, ESTABA DISTRAÍDO\nNO VEÍA COLOR EN ESTA MAREA\nHABÍA MUCHO CALOR EN LA FRONTERA\nSIM# MIM\nME SIGUES GUSTANDO, TE SIGO SOÑANDO\nES ESTA LA FORMA, QUE TENGO, CARIÑO, DE DEMOSTRARLO [BIS]\nTODO ES MENTIRA Y LA MENTIRA SOY YO\nDEJA QUE ESTA VEZ, TE HABLE CON MI VALOR\nSIEMPRE TE HE FALLADO SI ME HAS NECESITADO\nSIEMPRE ME PERDONAS, NO CAMBIARÉ AHORA"}, {"title": "TIEMPOS NUEVOS", "text": "LOS ILEGALES\nJORGE MARTÍNEZ\nAGOTADOS DE ESPERAR EL FIN\nTIEMPOS NUEVOS, TIEMPOS SALVAJES,\nTOMA UN ARMA, ESO TE SALVARÁ,\nLEVANTATE Y LUCHA, ESA ES TU PELEA,\nLEVANTATE Y LUCHA, NO VOY A LUCHAR POR TÍ\n<VARIAS VECES>\nTIEMPOS NUEVOS, TIEMPOS SALVAJES,\nTOMA PARTE, NADIE REGALA NADA,\nNO HAY NADA SIN LUCHA, NI AIRE QUE RESPIRAR,\nNO ERES UN JUGUETE, LEVANTATE Y LUCHA YA."}, {"title": "TODOS LOS DIAS SALE EL SOL", "text": "BONGO BOTRAKO\nSUBIENDO PA ABAJO, BAJANDO PA ARRIBA\nPERDIENDO IMPERDIBLES QUE TÚ NO QUERÍAS\nQUÉ A GUSTO EN TU COLCHÓN\nBAÑADO EN SUDOR\nME ENCUENTRO A LA LUNA, QUE ESTABA DORMIDA\nESTAS NO SON HORAS, PREGÚNTALE AL DÍA\nQUÉ VAMOS A HACER HOY\nPA DARLE COLOR?\nEY CHIPIRÓN,\nTODOS LOS DÍAS SALE EL SOL CHIPIRÓN\nTODOS LOS DÍAS SALE EL SOL CHIPIRÓN\nSOÑANDO EN TUS BRAGAS, PERDIENDO LA VIDA\nCRUZANDO FRONTERAS QUE NO ERAN PROHIBIDAS\nHAGAMOS EL AMOR\nFLUYAMOS TÚ Y YO\nQUÉ NOCHE MÁS CORTA QUE NUNCA TERMINA\nQUÉ GANAS DE VERTE Y COMERTE LA VIDA\nY YA HA LLEGAO EL SOL\nCHISPILLA Y CALOR!\nEY CHIPIRÓN,\nTODOS LOS DÍAS SALE EL SOL CHIPIRÓN\nTODOS LOS DÍAS SALE EL SOL CHIPIRÓN\nQUÉ GANAS DE VERTE Y COMERTE LA VIDA\nNO IMPORTAN LAS HORAS, DE NOCHE Y DE DÍA\nQUÉ GANAS DE VERTE Y COMERTE LA VIDA\nSOÑANDO EN TUS BRAGAS, PERDIENDO LA VIDA\nSUBIENDO PA ABAJO, BAJANDO PA ARRIBA\nNO IMPORTAN LAS HORAS, DE NOCHE Y DE DÍA\nSOÑANDO EN TUS BRAGAS, PERDIENDO LA VIDA,\nPOR VERTE EN MI CAMA Y COMERTE ENTERI...\nEY CHIPIRÓN,\nTODOS LOS DÍAS SALE EL SOL CHIPIRÓN\nTODOS LOS DÍAS SALE EL SOL CHIPIRÓN"}, {"title": "UN BESO Y UNA FLOR", "text": "SEGURIDAD SOCIAL\nDEJARÉ MI TIERRA POR TI,\nDEJARÉ MIS CAMPOS Y ME IRÉ, LEJOS DE AQUÍ.\nCRUZARÉ LLORANDO EL JARDÍN\nY ENTRE TUS RECUERDOS PARTIRÉ, LEJOS DE AQUÍ.\nDE DÍA VIVIRÉ PENSANDO EN TU SONRISA.\nDE NOCHE LAS ESTRELLAS ME ACOMPAÑARÁN.\nSERÁS COMO UNA LUZ QUE ALUMBRA EN MI CAMINO.\nME VOY PERO TE JURO QUE MAÑANA VOLVERÉ.\nAL PARTIR UN BESO Y UNA FLOR\nUN 'TE QUIERO', UNA CARICIA Y UN ADIÓS\nES LIGERO EQUIPAJE PARA TAN LARGO VIAJE,\nLAS PENAS PESAN EN EL CORAZÓN.\nMÁS ALLÁ DEL MAR HABRÁ UN LUGAR\nDONDE EL SOL CADA MAÑANA BRILLE MÁS.\nFORJARÁN MI DESTINO LAS PIEDRAS DEL CAMINO\nLO QUE NOS ES QUERIDO SIEMPRE QUEDA ATRÁS.\nBUSCARÉ UN LUGAR PARA TI\nDONDE EL CIELO SE UNE CON EL MAR, LEJOS DE AQUÍ.\nCON MIS MANOS Y CON TU AMOR\nLOGRARÉ ENCONTRAR OTRA ILUSIÓN, LEJOS DE AQUÍ.\nDE DÍA VIVIRÉ, PENSANDO EN TU SONRISA.\nDE NOCHE LAS ESTRELLAS ME ACOMPAÑARÁN.\nSERÁS COMO UNA LUZ QUE ALUMBRA MI CAMINO.\nME VOY PERO TE JURO QUE MAÑANA VOLVERÉ.\nAL PARTIR UN BESO Y UNA FLOR\nUN 'TE QUIERO' UNA CARICIA Y UN ADIÓS\nES LIGERO EQUIPAJE PARA TAN LARGO VIAJE,\nLAS PENAS PESAN EN EL CORAZÓN.\nMÁS ALLÁ DEL MAR HABRÁ UN LUGAR\nDONDE EL SOL CADA MAÑANA BRILLE MÁS.\nFORJARÁN MI DESTINO LAS PIEDRAS DEL CAMINO.\nLO QUE NOS ES QUERIDO SIEMPRE QUEDA ATRÁS.\n|: SOL DO :|\nY AL PARTIR: UN BESO Y UNA FLOR\nUN 'TE QUIERO', UNA CARICIA Y UN ADIÓS\nES LIGERO EQUIPAJE PARA TAN LARGO VIAJE.\nLAS PENAS PESAN EN EL CORAZÓN.\nMÁS ALLA, MUCHO MÁS ALLÁ DEL MAR HABRÁ UN LUGAR\nDONDE EL SOL CADA MAÑANA BRILLE MÁS\nCUANDO FORJEN MI DESTINO LAS PIEDRAS DEL CAMINO\nLO QUE NOS ES QUERIDO SIEMPRE QUEDA ATRÁS.\n|: SOL DO :|"}, {"title": "VIVIR ASI ES MORIR DE AMOR", "text": "CAMILO SESTO\nCAMILO BLANES\nAMOR LIBRE\nSIEMPRE ME TRAICIONA LA RAZÓN\nY ME DOMINA EL CORAZÓN\nNO SÉ LUCHAR CONTRA EL AMOR\nSIEMPRE ME VOY A ENAMORAR\nDE QUIEN DE MÍ NO SE ANAMORA\nES POR ESO QUE MI ALMA LLORA.\nY YA NO PUEDO MÁS, YA NO PUEDO MÁS\nSIEMPRE SE REPITE LA MISMA HISTORIA\nYA NO PUEDO MÁS, YA NO PUEDO MÁS\nESTOY HARTO DE RODAR COMO UNA NORIA.\nY POR AMOR TENGO EL ALMA HERIDA\nPOR AMOR NO QUIERO MÁS VIDA QUE SU VIDA\nMELANCOLÍA.\nSOY MENDIGO DE SUS BESOS\nSOY SU AMIGO, QUIERO SER ALGO MÁS QUE ESO\nMELANCOLÍA.\nSIEMPRE SE APODERA DE MI SER\nSERENIDAD SE VUELVE LOCURA\nY ME LLENA DE AMARGURA\nSIEMPRE ME VOY A ENAMORAR\nDE QUIEN DE MÍ NO SE ANAMORA\nES POR ESO QUE MI ALMA LLORA.\nY YA NO PUEDO MÁS, YA NO PUEDO MÁS\nSIEMPRE SE REPITE LA MISMA HISTORIA\nYA NO PUEDO MÁS, YA NO PUEDO MÁS\nESTOY HARTO DE RODAR COMO UNA NORIA.\nY POR AMOR TENGO EL ALMA HERIDA\nPOR AMOR NO QUIERO MÁS VIDA QUE SU VIDA\nMELANCOLÍA.\nSALUDOS PARA MI MAMA OLGA! QUE LE ENCANTAN ESTO\nMAMBEADO25R0LL ALIAS DANIEL...\nPUERTO MADRYN CHUBUT ARGENTINA"}, {"title": "VOLANDO VOY", "text": "KIKO VENENO\nJOSÉ Mª LÓPEZ SANFELIU\nVOLANDO VOY, VOLANDO VENGO\nVOLANDO VOY, VOLANDO VENGO\nPOR EL CAMINO YO ME ENTRETENGO\nPOR EL CAMINO YO ME ENTRETENGO\nENAMORAO DE LA VIDA AUNQUE AVECES DUELA\nENAMORAO DE LA VIDA AUNQUE AVECES DUELA\nTENGO FRIO BUSCO A MI ABUELA\nTENGO FRIO BUSCO CANDELA\nY VOLA VOLANDO VOY VOLANDO VENGO VENGO\nVOLA VOLANDO VOY VOLANDO VENGO VENGO\nPOR EL CAMINO YO ME ENTRETENGO\nPOR EL CAMINO YO ME ENTRETENGO..........INSTRUMENTAL\nSEÑORAS Y SEÑORES SEPAN USTEDES\nSEÑORAS Y SEÑORES SEPAN USTEDES\nHAY QUE LA FLOR DE LA NOCHE\nPA QUIEN LA MERECE\nHAY QUE LA FLOR DE LA NOCHE...PARADA\nPA QUIEN LA MERECE\nY VOLA VOLANDO VOY VOLANDO VENGO VENGO\nVOLA VOLANDO VOY VOLANDO VENGO VENGO\nPOR EL CAMINO YO ME ENTRETENGO\nPOR EL CAMINO YO ME ENTRETENGO\nPORQUE A MI ME VA MUCHO LA MARCHA TROPICAL\nPORQUE A MI ME VA MUCHO LA MARCHA TROPICAL\nY LOS CARIÑOS DE LA FRONTERA ME VAN\nY LOS CARIÑOS DE LA FRONTERA\nVOLANDO VENGO VENGO\nVOLANDO VENGO VENGO\nPOR EL CAMINO YO ME ENTRETENGO\nPOR EL CAMINO YO ME ENTRETENGO\nMIRAAAAAAAAA OH UA UA CHU...TURUTA TUTU..\nCOROS VOLANDO VOY...."}, {"title": "VOY A PASARMELO BIEN", "text": "HOMBRES G\nHOY ME HE LEVANTADO DANDO UN SALTO MORTAL\nECHADO UN PAR DE HUEVOS A MI SARTÉN\nDANDO VOLTERETAS HE LLEGADO AL BAÑO\nME HE DUCHADO Y HE DESPILFARRADO EL GEL\nPORQUE HOY, ALGO ME DICE\nQUE VOY A PASÁRMELO BIEN\nSÉ QUE TENGO ALGUNOS ENEMIGOS\nPERO ESTA NOCHE NO PODRÁN CONTAR CONMIGO\nPORQUE VOY A CONVERTIRME EN HOMBRE LOBO\nME HE JURADO A MÍ MISMO QUE NO DORMIRÉ SOLO\nPORQUE HOY, DE HOY NO PASA\nY VOY A PASÁRMELO BIEN\nVOY A COGERME UN PEDO DE LOS QUE HACEN AFICIÓN\nME IRÉ ARRASTRANDO A CASA CON LA SONRISA PUESTA\nMAÑANA YO SÍ PUEDO DORMIRÉ LA SIESTA\nPERO ESTA NOCHE NO, ESTA NOCHE NO\nESTA NOCHE, ALGO ME DICE\nQUE VOY A PASÁRMELO BIEN\nBUENO, VAMOS A VER\nQUE ENCONTRAMOS EN ESTA AGENDILLA DE TELÉFONOS\nNUNCA SE SABE\nMARTA, MARIA DEL MAR, ANA\n¿ELENA ESTARÁ? NO SÉ\nPERO VOY A PASÁRMELO BIEN\nHOY ME HE LEVANTADO DANDO UN SALTO MORTAL\nME HE QUITADO EL PIJAMA SIN USAR LAS MANOS\nDANDO VOLTERETAS HE LLEGADO AL BAÑO\nLE HE DADO BUENOS DAS A MIS PADRES Y HERMANOS\nPORQUE HOY, HOY NO SÉ POR QUÉ\nPERO VOY A PASÁRMELO BIEN\nVOY A PASÁRMELO\nMUY BIEN\nMUY BIEN\nMUY BIEN\nMUY BIEN\nMUY BIEN\nMUY BIEN\nY VOY A PASAR, VOY A PASÁRMELO BIEN\nEH, EH\nMUY BIEN\nEH, EH\nEH, EH\nMUY BIEN\nY VOY A PASÁRMELO BIEN\nEH, EH\nMUY BIEN\nMUY BIEN"}, {"title": "YO NO ME LLAMO JAVIER", "text": "1)INTRO DOS VECES--TURUTA (PARADA)\nNO NENA TU TE EQUIVOCAS\nYO NO TE CONOCI EN LA PLAYA YAYA\nNO NOS FUIMOS JUNTOS A COMER PAELLA\nY NUNCA PASASTES UNA NOCHE EN MI HOTEL\nNO SOY EL PRIMO DEL SHA DE PERSIA\nNO TENGO UN COCHE EN LA PUERTA\nNO TE HAS BAÑADO CONMIGO\nEN LA PISCINA DE MI CHALET\nYO NO ME LLAMO JAVIER (BIS) LOS DOS\nNO B ,\nNO SI NO\nNOOOOO\nNO SI NO\nNO NO NO\nNUNCA TE PEDI UN DURO POR LA CALLE\nTU NO ME PRESENTASTES A TUS PADRES\nNO ME INVITASTES A TU CASA\nNI A DORMIR NI A COMER\nYO ME LLAMO JAVIER (BIS)\nDEJA YA DE JODER\nSUELTAME MUJER\nYO NO ME LLAMO JAVIER (REPETIR)\n3)INSTRUMENTAL\nHOLA COMO ESTAS QUE NIÑO TAN BONITO\nCOMO? ES MIO? QUE YO SOY EL PADRE?\nPERO ESO COMO VA A SER?\nYO SOY IMPOTENTE\nNO TE QUIERO VOLVER A VER\nDEJA DE JODER....\nYO NO ME LLAMO JAVIER... DOS\nVECES\nYO NO ME LLAMO JAVIER - TOREROS MUERTOS"}, {"title": "YO SOY QUIEN ESPIA LOS JUEGOS DE LOS NIÑOS", "text": "LOS ILEGALES\nLOS NI~OS\nLOS ILEGALES\n- LA - SIM (8 VECES)\n- MI - FA#\n- LA - MI\nNUEVAS PAREJAS\nSE ESTRENAN ESTA NOCHE\nENTRE LAS SÁBANAS DE PENSIONES BARATAS\nDIEZ MIL OBREROS EN PARO\nESPERAN EN LAS PLATAFORMAS\nDE SUICIDIO COLECTIVO\nTE DESPISTAS ESTÁN EN TU BOLSILLO\nYO SOY QUIEN ESPÍA LOS JUEGOS DE LOS...\nMUCHACHOS DUROS\nSE ESTRENAN EN LA MAFIA\nPAPÁ REVÓLVER PROTEGE A SUS HIJOS\nLOS ESTUDIANTES\nSE SUICIDAN\nDISPARANDO CONTRA LA POLICÍA\nLOS MAESTROS SE QUEJAN POR LOS CRISTALES ROTOS\nEN TODAS PARTES HAY GENTE IDIOTA\nYO SOY QUIEN ESPÍA LOS JUEGOS DE LOS...\nMADAME CROFT SE ABANICA\nCON SUS ACCIONES\nDEVALUADAS AL 40 POR CIEN\nNUEVOS CANTANTES\nHACEN EL RIDÍCULO\nEN VIEJOS FESTIVALES COMO EUROVISIÓN\nTE DESPISTAS ESTÁN EN TU BOLSILLO\nYO SOY QUIEN ESPÍA LOS JUEGOS DE LOS...\n- LA - SIM (2 VECES)\n- MI - FA#"}];-1,size=1,editingChords=false,placingInstrumental=false,instrumentAction=null;
+const grid=document.getElementById('grid'),q=document.getElementById('q'),view=document.getElementById('view'),ly=document.getElementById('ly'),st=document.getElementById('st');
+const chordMode=document.getElementById('chordMode'),clearChords=document.getElementById('clearChords'),introTool=document.getElementById('introTool'),instrumentTool=document.getElementById('instrumentTool');
+const CHORD_ROOTS=['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
+const CHORD_QUALS=[{label:'Mayor',value:''},{label:'m',value:'m'},{label:'7',value:'7'},{label:'m7',value:'m7'},{label:'maj7',value:'maj7'},{label:'sus2',value:'sus2'},{label:'sus4',value:'sus4'},{label:'dim',value:'dim'}];
+let picker={mode:'word',line:0,word:0,boundary:0,root:'DO',qual:'',items:[],existing:''};
+const chordModal=document.getElementById('chordModal'),chordPanel=document.getElementById('chordPanel'),rootGrid=document.getElementById('rootGrid'),qualGrid=document.getElementById('qualGrid'),chordCurrent=document.getElementById('chordCurrent'),chordTarget=document.getElementById('chordTarget'),addChord=document.getElementById('addChord');
+
+
+function normalizeMasterText(text){
+  return String(text||'')
+    .replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+    .split('\n')
+    .map(function(line){return line.replace(/\s+/g,' ').trim().toUpperCase()})
+    .join('\n')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
+function normalizeMasterTitle(text){
+  return String(text||'').replace(/\s+/g,' ').trim().toUpperCase();
+}
+function customSongsKey(){return 'quintoElemento.customSongs.v1'}
+function loadCustomSongs(){
+  try{
+    var raw=window.localStorage?localStorage.getItem(customSongsKey()):null;
+    var arr=raw?JSON.parse(raw):[];
+    return Array.isArray(arr)?arr:[];
+  }catch(e){return []}
+}
+function saveCustomSongs(arr){
+  try{if(window.localStorage)localStorage.setItem(customSongsKey(),JSON.stringify(arr))}catch(e){}
+}
+var baseSongCount=songs.length;
+var customSongs=loadCustomSongs();
+customSongs.forEach(function(s){
+  if(s&&s.title&&s.text)songs.push({title:normalizeMasterTitle(s.title),text:normalizeMasterText(s.text)});
+});
+
+const newSongModal=document.getElementById('newSongModal');
+const newSongBtn=document.getElementById('newSongBtn');
+const newSongTitle=document.getElementById('newSongTitle');
+const newSongLyrics=document.getElementById('newSongLyrics');
+
+function openNewSong(){
+  newSongTitle.value='';
+  newSongLyrics.value='';
+  newSongModal.classList.add('on');
+  newSongModal.setAttribute('aria-hidden','false');
+  setTimeout(function(){newSongTitle.focus()},50);
+}
+function closeNewSong(){
+  newSongModal.classList.remove('on');
+  newSongModal.setAttribute('aria-hidden','true');
+}
+newSongBtn.onclick=openNewSong;
+document.getElementById('newSongCancel').onclick=closeNewSong;
+document.getElementById('newSongSave').onclick=function(){
+  var title=normalizeMasterTitle(newSongTitle.value);
+  var text=normalizeMasterText(newSongLyrics.value);
+  if(!title){alert('Escribe el título de la canción.');return}
+  if(!text){alert('Añade la letra de la canción.');return}
+  if(songs.some(function(s){return s.title===title})){
+    alert('Ya existe una canción con ese título.');
+    return;
+  }
+  var obj={title:title,text:text};
+  customSongs.push(obj);
+  saveCustomSongs(customSongs);
+  songs.push(obj);
+  saveSongTitle(songs.length-1,title);
+  document.getElementById('count').textContent=songs.length+' canciones';
+  closeNewSong();
+  render(q.value||'');
+  openSong(songs.length-1);
+};
+newSongModal.addEventListener('click',function(e){if(e.target===newSongModal)closeNewSong()});
+
+document.getElementById('count').textContent=songs.length+' canciones';
+function songKey(i){return 'quintoElemento.chords.v2.'+i;}
+function emptyData(){return {lines:{},words:{},intro:'',instrumentals:{}};}
+function getChordData(i){
+  try{
+    var raw=window.localStorage?localStorage.getItem(songKey(i)):null;
+    var d=raw?JSON.parse(raw):emptyData();
+    if(!d.lines)d.lines={}; if(!d.words)d.words={}; if(!d.instrumentals)d.instrumentals={}; if(!d.intro)d.intro='';
+    return d;
+  }catch(e){return emptyData();}
+}
+function saveChordData(i,d){try{if(window.localStorage)localStorage.setItem(songKey(i),JSON.stringify(d));}catch(e){}}
+function splitSeq(v){return (v||'').split(/\s*·\s*|\s*,\s*/).map(function(x){return x.trim();}).filter(Boolean);}
+function seqText(items){return items.join(' · ');}
+function render(f){
+  f=f||'';grid.innerHTML='';var n=0;
+  songs.forEach(function(song,i){
+    var shownTitle=getSongTitle(i);
+    if(shownTitle.toLowerCase().indexOf(f.toLowerCase())<0)return;
+    n++;
+    var b=document.createElement('button');
+    b.className='songBtn';
+    b.textContent=shownTitle;
+    b.onclick=function(){
+      if(window.passSelectionClick && window.passSelectionClick(i))return;
+      openSong(i)
+    };
+    if(window.decoratePassSongButton)window.decoratePassSongButton(b,i);
+    grid.appendChild(b)
+  });
+  if(!n)grid.innerHTML='<div class="empty">No se encontraron canciones.</div>';
+}
+function makeSection(label,value,onEdit,opts){
+  var box=document.createElement('div');box.className='musicSection'+(editingChords?' editable':'');
+  var title=document.createElement('div');title.className='musicSectionTitle';title.textContent=label;box.appendChild(title);
+  var row=document.createElement('div');row.className='musicSectionChords';
+  splitSeq(value).forEach(function(c){var chip=document.createElement('span');chip.className='musicChordChip';chip.textContent=c;row.appendChild(chip)});
+  if(!value){var em=document.createElement('span');em.style.opacity='.6';em.textContent='Sin acordes';row.appendChild(em)}
+  box.appendChild(row);
+
+  if(label==='INSTRUMENTAL' && editingChords && opts){
+    var actions=document.createElement('div');actions.className='instrumentActions';
+
+    var edit=document.createElement('button');edit.type='button';edit.textContent='✎ Editar';
+    edit.onclick=function(e){e.stopPropagation();onEdit()};actions.appendChild(edit);
+
+    var move=document.createElement('button');move.type='button';move.textContent='↕ Mover';
+    move.onclick=function(e){e.stopPropagation();beginInstrumentAction('move',opts.boundary,value)};actions.appendChild(move);
+
+    var dup=document.createElement('button');dup.type='button';dup.textContent='⧉ Duplicar';
+    dup.onclick=function(e){e.stopPropagation();beginInstrumentAction('duplicate',opts.boundary,value)};actions.appendChild(dup);
+
+    var del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Eliminar';
+    del.onclick=function(e){
+      e.stopPropagation();
+      if(confirm('¿Eliminar este instrumental?')){
+        var d=getChordData(current);delete d.instrumentals[String(opts.boundary)];saveChordData(current,d);renderLyrics()
+      }
+    };actions.appendChild(del);
+
+    box.appendChild(actions);
+  }else if(editingChords){
+    box.onclick=onEdit;
+  }
+  return box;
+}
+function beginInstrumentAction(type,boundary,value){
+  instrumentAction={type:type,from:Number(boundary),value:value||''};
+  placingInstrumental=true;
+  renderLyrics();
+}
+function cancelInstrumentAction(){
+  instrumentAction=null;placingInstrumental=false;renderLyrics();
+}
+function placeInstrumentAction(boundary){
+  if(!instrumentAction)return;
+  var d=getChordData(current);d.instrumentals=d.instrumentals||{};
+  var target=String(boundary),source=String(instrumentAction.from);
+  if(d.instrumentals[target] && target!==source){
+    if(!confirm('Ya hay un instrumental en esa posición. ¿Quieres reemplazarlo?'))return;
+  }
+  if(instrumentAction.type==='move'){
+    if(target===source){cancelInstrumentAction();return}
+    delete d.instrumentals[source];
+    d.instrumentals[target]=instrumentAction.value;
+  }else if(instrumentAction.type==='duplicate'){
+    d.instrumentals[target]=instrumentAction.value;
+  }
+  saveChordData(current,d);
+  instrumentAction=null;placingInstrumental=false;
+  renderLyrics();
+}
+function addInstrumentSlot(boundary){
+  var b=document.createElement('button');b.className='instrumentSlot';
+  if(instrumentAction){
+    b.textContent=instrumentAction.type==='move'?'Mover INSTRUMENTAL aquí':'Duplicar INSTRUMENTAL aquí';
+    b.onclick=function(){placeInstrumentAction(boundary)};
+  }else{
+    b.textContent='＋ Insertar INSTRUMENTAL aquí';
+    b.onclick=function(){var d=getChordData(current),existing=d.instrumentals[String(boundary)]||'';openPicker({mode:'instrumental',boundary:boundary,existing:existing,label:'INSTRUMENTAL entre líneas'})};
+  }
+  ly.appendChild(b);
+}
+
+
+function showSavedToast(){
+  var t=document.getElementById('saveToast');
+  if(!t)return;
+  t.style.display='block';
+  setTimeout(function(){t.style.display='none'},1400);
+}
+
+function lyricKey(i){return 'quintoElemento.lyrics.v1.'+i}
+
+function titleKey(i){return 'quintoElemento.title.v1.'+i}
+function getSongTitle(i){
+  try{
+    var v=window.localStorage?localStorage.getItem(titleKey(i)):null;
+    return normalizeMasterTitle(v!==null?v:songs[i].title);
+  }catch(e){return normalizeMasterTitle(songs[i].title)}
+}
+function saveSongTitle(i,title){
+  try{if(window.localStorage)localStorage.setItem(titleKey(i),normalizeMasterTitle(title))}catch(e){}
+}
+function restoreSongTitle(i){
+  try{if(window.localStorage)localStorage.removeItem(titleKey(i))}catch(e){}
+}
+
+function getSongText(i){
+  try{
+    var v=window.localStorage?localStorage.getItem(lyricKey(i)):null;
+    return normalizeMasterText(v!==null?v:songs[i].text);
+  }catch(e){return normalizeMasterText(songs[i].text)}
+}
+function saveSongText(i,text){try{if(window.localStorage)localStorage.setItem(lyricKey(i),text)}catch(e){}}
+function restoreSongText(i){try{if(window.localStorage)localStorage.removeItem(lyricKey(i))}catch(e){}}
+function normalizeWords(line){return String(line||'').trim().split(/\s+/).filter(Boolean)}
+function migrateChordData(oldText,newText,data){
+  data=data||{lines:{},words:{},intro:'',instrumentals:{}};
+  var oldLines=String(oldText||'').split('\n'),newLines=String(newText||'').split('\n');
+  var newData={lines:{},words:{},intro:data.intro||'',instrumentals:data.instrumentals||{}},usedOld={};
+  function normLine(s){return String(s||'').toLowerCase().replace(/\s+/g,' ').trim()}
+  function bestOldIndex(newLine,newIndex){
+    var target=normLine(newLine),i;
+    if(target){for(i=0;i<oldLines.length;i++){if(!usedOld[i]&&normLine(oldLines[i])===target){usedOld[i]=true;return i}}}
+    if(newIndex<oldLines.length&&!usedOld[newIndex]){usedOld[newIndex]=true;return newIndex}
+    return -1
+  }
+  newLines.forEach(function(newLine,newIndex){
+    var oldIndex=bestOldIndex(newLine,newIndex);if(oldIndex<0)return;
+    if(data.lines&&data.lines[oldIndex])newData.lines[newIndex]=data.lines[oldIndex];
+    var oldWords=normalizeWords(oldLines[oldIndex]),newWords=normalizeWords(newLine),taken={};
+    newWords.forEach(function(nw,nwi){
+      var lower=nw.toLowerCase(),found=-1,owi;
+      for(owi=0;owi<oldWords.length;owi++){if(!taken[owi]&&oldWords[owi].toLowerCase()===lower){found=owi;break}}
+      if(found<0&&nwi<oldWords.length&&!taken[nwi])found=nwi;
+      if(found>=0){taken[found]=true;var oldKey=oldIndex+':'+found,newKey=newIndex+':'+nwi;if(data.words&&data.words[oldKey])newData.words[newKey]=data.words[oldKey]}
+    })
+  });
+  return newData
+}
+const lyricEditorModal=document.getElementById('lyricEditorModal');
+const lyricEditorText=document.getElementById('lyricEditorText');
+const lyricEditorSongTitle=document.getElementById('lyricEditorSongTitle');
+const editLyricsBtn=document.getElementById('editLyrics');
+function openLyricEditor(){stopAutoScroll();
+  if(current<0)return;
+  document.getElementById('lyricEditorTitle').textContent='Editar canción';
+  lyricEditorSongTitle.value=getSongTitle(current);
+  lyricEditorText.value=normalizeMasterText(getSongText(current));
+  lyricEditorModal.classList.add('on');lyricEditorModal.setAttribute('aria-hidden','false');
+  setTimeout(function(){lyricEditorText.focus()},50)
+}
+function closeLyricEditor(){lyricEditorModal.classList.remove('on');lyricEditorModal.setAttribute('aria-hidden','true')}
+editLyricsBtn.onclick=openLyricEditor;
+document.getElementById('lyricEditorCancel').onclick=closeLyricEditor;
+document.getElementById('lyricEditorSave').onclick=function(){
+  if(current<0)return;
+  var oldText=getSongText(current),newText=normalizeMasterText(lyricEditorText.value);
+  var newTitle=normalizeMasterTitle(lyricEditorSongTitle.value);
+  if(!newTitle){alert('El título no puede quedar vacío.');return}
+  if(!newText){alert('La letra no puede quedar vacía.');return}
+  var duplicated=songs.some(function(s,idx){return idx!==current && getSongTitle(idx)===newTitle});
+  if(duplicated){alert('Ya existe otra canción con ese título.');return}
+  var migrated=migrateChordData(oldText,newText,getChordData(current));
+  saveSongText(current,newText);
+  saveSongTitle(current,newTitle);
+  if(current>=baseSongCount){
+    var ci=current-baseSongCount;
+    if(customSongs[ci]){
+      customSongs[ci].title=newTitle;
+      customSongs[ci].text=newText;
+      saveCustomSongs(customSongs)
+    }
+  }
+  st.textContent=newTitle;
+  saveChordData(current,migrated);
+  showSavedToast();
+  closeLyricEditor();
+  render(q.value||'');
+  renderLyrics()
+};
+document.getElementById('lyricEditorRestore').onclick=function(){
+  if(current<0)return;
+  if(confirm('¿Restaurar la letra original de esta canción?')){
+    var oldText=getSongText(current),original=songs[current].text;
+    var migrated=migrateChordData(oldText,original,getChordData(current));
+    restoreSongText(current);restoreSongTitle(current);saveChordData(current,migrated);
+    lyricEditorSongTitle.value=normalizeMasterTitle(songs[current].title);
+    lyricEditorText.value=normalizeMasterText(original);
+    st.textContent=getSongTitle(current);
+    closeLyricEditor();render(q.value||'');renderLyrics()
+  }
+};
+lyricEditorModal.addEventListener('click',function(e){if(e.target===lyricEditorModal)closeLyricEditor()});
+
+function renderLyrics(){
+  if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';
+  ly.classList.toggle('editingLyrics',editingChords);view.classList.toggle('editing',editingChords);view.classList.toggle('placingInstrumental',placingInstrumental);
+  chordMode.classList.toggle('active',editingChords);chordMode.textContent=editingChords?'✓ Acordes':'♫ Acordes';
+  introTool.textContent=d.intro?'Editar Intro':'＋ Intro';
+  instrumentTool.textContent=placingInstrumental?'Cancelar operación':'＋ Instrumental';
+  var pn=document.querySelector('.placingNote');
+  if(pn){
+    pn.textContent=instrumentAction?(instrumentAction.type==='move'?'Selecciona dónde quieres MOVER el INSTRUMENTAL.':'Selecciona dónde quieres DUPLICAR el INSTRUMENTAL.'):'Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.';
+  }
+  if(d.intro){ly.appendChild(makeSection('INTRO',d.intro,function(){openPicker({mode:'intro',existing:d.intro,label:'INTRO'})}))}
+  var lines=getSongText(current).split('\n');
+  if(placingInstrumental)addInstrumentSlot(0);
+  lines.forEach(function(line,li){
+    var existingInst=d.instrumentals[String(li)]||'';
+    if(existingInst && li!==0){ly.appendChild(makeSection('INSTRUMENTAL',existingInst,function(){openPicker({mode:'instrumental',boundary:li,existing:existingInst,label:'INSTRUMENTAL'})},{boundary:li}))}
+    var row=document.createElement('div');row.className='lyricLine';
+    var lineEdit=document.createElement('button');lineEdit.className='lineEditBtn';lineEdit.textContent='♫';lineEdit.title='Editar acordes de esta línea';
+    var lc=d.lines[li]||'';lineEdit.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};row.appendChild(lineEdit);
+    var body=document.createElement('div');body.className='lineBody';
+    if(lc){var c=document.createElement('span');c.className='lineChord'+(editingChords?' clickable':'');c.textContent=lc;if(editingChords)c.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};body.appendChild(c)}
+    if(line===''){body.appendChild(document.createTextNode('\u00a0'))}else{
+      line.split(/\s+/).forEach(function(word,wi){var wrap=document.createElement('span');wrap.className='wordWrap';var key=li+':'+wi,wc=d.words[key]||'';var cc=document.createElement('span');cc.className='wordChord';cc.textContent=wc||'\u00a0';wrap.appendChild(cc);var token=document.createElement('span');token.className='wordToken';token.textContent=word;token.onclick=function(){if(editingChords)openPicker({mode:'word',line:li,word:wi,existing:wc,label:'Palabra: '+word})};wrap.appendChild(token);body.appendChild(wrap)});
+    }
+    row.appendChild(body);ly.appendChild(row);
+    if(placingInstrumental)addInstrumentSlot(li+1);
+    var after=d.instrumentals[String(li+1)]||'';
+    if(after && li+1===lines.length){ly.appendChild(makeSection('INSTRUMENTAL',after,function(){openPicker({mode:'instrumental',boundary:li+1,existing:after,label:'INSTRUMENTAL'})}))}
+  });
+}
+function selectedChord(){return picker.root+picker.qual;}
+function isSequenceMode(){return picker.mode!=='word';}
+function buildPicker(){
+  rootGrid.innerHTML='';CHORD_ROOTS.forEach(function(r){var b=document.createElement('button');b.type='button';b.textContent=r;b.onclick=function(){picker.root=r;refreshPicker()};rootGrid.appendChild(b)});
+  qualGrid.innerHTML='';CHORD_QUALS.forEach(function(qv){var b=document.createElement('button');b.type='button';b.textContent=qv.label;b.onclick=function(){picker.qual=qv.value;refreshPicker()};qualGrid.appendChild(b)});
+}
+function refreshPicker(){
+  chordPanel.classList.toggle('sequenceMode',isSequenceMode());
+  Array.prototype.forEach.call(rootGrid.children,function(b){b.classList.toggle('sel',b.textContent===picker.root)});
+  Array.prototype.forEach.call(qualGrid.children,function(b){var qv=CHORD_QUALS.filter(function(x){return x.label===b.textContent})[0];b.classList.toggle('sel',qv&&qv.value===picker.qual)});
+  chordCurrent.innerHTML='';
+  if(!isSequenceMode()){chordCurrent.textContent=selectedChord();return;}
+  if(!picker.items.length){chordCurrent.textContent='—';return;}
+  picker.items.forEach(function(item,idx){var chip=document.createElement('span');chip.className='currentChip';var t=document.createElement('span');t.textContent=item;chip.appendChild(t);var x=document.createElement('button');x.type='button';x.textContent='×';x.title='Quitar '+item;x.onclick=function(){picker.items.splice(idx,1);refreshPicker()};chip.appendChild(x);chordCurrent.appendChild(chip)});
+}
+function openPicker(opts){
+  picker.mode=opts.mode;picker.line=opts.line||0;picker.word=opts.word||0;picker.boundary=opts.boundary||0;picker.root='DO';picker.qual='';picker.existing=opts.existing||'';picker.items=isSequenceMode()?splitSeq(picker.existing):[];
+  if(opts.mode==='word'&&opts.existing){var m=opts.existing.match(/^(DO#?|RE#?|MI|FA#?|SOL#?|LA#?|SI)(.*)$/i);if(m){picker.root=m[1].toUpperCase();picker.qual=m[2]||''}}
+  document.getElementById('chordModalTitle').textContent=opts.mode==='intro'?'Editar INTRO':opts.mode==='instrumental'?'Editar INSTRUMENTAL':opts.mode==='line'?'Editar acordes de línea':'Acorde sobre palabra';
+  chordTarget.textContent=opts.label||'';chordModal.classList.add('on');chordModal.setAttribute('aria-hidden','false');refreshPicker();
+}
+function closePicker(){chordModal.classList.remove('on');chordModal.setAttribute('aria-hidden','true');}
+function storePicker(clear){
+  if(current<0)return;var d=getChordData(current),value=clear?'':(isSequenceMode()?seqText(picker.items):selectedChord());
+  if(picker.mode==='word'){var k=picker.line+':'+picker.word;if(value)d.words[k]=value;else delete d.words[k]}
+  else if(picker.mode==='line'){if(value)d.lines[picker.line]=value;else delete d.lines[picker.line]}
+  else if(picker.mode==='intro'){d.intro=value}
+  else if(picker.mode==='instrumental'){var bk=String(picker.boundary);if(value)d.instrumentals[bk]=value;else delete d.instrumentals[bk]}
+  saveChordData(current,d);closePicker();placingInstrumental=false;renderLyrics();
+}
+addChord.onclick=function(){picker.items.push(selectedChord());refreshPicker()};
+document.getElementById('chordSave').onclick=function(){storePicker(false)};
+document.getElementById('chordDelete').onclick=function(){storePicker(true)};
+document.getElementById('chordCancel').onclick=closePicker;
+chordModal.addEventListener('click',function(e){if(e.target===chordModal)closePicker()});
+function openSong(i){stopAutoScroll();current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();placingInstrumental=false;st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics()}
+function closeSong(){view.classList.remove('on');placingInstrumental=false}
+q.oninput=function(){render(q.value)};
+document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
+document.getElementById('prev').onclick=function(){
+  if(window.passPrevSong && window.passPrevSong())return;
+  openSong((current-1+songs.length)%songs.length)
+};
+document.getElementById('next').onclick=function(){
+  if(window.passNextSong && window.passNextSong())return;
+  openSong((current+1)%songs.length)
+};
+document.getElementById('plus').onclick=function(){size=Math.min(1.6,size+.1);ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')'};
+document.getElementById('minus').onclick=function(){size=Math.max(.75,size-.1);ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')'};
+chordMode.onclick=function(){editingChords=!editingChords;if(!editingChords)placingInstrumental=false;renderLyrics()};
+introTool.onclick=function(){var d=getChordData(current);openPicker({mode:'intro',existing:d.intro||'',label:'Cabecera de la canción'})};
+instrumentTool.onclick=function(){
+  if(instrumentAction){cancelInstrumentAction();return}
+  placingInstrumental=!placingInstrumental;renderLyrics();
+};
+clearChords.onclick=function(){if(current<0)return;if(confirm('¿Borrar todos los acordes, INTRO e INSTRUMENTALES de esta canción?')){try{localStorage.removeItem(songKey(current))}catch(e){}placingInstrumental=false;renderLyrics()}};
+document.addEventListener('keydown',function(e){if(!view.classList.contains('on'))return;if(e.key==='Escape'){if(chordModal.classList.contains('on'))closePicker();else closeSong()}if(e.key==='ArrowRight'&&!editingChords)document.getElementById('next').click();if(e.key==='ArrowLeft'&&!editingChords)document.getElementById('prev').click()});
+buildPicker();render('');
+</script>
+
+
+
+
+
+<script>
+
+(function(){
+  var btn=document.getElementById('autoScrollBtn');
+  var speed=document.getElementById('autoScrollSpeed');
+  var speedValue=document.getElementById('autoScrollSpeedValue');
+  var scrollHost=document.getElementById('view');
+  if(!btn || !speed || !speedValue || !scrollHost) return;
+
+  var running=false;
+  var last=0;
+  var speedSetting=4;
+
+  function speedKey(){
+    return current>=0 ? 'quintoElemento.autoScrollSpeed.song.'+current : 'quintoElemento.autoScrollSpeed';
+  }
+
+  function loadSpeed(){
+    var defaultSpeed=4;
+    try{
+      var fallback=parseInt(localStorage.getItem('quintoElemento.autoScrollSpeed')||'4',10);
+      if(!isNaN(fallback)) defaultSpeed=Math.max(1,Math.min(10,fallback));
+      var v=parseInt(localStorage.getItem(speedKey())||String(defaultSpeed),10);
+      if(!isNaN(v)) speedSetting=Math.max(1,Math.min(10,v));
+    }catch(e){}
+    speed.value=String(speedSetting);
+    speedValue.textContent=String(speedSetting);
+  }
+
+  function saveSpeed(){
+    var v=parseInt(speed.value,10);
+    if(isNaN(v)) v=4;
+    speedSetting=Math.max(1,Math.min(10,v));
+    speedValue.textContent=String(speedSetting);
+    try{
+      localStorage.setItem(speedKey(),String(speedSetting));
+      localStorage.setItem('quintoElemento.autoScrollSpeed',String(speedSetting));
+    }catch(e){}
+  }
+
+  function pixelsPerSecond(){
+    var speeds=[0,5,7,9,11,13,15,17,19,21,23];
+    return speeds[speedSetting]||6;
+  }
+
+  function updateButton(){
+    btn.textContent=running?'⏸ Pausar':'▶ Iniciar';
+    btn.classList.toggle('active',running);
+  }
+
+  function stop(){
+    running=false;
+    last=0;
+    if(timer){clearTimeout(timer);timer=0}
+    updateButton();
+  }
+
+  var timer=0;
+
+  function stepDelay(){
+    var pps=pixelsPerSecond();
+    return Math.max(40,Math.round(1000/pps));
+  }
+
+  function step(){
+    if(!running)return;
+
+    var maxScroll=scrollHost.scrollHeight-scrollHost.clientHeight;
+    var current=scrollHost.scrollTop || 0;
+
+    if(current>=maxScroll-1){
+      scrollHost.scrollTop=maxScroll;
+      stop();
+      return;
+    }
+
+    /* Safari/iPadOS 16: mover 1 píxel entero por paso evita
+       que se pierdan velocidades lentas por redondeo interno. */
+    scrollHost.scrollTop=current+1;
+    timer=setTimeout(step,stepDelay());
+  }
+
+  function start(){
+    if(running)return;
+    running=true;
+    last=0;
+    updateButton();
+    step();
+  }
+
+  btn.addEventListener('click',function(){
+    if(running)stop();
+    else start();
+  });
+
+  speed.addEventListener('input',saveSpeed);
+  speed.addEventListener('change',saveSpeed);
+
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden)stop();
+  });
+  window.addEventListener('pagehide',stop);
+
+  window.stopAutoScroll=stop;
+  window.loadSongAutoScrollSpeed=loadSpeed;
+
+  loadSpeed();
+  updateButton();
+})();
+
+</script>
+<script>
+
+(function(){
+  var body=document.body;
+  var btnIndex=document.getElementById('themeToggleIndex');
+  var btnView=document.getElementById('themeToggleView');
+
+  function loadTheme(){
+    var theme='dark';
+    try{
+      var saved=localStorage.getItem('quintoElemento.theme');
+      if(saved==='light' || saved==='dark') theme=saved;
+    }catch(e){}
+    applyTheme(theme);
+  }
+
+  function applyTheme(theme){
+    var light=theme==='light';
+    body.classList.toggle('lightTheme',light);
+    var text=light?'🌙 Tema oscuro':'☀ Tema claro';
+    if(btnIndex) btnIndex.textContent=text;
+    if(btnView) btnView.textContent=text;
+    try{localStorage.setItem('quintoElemento.theme',light?'light':'dark')}catch(e){}
+  }
+
+  function toggleTheme(){
+    applyTheme(body.classList.contains('lightTheme')?'dark':'light');
+  }
+
+  if(btnIndex) btnIndex.addEventListener('click',toggleTheme);
+  if(btnView) btnView.addEventListener('click',toggleTheme);
+
+  loadTheme();
+})();
+
+</script>
+
+<script>
+
+(function(){
+  var btn=document.getElementById('backupBtn');
+  var modal=document.getElementById('backupModal');
+  var close=document.getElementById('backupClose');
+  var exportBtn=document.getElementById('exportDataBtn');
+  var input=document.getElementById('importDataInput');
+  var status=document.getElementById('backupStatus');
+  if(!btn || !modal || !close || !exportBtn || !input)return;
+
+  function open(){modal.classList.add('on');modal.setAttribute('aria-hidden','false')}
+  function shut(){modal.classList.remove('on');modal.setAttribute('aria-hidden','true')}
+  btn.addEventListener('click',open);
+  close.addEventListener('click',shut);
+  modal.addEventListener('click',function(e){if(e.target===modal)shut()});
+
+  function collect(){
+    var data={format:'quinto-elemento-backup',version:1,createdAt:new Date().toISOString(),storage:{}};
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k && k.indexOf('quintoElemento.')===0){
+        data.storage[k]=localStorage.getItem(k);
+      }
+    }
+    return data;
+  }
+
+  exportBtn.addEventListener('click',async function(){
+    try{
+      var data=collect();
+      var name='El_Quinto_Elemento_copia_'+new Date().toISOString().slice(0,10)+'.json';
+      var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      var file=new File([blob],name,{type:'application/json'});
+
+      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file],title:'Copia El Quinto Elemento'});
+        status.textContent='Copia preparada para compartir/guardar.';
+        return;
+      }
+
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=name;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},800);
+      status.textContent='Copia exportada correctamente.';
+    }catch(e){
+      if(e && e.name==='AbortError'){
+        status.textContent='Exportación cancelada.';
+      }else{
+        status.textContent='No se pudo exportar la copia.';
+      }
+    }
+  });
+
+  input.addEventListener('change',function(){
+    var file=input.files && input.files[0];
+    if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var data=JSON.parse(String(reader.result||''));
+        if(!data || data.format!=='quinto-elemento-backup' || !data.storage){
+          throw new Error('Formato no válido');
+        }
+        Object.keys(data.storage).forEach(function(k){
+          if(k.indexOf('quintoElemento.')===0){
+            localStorage.setItem(k,String(data.storage[k]));
+          }
+        });
+        status.textContent='Datos importados. Recargando…';
+        setTimeout(function(){location.reload()},600);
+      }catch(e){
+        status.textContent='El archivo no es una copia válida.';
+      }finally{
+        input.value='';
+      }
+    };
+    reader.readAsText(file);
+  });
+})();
+
+</script>
+<script>
+
+(function(){
+  var modal=document.getElementById('settingsModal');
+  var btn=document.getElementById('settingsBtn');
+  var indexBtn=document.getElementById('settingsIndexBtn');
+  var close=document.getElementById('settingsClose');
+  if(!modal || !btn || !close)return;
+
+  function clickExisting(id){
+    var el=document.getElementById(id);
+    if(el)el.click();
+  }
+  function open(){
+    sync();
+    modal.classList.add('on');
+    modal.setAttribute('aria-hidden','false');
+  }
+  function shut(){
+    modal.classList.remove('on');
+    modal.setAttribute('aria-hidden','true');
+  }
+  btn.addEventListener('click',open);
+  if(indexBtn)indexBtn.addEventListener('click',open);
+  close.addEventListener('click',shut);
+  modal.addEventListener('click',function(e){if(e.target===modal)shut()});
+
+  var map={
+    settingsChordMode:'chordMode',
+    settingsEditLyrics:'editLyrics',
+    settingsIntro:'introTool',
+    settingsInstrumental:'instrumentTool',
+    settingsClearChords:'clearChords',
+    settingsTheme:'themeToggleView',
+    settingsUpdate:'appUpdateBtn',
+    settingsBackup:'backupBtn'
+  };
+  Object.keys(map).forEach(function(k){
+    var el=document.getElementById(k);
+    if(el)el.addEventListener('click',function(){
+      shut();
+      setTimeout(function(){
+        clickExisting(map[k]);
+        setTimeout(sync,50);
+      },30);
+    });
+  });
+
+  var scrollToggle=document.getElementById('settingsScrollToggle');
+  if(scrollToggle)scrollToggle.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){
+      clickExisting('autoScrollBtn');
+      setTimeout(sync,50);
+    },30);
+  });
+
+  var reset=document.getElementById('settingsScrollReset');
+  if(reset)reset.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){
+      if(window.stopAutoScroll)window.stopAutoScroll();
+      var host=document.getElementById('view');
+      if(host)host.scrollTop=0;
+      setTimeout(sync,50);
+    },30);
+  });
+
+  var speed=document.getElementById('settingsSpeed');
+  var speedVal=document.getElementById('settingsSpeedValue');
+  var originalSpeed=document.getElementById('autoScrollSpeed');
+  if(speed && originalSpeed){
+    speed.addEventListener('input',function(){
+      originalSpeed.value=speed.value;
+      originalSpeed.dispatchEvent(new Event('input',{bubbles:true}));
+      speedVal.textContent=speed.value;
+    });
+    speed.addEventListener('change',function(){
+      originalSpeed.value=speed.value;
+      originalSpeed.dispatchEvent(new Event('change',{bubbles:true}));
+      speedVal.textContent=speed.value;
+    });
+  }
+
+  function sync(){
+    var src;
+    var hasSong=(typeof current!=='undefined' && current>=0);
+    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsClearChords','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el)el.disabled=!hasSong;
+    });
+
+    src=document.getElementById('chordMode');
+    if(src)document.getElementById('settingsChordMode').textContent=src.textContent;
+
+    src=document.getElementById('themeToggleView');
+    if(src)document.getElementById('settingsTheme').textContent=src.textContent;
+
+    src=document.getElementById('autoScrollBtn');
+    if(src)document.getElementById('settingsScrollToggle').textContent=src.textContent;
+
+    if(originalSpeed){
+      speed.value=originalSpeed.value;
+      speedVal.textContent=originalSpeed.value;
+    }
+  }
+
+  sync();
+})();
+
+</script>
+<script>
+
+(function(){
+  try{localStorage.removeItem('quintoElemento.performanceMode')}catch(e){}
+  document.body.classList.remove('performanceMode');
+})();
+
+</script>
+<script>
+
+(function(){
+  var createBtn=document.getElementById('createPassBtn');
+  var manageBtn=document.getElementById('managePassesBtn');
+  var selectionBar=document.getElementById('passSelectionBar');
+  var selectionCount=document.getElementById('passSelectionCount');
+  var cancelSelection=document.getElementById('cancelPassSelection');
+  var saveSelection=document.getElementById('savePassSelection');
+
+  var nameModal=document.getElementById('passNameModal');
+  var nameInput=document.getElementById('passNameInput');
+  var nameClose=document.getElementById('passNameClose');
+  var nameCancel=document.getElementById('passNameCancel');
+  var nameSave=document.getElementById('passNameSave');
+
+  var passesModal=document.getElementById('passesModal');
+  var passesClose=document.getElementById('passesClose');
+  var passesList=document.getElementById('passesList');
+
+  var detailModal=document.getElementById('passDetailModal');
+  var detailClose=document.getElementById('passDetailClose');
+  var detailTitle=document.getElementById('passDetailTitle');
+  var detailSongs=document.getElementById('passDetailSongs');
+  var startPassBtn=document.getElementById('startPassBtn');
+  var renamePassBtn=document.getElementById('renamePassBtn');
+  var deletePassBtn=document.getElementById('deletePassBtn');
+
+  if(!createBtn || !manageBtn)return;
+
+  var selectionMode=false;
+  var selection=[];
+  var currentPassId=null;
+  window.activePass=null;
+
+  function passesKey(){return 'quintoElemento.passes.v1'}
+  function loadPasses(){
+    try{
+      var raw=localStorage.getItem(passesKey());
+      var arr=raw?JSON.parse(raw):[];
+      return Array.isArray(arr)?arr:[];
+    }catch(e){return []}
+  }
+  function savePasses(arr){
+    try{localStorage.setItem(passesKey(),JSON.stringify(arr))}catch(e){}
+  }
+  function uniqueId(){
+    return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  }
+  function esc(s){
+    return String(s||'').replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function updateSelectionUI(){
+    selectionCount.textContent=selection.length+(selection.length===1?' canción':' canciones');
+    render(q.value||'');
+  }
+
+  function beginSelection(){
+    selectionMode=true;
+    selection=[];
+    selectionBar.classList.add('on');
+    selectionBar.setAttribute('aria-hidden','false');
+    updateSelectionUI();
+  }
+  function endSelection(){
+    selectionMode=false;
+    selection=[];
+    selectionBar.classList.remove('on');
+    selectionBar.setAttribute('aria-hidden','true');
+    render(q.value||'');
+  }
+
+  window.passSelectionClick=function(i){
+    if(!selectionMode)return false;
+    var pos=selection.indexOf(i);
+    if(pos>=0)selection.splice(pos,1);
+    else selection.push(i);
+    updateSelectionUI();
+    return true;
+  };
+
+  window.decoratePassSongButton=function(button,i){
+    if(!selectionMode)return;
+    button.classList.add('passSelecting');
+    var pos=selection.indexOf(i);
+    if(pos>=0){
+      button.classList.add('passSelected');
+      var badge=document.createElement('span');
+      badge.className='passOrderBadge';
+      badge.textContent=String(pos+1);
+      button.appendChild(badge);
+    }
+  };
+
+  createBtn.addEventListener('click',beginSelection);
+  cancelSelection.addEventListener('click',endSelection);
+  saveSelection.addEventListener('click',function(){
+    if(!selection.length){
+      alert('Selecciona al menos una canción.');
+      return;
+    }
+    nameInput.value='PASE '+(loadPasses().length+1);
+    nameModal.classList.add('on');
+    setTimeout(function(){nameInput.focus();nameInput.select()},60);
+  });
+
+  function closeName(){nameModal.classList.remove('on')}
+  nameClose.addEventListener('click',closeName);
+  nameCancel.addEventListener('click',closeName);
+  nameModal.addEventListener('click',function(e){if(e.target===nameModal)closeName()});
+
+  nameSave.addEventListener('click',function(){
+    var name=normalizeMasterTitle(nameInput.value||'');
+    if(!name){alert('Escribe un nombre para el pase.');return}
+    var arr=loadPasses();
+    arr.push({id:uniqueId(),name:name,songs:selection.slice(),createdAt:new Date().toISOString()});
+    savePasses(arr);
+    closeName();
+    endSelection();
+    renderPasses();
+    passesModal.classList.add('on');
+  });
+
+  function renderPasses(){
+    var arr=loadPasses();
+    passesList.innerHTML='';
+    if(!arr.length){
+      passesList.innerHTML='<div style="padding:22px;color:#aaa;text-align:center">Todavía no hay pases guardados.</div>';
+      return;
+    }
+    arr.forEach(function(p){
+      var row=document.createElement('div');
+      row.className='passRow';
+      var main=document.createElement('div');main.className='passRowMain';
+      var t=document.createElement('div');t.className='passRowTitle';t.textContent=p.name;
+      var meta=document.createElement('div');meta.className='passRowMeta';
+      meta.textContent=(p.songs||[]).length+' canciones';
+      main.appendChild(t);main.appendChild(meta);
+
+      var open=document.createElement('button');open.type='button';open.textContent='Abrir';
+      open.onclick=function(){openPassDetail(p.id)};
+
+      row.appendChild(main);row.appendChild(open);passesList.appendChild(row);
+    });
+  }
+
+  manageBtn.addEventListener('click',function(){
+    renderPasses();
+    passesModal.classList.add('on');
+  });
+  passesClose.addEventListener('click',function(){passesModal.classList.remove('on')});
+  passesModal.addEventListener('click',function(e){if(e.target===passesModal)passesModal.classList.remove('on')});
+
+  function getPass(id){
+    return loadPasses().find(function(p){return p.id===id})||null;
+  }
+
+  function openPassDetail(id){
+    currentPassId=id;
+    passesModal.classList.remove('on');
+    renderPassDetail();
+    detailModal.classList.add('on');
+  }
+
+  function renderPassDetail(){
+    var p=getPass(currentPassId);
+    if(!p){detailModal.classList.remove('on');return}
+    detailTitle.textContent=p.name;
+    detailSongs.innerHTML='';
+    (p.songs||[]).forEach(function(songIndex,pos){
+      if(!songs[songIndex])return;
+      var row=document.createElement('div');row.className='passSongRow';
+
+      var n=document.createElement('div');n.className='passOrder';n.textContent=String(pos+1);
+      var title=document.createElement('div');title.className='passSongTitle';title.textContent=getSongTitle(songIndex);
+
+      var up=document.createElement('button');up.type='button';up.textContent='↑';
+      up.disabled=pos===0;
+      up.onclick=function(){movePassSong(pos,-1)};
+
+      var down=document.createElement('button');down.type='button';down.textContent='↓';
+      down.disabled=pos===(p.songs.length-1);
+      down.onclick=function(){movePassSong(pos,1)};
+
+      var rem=document.createElement('button');rem.type='button';rem.className='removeSongBtn';rem.textContent='Quitar';
+      rem.onclick=function(){removePassSong(pos)};
+
+      row.appendChild(n);row.appendChild(title);row.appendChild(up);row.appendChild(down);row.appendChild(rem);
+      detailSongs.appendChild(row);
+    });
+  }
+
+  function updateCurrentPass(mutator){
+    var arr=loadPasses();
+    var idx=arr.findIndex(function(p){return p.id===currentPassId});
+    if(idx<0)return;
+    mutator(arr[idx]);
+    savePasses(arr);
+    renderPassDetail();
+  }
+  function movePassSong(pos,delta){
+    updateCurrentPass(function(p){
+      var to=pos+delta;
+      if(to<0||to>=p.songs.length)return;
+      var tmp=p.songs[pos];p.songs[pos]=p.songs[to];p.songs[to]=tmp;
+    });
+  }
+  function removePassSong(pos){
+    updateCurrentPass(function(p){p.songs.splice(pos,1)});
+  }
+
+  detailClose.addEventListener('click',function(){detailModal.classList.remove('on')});
+  detailModal.addEventListener('click',function(e){if(e.target===detailModal)detailModal.classList.remove('on')});
+
+  renamePassBtn.addEventListener('click',function(){
+    var p=getPass(currentPassId);if(!p)return;
+    var name=prompt('Nuevo nombre del pase:',p.name);
+    if(name===null)return;
+    name=normalizeMasterTitle(name);
+    if(!name)return;
+    updateCurrentPass(function(x){x.name=name});
+  });
+
+  deletePassBtn.addEventListener('click',function(){
+    var p=getPass(currentPassId);if(!p)return;
+    if(!confirm('¿Eliminar el pase "'+p.name+'"?'))return;
+    var arr=loadPasses().filter(function(x){return x.id!==currentPassId});
+    savePasses(arr);
+    currentPassId=null;
+    detailModal.classList.remove('on');
+    renderPasses();
+    passesModal.classList.add('on');
+  });
+
+  startPassBtn.addEventListener('click',function(){
+    var p=getPass(currentPassId);
+    if(!p || !p.songs || !p.songs.length)return;
+    window.activePass={id:p.id,name:p.name,songs:p.songs.slice(),position:0};
+    detailModal.classList.remove('on');
+    openSong(p.songs[0]);
+    showActivePassBadge();
+  });
+
+  function showActivePassBadge(){
+    var old=document.getElementById('activePassBadge');
+    if(old)old.remove();
+    if(!window.activePass)return;
+    var badge=document.createElement('span');
+    badge.id='activePassBadge';
+    badge.className='passActiveBadge';
+    badge.textContent='☷ '+window.activePass.name+' · '+(window.activePass.position+1)+'/'+window.activePass.songs.length;
+    var bar=document.querySelector('#view .bar');
+    var settings=document.getElementById('settingsBtn');
+    if(bar && settings)settings.insertAdjacentElement('afterend',badge);
+  }
+
+  window.passPrevSong=function(){
+    if(!window.activePass)return false;
+    var p=window.activePass;
+    if(p.position<=0)return true;
+    p.position--;
+    openSong(p.songs[p.position]);
+    showActivePassBadge();
+    return true;
+  };
+  window.passNextSong=function(){
+    if(!window.activePass)return false;
+    var p=window.activePass;
+    if(p.position>=p.songs.length-1)return true;
+    p.position++;
+    openSong(p.songs[p.position]);
+    showActivePassBadge();
+    return true;
+  };
+  window.clearActivePass=function(){
+    window.activePass=null;
+    var old=document.getElementById('activePassBadge');
+    if(old)old.remove();
+  };
+})();
+
+</script>
+<script>
+
+(function(){
+  var PREFIX='quintoElemento.';
+  var META_DIRTY='qeSync.dirty';
+  var META_REMOTE_TS='qeSync.remoteTs';
+  var applyingRemote=false;
+  var syncTimer=0;
+  var pollingTimer=0;
+  var statusEl=null;
+  var detailEl=null;
+  var buttonEl=null;
+
+  function byId(id){return document.getElementById(id)}
+  function setStatus(text,detail){
+    statusEl=statusEl||byId('cloudSyncStatus');
+    detailEl=detailEl||byId('cloudSyncDetail');
+    if(statusEl)statusEl.textContent=text;
+    if(detailEl && detail!==undefined)detailEl.textContent=detail;
+  }
+
+  function collectState(){
+    var out={};
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k && k.indexOf(PREFIX)===0){
+        out[k]=localStorage.getItem(k);
+      }
+    }
+    return out;
+  }
+
+  function hasState(obj){
+    return obj && Object.keys(obj).length>0;
+  }
+
+  function applyState(obj){
+    applyingRemote=true;
+    try{
+      var remove=[];
+      for(var i=0;i<localStorage.length;i++){
+        var k=localStorage.key(i);
+        if(k && k.indexOf(PREFIX)===0)remove.push(k);
+      }
+      remove.forEach(function(k){localStorage.removeItem(k)});
+      Object.keys(obj||{}).forEach(function(k){
+        if(k.indexOf(PREFIX)===0)localStorage.setItem(k,String(obj[k]));
+      });
+    }finally{
+      applyingRemote=false;
+    }
+  }
+
+  async function apiGet(){
+    var r=await fetch('/api/sync?ts='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('GET '+r.status);
+    return await r.json();
+  }
+
+  async function apiPut(state){
+    var r=await fetch('/api/sync',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({data:state})
+    });
+    if(!r.ok)throw new Error('PUT '+r.status);
+    return await r.json();
+  }
+
+  async function pushLocal(){
+    if(!navigator.onLine)return false;
+    setStatus('☁ Guardando en la nube…','Enviando cambios de este dispositivo.');
+    var res=await apiPut(collectState());
+    localStorage.setItem(META_DIRTY,'0');
+    localStorage.setItem(META_REMOTE_TS,String(res.updatedAt||0));
+    setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
+    return true;
+  }
+
+  async function pullRemote(allowReload){
+    if(!navigator.onLine)return false;
+    var res=await apiGet();
+    var remote=res && res.data ? res.data : null;
+    var remoteTs=Number(res && res.updatedAt || 0);
+    var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
+
+    if(remote && remoteTs>localTs){
+      setStatus('☁ Recibiendo cambios…','Actualizando este dispositivo con la última versión.');
+      applyState(remote);
+      localStorage.setItem(META_REMOTE_TS,String(remoteTs));
+      localStorage.setItem(META_DIRTY,'0');
+      if(allowReload){
+        sessionStorage.setItem('qeSync.justPulled','1');
+        location.reload();
+      }
+      return true;
+    }
+    setStatus('☁ Sincronizado','Este dispositivo está al día.');
+    return false;
+  }
+
+  async function syncNow(manual){
+    if(!navigator.onLine){
+      setStatus('☁ Sin conexión','Los cambios se guardan aquí y se sincronizarán cuando vuelva internet.');
+      return;
+    }
+    try{
+      var dirty=localStorage.getItem(META_DIRTY)==='1';
+      if(dirty){
+        await pushLocal();
+      }else{
+        var remote=await apiGet();
+        if(remote && remote.data){
+          var remoteTs=Number(remote.updatedAt||0);
+          var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
+          if(remoteTs>localTs){
+            applyState(remote.data);
+            localStorage.setItem(META_REMOTE_TS,String(remoteTs));
+            localStorage.setItem(META_DIRTY,'0');
+            if(manual){
+              setStatus('☁ Sincronizado','Datos recibidos. Recargando…');
+            }
+            sessionStorage.setItem('qeSync.justPulled','1');
+            location.reload();
+            return;
+          }
+        }else{
+          var local=collectState();
+          if(hasState(local))await pushLocal();
+        }
+        setStatus('☁ Sincronizado','Este dispositivo está al día.');
+      }
+    }catch(e){
+      setStatus('☁ Sincronización pendiente','No se pudo conectar con Cloudflare. Se reintentará automáticamente.');
+    }
+  }
+
+  function schedulePush(){
+    if(applyingRemote)return;
+    try{localStorage.setItem(META_DIRTY,'1')}catch(e){}
+    clearTimeout(syncTimer);
+    syncTimer=setTimeout(function(){syncNow(false)},900);
+  }
+
+  // Interceptar cambios de la app sin modificar cada función existente.
+  var nativeSet=Storage.prototype.setItem;
+  var nativeRemove=Storage.prototype.removeItem;
+  Storage.prototype.setItem=function(k,v){
+    nativeSet.call(this,k,v);
+    if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
+  };
+  Storage.prototype.removeItem=function(k){
+    nativeRemove.call(this,k);
+    if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
+  };
+
+  window.addEventListener('online',function(){syncNow(false)});
+  window.addEventListener('offline',function(){
+    setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
+  });
+
+  window.addEventListener('load',function(){
+    statusEl=byId('cloudSyncStatus');
+    detailEl=byId('cloudSyncDetail');
+    buttonEl=byId('cloudSyncNow');
+    if(buttonEl)buttonEl.addEventListener('click',function(){syncNow(true)});
+
+    if(!navigator.onLine){
+      setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
+      return;
+    }
+
+    var justPulled=sessionStorage.getItem('qeSync.justPulled');
+    if(justPulled){
+      sessionStorage.removeItem('qeSync.justPulled');
+      setStatus('☁ Sincronizado','Últimos cambios recibidos correctamente.');
+    }
+
+    syncNow(false);
+    clearInterval(pollingTimer);
+    pollingTimer=setInterval(function(){
+      if(navigator.onLine && localStorage.getItem(META_DIRTY)!=='1'){
+        pullRemote(true);
+      }
+    },30000);
+  });
+})();
+
+</script>
+<script>
+
+(function(){
+  window.addEventListener('load',function(){
+    var modal=document.getElementById('settingsModal');
+    var syncBtn=document.getElementById('cloudSyncNow');
+    if(syncBtn && modal){
+      syncBtn.addEventListener('click',function(){
+        modal.classList.remove('on');
+        modal.setAttribute('aria-hidden','true');
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+const APP_VERSION=32;
+const appStatus=document.getElementById('appStatus');
+const appUpdateBtn=document.getElementById('appUpdateBtn');
+const updateToast=document.getElementById('updateToast');
+const updateNowBtn=document.getElementById('updateNowBtn');
+
+function setConnectionStatus(){
+  if(!appStatus)return;
+  if(navigator.onLine){
+    appStatus.textContent='Online · v'+APP_VERSION;
+    appStatus.className='appStatus online';
+  }else{
+    appStatus.textContent='Offline · v'+APP_VERSION;
+    appStatus.className='appStatus offline';
+  }
+}
+window.addEventListener('online',setConnectionStatus);
+window.addEventListener('offline',setConnectionStatus);
+setConnectionStatus();
+
+async function remoteVersion(){
+  if(!navigator.onLine)return null;
+  try{
+    const r=await fetch('./version.json?_='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return null;
+    const d=await r.json();
+    const n=parseInt(d.version,10);
+    return Number.isFinite(n)?n:null;
+  }catch(e){return null}
+}
+
+function showUpdate(v){
+  if(v<=APP_VERSION)return;
+  if(appStatus){
+    appStatus.textContent='Actualización disponible · v'+v;
+    appStatus.className='appStatus update';
+  }
+  if(updateToast)updateToast.classList.add('on');
+}
+
+function hideUpdate(){
+  if(updateToast)updateToast.classList.remove('on');
+  setConnectionStatus();
+}
+
+async function checkUpdate(manual){
+  const v=await remoteVersion();
+  if(v!==null && v>APP_VERSION){
+    showUpdate(v);
+  }else{
+    hideUpdate();
+    if(manual)alert('Ya tienes la versión más reciente (v'+APP_VERSION+').');
+  }
+}
+
+async function installLatest(){
+  if(!navigator.onLine){
+    alert('Necesitas conexión para actualizar.');
+    return;
+  }
+  if(updateNowBtn){
+    updateNowBtn.disabled=true;
+    updateNowBtn.textContent='Actualizando…';
+  }
+
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      for(const reg of regs){
+        try{await reg.unregister()}catch(e){}
+      }
+    }
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(function(k){return caches.delete(k)}));
+    }
+  }catch(e){}
+
+  const u=new URL(location.href);
+  u.searchParams.set('_refresh',Date.now().toString());
+  location.replace(u.toString());
+}
+
+if(appUpdateBtn)appUpdateBtn.onclick=function(){checkUpdate(true)};
+if(updateNowBtn)updateNowBtn.onclick=installLatest;
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',async function(){
+    try{
+      await navigator.serviceWorker.register('./sw.js?v=32',{updateViaCache:'none'});
+    }catch(e){}
+    // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
+    setTimeout(function(){checkUpdate(false)},1200);
+  });
+}
+</script>
+</body></html>

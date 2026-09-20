@@ -1,0 +1,18 @@
+AUDITORÍA AUTOMÁTICA DE LETRAS · EL QUINTO ELEMENTO v7
+
+Se han revisado las 71 canciones para eliminar restos evidentes de acordes, tablaturas, comentarios de transcriptores, URLs, indicaciones musicales y bloques fragmentados de extracción.
+Todas las letras base se han normalizado al formato maestro en MAYÚSCULAS.
+
+Cambios detectados:
+- AFRICANOS EN MADRID: eliminado bloque inicial fragmentado.
+- ÁNGEL PARA UN FINAL: eliminado bloque inicial fragmentado.
+- AUNQUE TU NO LO SEPAS: eliminado bloque inicial fragmentado.
+- CORAZÓN DE NEÓN: eliminado bloque inicial fragmentado.
+- EL BLUES DEL AUTOBÚS: conservada versión previa para no perder contenido.
+- EL VALS DEL OBRERO: eliminado bloque inicial fragmentado.
+- EN ALGÚN LUGAR: eliminado bloque inicial fragmentado.
+- POR LA BOCA VIVE EL PEZ: eliminado bloque inicial fragmentado.
+- QUERIDA MILAGROS: eliminado bloque inicial fragmentado.
+- SIN ALIENTO: eliminado bloque inicial fragmentado.
+- SO PAYASO: eliminado bloque inicial fragmentado.
+- SUFRE MAMON: eliminado bloque inicial fragmentado.
