@@ -1,17 +1,17 @@
-EL QUINTO ELEMENTO · v39 · ESTABILIDAD Y CARGA RÁPIDA
+EL QUINTO ELEMENTO · v40 · CLOUDFLARE D1 SYNC
 
-CORRECCIÓN CRÍTICA
-- Eliminado el bucle de recargas provocado por la sincronización D1.
-- Los cambios recibidos desde Cloudflare se aplican en caliente, sin recargar toda la app.
-- La sincronización periódica ya no provoca recargas automáticas.
-- El arranque muestra primero los datos locales y sincroniza en segundo plano.
-- Navegación, index.html, version.json y sw.js se sirven con no-cache desde el Worker.
-- El Service Worker usa red primero con espera máxima corta y conserva fallback offline.
-- La comprobación de versión comienza antes, sin bloquear la interfaz.
-- Se conserva la función v38 de duplicar bloques de acordes.
+NUEVA FUNCIÓN: MOVER ACORDES INDIVIDUALES
+- En modo edición, toca directamente un acorde colocado sobre una palabra.
+- El acorde queda seleccionado y la app muestra "Mover acorde".
+- Después toca otra palabra de ESA MISMA LÍNEA.
+- El acorde se mueve a esa palabra sin tener que borrarlo y crearlo de nuevo.
+- Si la palabra de destino ya tiene un acorde, la app pregunta antes de sustituirlo.
+- Tocar de nuevo la palabra original cancela el movimiento.
+- Incluye botón Cancelar durante el movimiento.
+- Especialmente pensado para corregir rápidamente los bloques duplicados de la v38.
+- Los cambios se guardan y sincronizan con D1 y quedan cubiertos por las copias automáticas.
 
-OBJETIVO
-Carga inmediata, actualización fiable y funcionamiento offline sin bucles.
+Se mantienen carga rápida v39, duplicación de bloques, transposición, pases, offline y resto de funciones.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

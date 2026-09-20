@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=39">
+<link rel="manifest" href="manifest.webmanifest?v=40">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1094,6 +1094,59 @@ body.lightTheme .duplicateChordBanner{
   border-color:#c8a94f;
 }
 
+
+/* v40 · Mover acordes individuales dentro de la línea */
+.moveChordBanner{
+  position:sticky;
+  top:72px;
+  z-index:17;
+  margin:8px auto 12px;
+  max-width:980px;
+  padding:10px 12px;
+  border:1px solid #6a5521;
+  border-radius:10px;
+  background:#1c180d;
+  color:#e6c36a;
+  font-weight:900;
+  line-height:1.3;
+}
+.moveChordBanner button{
+  margin-left:10px;
+  min-height:34px;
+  border:1px solid #7c6630;
+  border-radius:8px;
+  background:#17130a;
+  color:#e6c36a;
+  font-weight:900;
+}
+.wordChord.movableChord{
+  cursor:pointer;
+  border-radius:5px;
+  padding:0 3px;
+  outline:1px dashed rgba(230,195,106,.55);
+}
+.wordChord.movableChord:active{
+  background:rgba(230,195,106,.18);
+}
+.wordWrap.movingChordSource .wordChord{
+  background:#e6c36a!important;
+  color:#111!important;
+  outline:2px solid #e6c36a!important;
+}
+.view.moveWordChordMode .wordToken{
+  cursor:pointer;
+}
+.view.moveWordChordMode .wordToken:hover,
+.view.moveWordChordMode .wordToken:active{
+  background:rgba(230,195,106,.12);
+  border-radius:4px;
+}
+body.lightTheme .moveChordBanner{
+  background:#fff8e6;
+  color:#6b5419;
+  border-color:#c8a94f;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1313,7 +1366,7 @@ body.lightTheme .duplicateChordBanner{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v39</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v40</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1832,6 +1885,74 @@ function handleBlockDuplicateLine(li){
   return true;
 }
 
+var moveWordChordAction=null;
+
+function updateMoveChordBanner(){
+  var b=document.getElementById('moveChordBanner');
+  if(!b)return;
+  if(!moveWordChordAction){
+    b.style.display='none';
+    b.innerHTML='';
+    view.classList.remove('moveWordChordMode');
+    return;
+  }
+  view.classList.add('moveWordChordMode');
+  b.style.display='block';
+  b.innerHTML='<span>↔ Mover <strong>'+moveWordChordAction.value+'</strong>: toca la palabra de destino en esta misma línea.</span><button id="cancelMoveWordChord" type="button">Cancelar</button>';
+  var cancel=document.getElementById('cancelMoveWordChord');
+  if(cancel)cancel.onclick=cancelMoveWordChord;
+}
+
+function beginMoveWordChord(line,word,value){
+  if(!editingChords||!value)return;
+  blockDuplicateMode=false;
+  blockDuplicateStart=null;
+  blockDuplicateEnd=null;
+  moveWordChordAction={line:Number(line),word:Number(word),value:String(value)};
+  updateDuplicateChordBanner();
+  updateMoveChordBanner();
+  renderLyrics();
+}
+
+function cancelMoveWordChord(){
+  moveWordChordAction=null;
+  updateMoveChordBanner();
+  renderLyrics();
+}
+
+function placeMovedWordChord(line,word){
+  if(!moveWordChordAction)return false;
+  line=Number(line);word=Number(word);
+
+  if(line!==moveWordChordAction.line){
+    alert('El acorde solo se puede mover dentro de la misma línea.');
+    return true;
+  }
+
+  if(word===moveWordChordAction.word){
+    cancelMoveWordChord();
+    return true;
+  }
+
+  var d=getChordData(current);
+  var sourceKey=moveWordChordAction.line+':'+moveWordChordAction.word;
+  var targetKey=line+':'+word;
+  var existing=d.words[targetKey]||'';
+
+  if(existing && existing!==moveWordChordAction.value){
+    if(!confirm('La palabra de destino ya tiene '+existing+'. ¿Quieres sustituirlo por '+moveWordChordAction.value+'?'))return true;
+  }
+
+  delete d.words[sourceKey];
+  d.words[targetKey]=moveWordChordAction.value;
+  saveChordData(current,d);
+  moveWordChordAction=null;
+  updateMoveChordBanner();
+  renderLyrics();
+  showSavedToast();
+  return true;
+}
+
 function renderLyrics(){
   if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';
   ly.classList.toggle('editingLyrics',editingChords);view.classList.toggle('editing',editingChords);view.classList.toggle('placingInstrumental',placingInstrumental);
@@ -1843,6 +1964,7 @@ function renderLyrics(){
     pn.textContent=instrumentAction?(instrumentAction.type==='move'?'Selecciona dónde quieres MOVER el INSTRUMENTAL.':'Selecciona dónde quieres DUPLICAR el INSTRUMENTAL.'):'Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.';
   }
   updateDuplicateChordBanner();
+  updateMoveChordBanner();
   if(d.intro){ly.appendChild(makeSection('INTRO',d.intro,function(){openPicker({mode:'intro',existing:d.intro,label:'INTRO'})}))}
   var lines=getSongText(current).split('\n');
   if(placingInstrumental)addInstrumentSlot(0);
@@ -1877,7 +1999,40 @@ function renderLyrics(){
         body.appendChild(document.createTextNode('\u00a0'));
       }
     }else{
-      line.split(/\s+/).forEach(function(word,wi){var wrap=document.createElement('span');wrap.className='wordWrap';var key=li+':'+wi,wc=d.words[key]||'';var cc=document.createElement('span');cc.className='wordChord';cc.textContent=wc||'\u00a0';wrap.appendChild(cc);var token=document.createElement('span');token.className='wordToken';token.textContent=word;token.onclick=function(){if(editingChords)openPicker({mode:'word',line:li,word:wi,existing:wc,label:'Palabra: '+word})};wrap.appendChild(token);body.appendChild(wrap)});
+      line.split(/\s+/).forEach(function(word,wi){
+        var wrap=document.createElement('span');
+        wrap.className='wordWrap';
+        var key=li+':'+wi,wc=d.words[key]||'';
+
+        var cc=document.createElement('span');
+        cc.className='wordChord'+(editingChords&&wc?' movableChord':'');
+        cc.textContent=wc||'\u00a0';
+        if(editingChords&&wc){
+          cc.title='Toca para mover este acorde dentro de la línea';
+          cc.onclick=function(e){
+            e.stopPropagation();
+            beginMoveWordChord(li,wi,wc);
+          };
+        }
+        if(moveWordChordAction&&moveWordChordAction.line===li&&moveWordChordAction.word===wi){
+          wrap.classList.add('movingChordSource');
+        }
+        wrap.appendChild(cc);
+
+        var token=document.createElement('span');
+        token.className='wordToken';
+        token.textContent=word;
+        token.onclick=function(){
+          if(!editingChords)return;
+          if(moveWordChordAction){
+            placeMovedWordChord(li,wi);
+            return;
+          }
+          openPicker({mode:'word',line:li,word:wi,existing:wc,label:'Palabra: '+word});
+        };
+        wrap.appendChild(token);
+        body.appendChild(wrap)
+      });
     }
     row.appendChild(body);ly.appendChild(row);
     if(placingInstrumental)addInstrumentSlot(li+1);
@@ -1920,8 +2075,8 @@ document.getElementById('chordSave').onclick=function(){storePicker(false)};
 document.getElementById('chordDelete').onclick=function(){storePicker(true)};
 document.getElementById('chordCancel').onclick=closePicker;
 chordModal.addEventListener('click',function(e){if(e.target===chordModal)closePicker()});
-function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics()}
-function closeSong(){view.classList.remove('on');placingInstrumental=false}
+function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics()}
+function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null}
 q.oninput=function(){render(q.value)};
 document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
 document.getElementById('prev').onclick=function(){
@@ -1942,7 +2097,7 @@ chordMode.onclick=function(){
 var saveChordEdit=document.getElementById('saveChordEdit');
 if(saveChordEdit)saveChordEdit.onclick=function(){
   if(current<0)return;
-  blockDuplicateMode=false;blockDuplicateStart=null;blockDuplicateEnd=null;
+  blockDuplicateMode=false;blockDuplicateStart=null;blockDuplicateEnd=null;moveWordChordAction=null;
   var d=getChordData(current);
   saveChordData(current,d);
   editingChords=false;
@@ -2881,7 +3036,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=39;
+const APP_VERSION=40;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2970,7 +3125,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=39',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=40',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
