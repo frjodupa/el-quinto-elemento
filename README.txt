@@ -1,13 +1,17 @@
-EL QUINTO ELEMENTO · v35 · CLOUDFLARE D1 SYNC
+EL QUINTO ELEMENTO · v36 · CLOUDFLARE D1 SYNC
 
-MEJORA DE ACORDES
-- La pantalla de edición de acordes se utiliza únicamente mientras se están modificando.
-- Nuevo botón "✓ Guardar acordes" visible durante la edición.
-- Al guardar, se cierra el modo edición y la canción queda en vista limpia de interpretación.
-- Al volver a abrir una canción siempre se abre en vista normal, con letra y acordes, nunca en modo edición.
-- Los acordes continúan guardándose localmente y sincronizándose automáticamente con Cloudflare D1.
-- Se aumenta el tamaño de los acordes sobre palabras, líneas, INTRO e INSTRUMENTALES.
-- Se mantienen transposición, pases, scroll, edición de letra y funcionamiento offline.
+COPIAS DE SEGURIDAD AUTOMÁTICAS VERSIONADAS
+- Cloudflare D1 crea automáticamente una copia cada vez que se sincroniza un cambio real.
+- Se conservan las últimas 10 versiones.
+- Las copias idénticas no se duplican.
+- Nuevo apartado "Copias automáticas" dentro de ⚙ Ajustes.
+- Se puede crear una copia manual en cualquier momento.
+- Se puede restaurar cualquiera de las últimas 10 versiones.
+- Antes de restaurar, la versión actual se guarda automáticamente como seguridad.
+- Las copias funcionan para letras, títulos, acordes, transposición, pases y resto de datos sincronizados.
+- No afecta al funcionamiento offline: las copias se gestionan cuando hay conexión.
+
+Se mantienen todas las funciones de v35.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=35">
+<link rel="manifest" href="manifest.webmanifest?v=36">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -956,6 +956,66 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
   .musicChordChip{font-size:1.12rem!important}
 }
 
+
+/* v36 · Copias automáticas versionadas en Cloudflare D1 */
+.autoBackupBox{
+  border:1px solid #34343a;
+  background:#17181b;
+  border-radius:12px;
+  padding:12px;
+}
+.autoBackupTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.autoBackupTop>div{min-width:0}
+.autoBackupTop button{
+  flex:0 0 auto;
+  min-height:42px;
+  border:1px solid #4a432b;
+  background:#1a1812;
+  color:#e6c36a;
+  font-weight:900;
+  border-radius:10px;
+}
+.cloudBackupList{
+  margin-top:10px;
+  display:grid;
+  gap:7px;
+  max-height:250px;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.cloudBackupItem{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+  align-items:center;
+  border-top:1px solid #2d2d31;
+  padding-top:7px;
+}
+.cloudBackupDate{font-weight:800;color:#eee}
+.cloudBackupMeta{font-size:.76rem;color:#999;margin-top:2px}
+.cloudBackupItem button{
+  min-height:38px;
+  border:1px solid #4a432b;
+  background:#1a1812;
+  color:#e6c36a;
+  border-radius:9px;
+  font-weight:900;
+}
+.cloudBackupEmpty{color:#999;padding:8px 0}
+body.lightTheme .autoBackupBox{background:#fff;border-color:#d0c8b6}
+body.lightTheme .cloudBackupDate{color:#222}
+body.lightTheme .cloudBackupTop button,
+body.lightTheme .cloudBackupItem button{background:#fff;color:#6a5317;border-color:#cdb86e}
+@media(max-width:700px){
+  .autoBackupTop{align-items:stretch;flex-direction:column}
+  .autoBackupTop button{width:100%}
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1064,6 +1124,22 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
       </section>
 
       <section class="settingsGroup">
+        <h3>Copias automáticas</h3>
+        <div class="autoBackupBox">
+          <div class="autoBackupTop">
+            <div>
+              <strong>Historial Cloudflare</strong>
+              <div class="cloudSyncDetail">Se conservan automáticamente las últimas 10 versiones de tus datos.</div>
+            </div>
+            <button id="createCloudBackup" type="button">＋ Crear copia ahora</button>
+          </div>
+          <div id="cloudBackupList" class="cloudBackupList">
+            <div class="cloudBackupEmpty">Cargando copias…</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
         <h3>App</h3>
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
@@ -1158,7 +1234,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v35</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v36</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -2512,7 +2588,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=35;
+const APP_VERSION=36;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2601,11 +2677,121 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=35',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=36',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},1200);
   });
 }
+</script>
+<script>
+
+(function(){
+  var list=document.getElementById('cloudBackupList');
+  var createBtn=document.getElementById('createCloudBackup');
+  var settingsModal=document.getElementById('settingsModal');
+
+  function fmt(ts){
+    try{
+      return new Intl.DateTimeFormat('es-ES',{
+        day:'2-digit',month:'2-digit',year:'numeric',
+        hour:'2-digit',minute:'2-digit'
+      }).format(new Date(Number(ts||0)));
+    }catch(e){return new Date(Number(ts||0)).toLocaleString()}
+  }
+
+  function sourceLabel(source){
+    if(source==='manual')return 'Copia manual';
+    if(source==='before_restore')return 'Seguridad antes de restaurar';
+    if(source==='restored')return 'Versión restaurada';
+    return 'Copia automática';
+  }
+
+  async function loadBackups(){
+    if(!list)return;
+    if(!navigator.onLine){
+      list.innerHTML='<div class="cloudBackupEmpty">Necesitas conexión para consultar las copias de Cloudflare.</div>';
+      return;
+    }
+    list.innerHTML='<div class="cloudBackupEmpty">Cargando copias…</div>';
+    try{
+      var r=await fetch('/api/backups?ts='+Date.now(),{cache:'no-store'});
+      if(!r.ok)throw new Error('GET '+r.status);
+      var d=await r.json();
+      var arr=d.backups||[];
+      if(!arr.length){
+        list.innerHTML='<div class="cloudBackupEmpty">Aún no hay copias. Se crearán automáticamente al guardar cambios.</div>';
+        return;
+      }
+      list.innerHTML='';
+      arr.forEach(function(b){
+        var row=document.createElement('div');row.className='cloudBackupItem';
+        var info=document.createElement('div');
+        var date=document.createElement('div');date.className='cloudBackupDate';date.textContent=fmt(b.createdAt);
+        var meta=document.createElement('div');meta.className='cloudBackupMeta';meta.textContent=sourceLabel(b.source);
+        info.appendChild(date);info.appendChild(meta);
+        var btn=document.createElement('button');btn.type='button';btn.textContent='Restaurar';
+        btn.onclick=function(){restoreBackup(b.id,b.createdAt)};
+        row.appendChild(info);row.appendChild(btn);list.appendChild(row);
+      });
+    }catch(e){
+      list.innerHTML='<div class="cloudBackupEmpty">No se pudieron cargar las copias. Inténtalo de nuevo.</div>';
+    }
+  }
+
+  async function createBackup(){
+    if(!navigator.onLine){alert('Necesitas conexión para crear una copia en Cloudflare.');return}
+    if(createBtn){createBtn.disabled=true;createBtn.textContent='Guardando…'}
+    try{
+      var r=await fetch('/api/backups',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'create'})
+      });
+      var d=await r.json();
+      if(!r.ok)throw new Error(d.error||'Error');
+      await loadBackups();
+      if(window.showSavedToast)showSavedToast();
+    }catch(e){
+      alert('No se pudo crear la copia de seguridad.');
+    }finally{
+      if(createBtn){createBtn.disabled=false;createBtn.textContent='＋ Crear copia ahora'}
+    }
+  }
+
+  async function restoreBackup(id,createdAt){
+    if(!navigator.onLine){alert('Necesitas conexión para restaurar una copia.');return}
+    if(!confirm('¿Restaurar la copia del '+fmt(createdAt)+'?\n\nLa versión actual se guardará automáticamente antes de restaurar.'))return;
+    try{
+      var r=await fetch('/api/backups',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({action:'restore',id:id})
+      });
+      var d=await r.json();
+      if(!r.ok)throw new Error(d.error||'Error');
+
+      try{
+        localStorage.setItem('qeSync.dirty','0');
+        localStorage.setItem('qeSync.remoteTs','0');
+      }catch(e){}
+
+      alert('Copia restaurada. La app se recargará con esa versión.');
+      location.reload();
+    }catch(e){
+      alert('No se pudo restaurar la copia de seguridad.');
+    }
+  }
+
+  if(createBtn)createBtn.addEventListener('click',createBackup);
+  var settingsBtn=document.getElementById('settingsBtn');
+  var settingsIndexBtn=document.getElementById('settingsIndexBtn');
+  if(settingsBtn)settingsBtn.addEventListener('click',function(){setTimeout(loadBackups,120)});
+  if(settingsIndexBtn)settingsIndexBtn.addEventListener('click',function(){setTimeout(loadBackups,120)});
+  window.addEventListener('online',function(){
+    if(settingsModal && settingsModal.classList.contains('on'))loadBackups();
+  });
+})();
+
 </script>
 </body></html>
