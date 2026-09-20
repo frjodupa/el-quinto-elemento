@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=37">
+<link rel="manifest" href="manifest.webmanifest?v=38">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1052,6 +1052,48 @@ body.lightTheme .emptyLineDeleteBtn{
   border-color:#d88!important;
 }
 
+
+/* v38 · Duplicar bloques de acordes */
+.duplicateChordBanner{
+  position:sticky;
+  top:72px;
+  z-index:16;
+  margin:8px auto 12px;
+  max-width:980px;
+  padding:10px 12px;
+  border:1px solid #6a5521;
+  border-radius:10px;
+  background:#1c180d;
+  color:#e6c36a;
+  font-weight:900;
+  line-height:1.3;
+}
+.duplicateChordBanner button{
+  margin-left:10px;
+  min-height:34px;
+  border:1px solid #7c6630;
+  border-radius:8px;
+  background:#17130a;
+  color:#e6c36a;
+  font-weight:900;
+}
+.lyricLine.duplicateSourceStart,
+.lyricLine.duplicateSourceEnd{
+  outline:2px solid #e6c36a;
+  outline-offset:3px;
+  border-radius:8px;
+}
+.view.blockDuplicateMode .lineEditBtn{
+  border-color:#e6c36a!important;
+  color:#e6c36a!important;
+  background:#1e190d!important;
+}
+body.lightTheme .duplicateChordBanner{
+  background:#fff8e6;
+  color:#6b5419;
+  border-color:#c8a94f;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1110,6 +1152,7 @@ body.lightTheme .emptyLineDeleteBtn{
           <button id="settingsEditLyrics" type="button">✎ Editar canción</button>
           <button id="settingsIntro" type="button">＋ Intro</button>
           <button id="settingsInstrumental" type="button">＋ Instrumental</button>
+          <button id="settingsDuplicateChordBlock" type="button">⧉ Duplicar bloque</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
         </div>
       </section>
@@ -1270,7 +1313,7 @@ body.lightTheme .emptyLineDeleteBtn{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v37</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v38</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1646,6 +1689,149 @@ function deleteEmptyLyricLine(li){
   showSavedToast();
 }
 
+var blockDuplicateMode=false;
+var blockDuplicateStart=null;
+var blockDuplicateEnd=null;
+
+function updateDuplicateChordBanner(){
+  var b=document.getElementById('duplicateChordBanner');
+  if(!b)return;
+  if(!blockDuplicateMode){
+    b.style.display='none';
+    b.innerHTML='';
+    view.classList.remove('blockDuplicateMode');
+    return;
+  }
+  view.classList.add('blockDuplicateMode');
+  b.style.display='block';
+  var msg='';
+  if(blockDuplicateStart===null)msg='1/3 · Toca el botón ♫ de la PRIMERA línea del bloque que ya tiene acordes.';
+  else if(blockDuplicateEnd===null)msg='2/3 · Toca el botón ♫ de la ÚLTIMA línea del bloque.';
+  else msg='3/3 · Toca el botón ♫ de la PRIMERA línea donde quieres duplicar el bloque.';
+  b.innerHTML='<span>'+msg+'</span><button id="cancelBlockDuplicate" type="button">Cancelar</button>';
+  var cancel=document.getElementById('cancelBlockDuplicate');
+  if(cancel)cancel.onclick=cancelBlockDuplicate;
+}
+
+function cancelBlockDuplicate(){
+  blockDuplicateMode=false;
+  blockDuplicateStart=null;
+  blockDuplicateEnd=null;
+  updateDuplicateChordBanner();
+  renderLyrics();
+}
+
+function startBlockDuplicate(){
+  if(current<0)return;
+  editingChords=true;
+  placingInstrumental=false;
+  instrumentAction=null;
+  blockDuplicateMode=true;
+  blockDuplicateStart=null;
+  blockDuplicateEnd=null;
+  renderLyrics();
+  setTimeout(function(){
+    var b=document.getElementById('duplicateChordBanner');
+    if(b&&b.scrollIntoView)b.scrollIntoView({block:'start'});
+  },30);
+}
+
+function duplicateWordCountMismatch(lines,start,end,dest){
+  var mismatches=0;
+  for(var i=0;i<=end-start;i++){
+    var a=normalizeWords(lines[start+i]||'').length;
+    var b=normalizeWords(lines[dest+i]||'').length;
+    if(a!==b)mismatches++;
+  }
+  return mismatches;
+}
+
+function handleBlockDuplicateLine(li){
+  if(!blockDuplicateMode)return false;
+  if(blockDuplicateStart===null){
+    blockDuplicateStart=li;
+    updateDuplicateChordBanner();
+    renderLyrics();
+    return true;
+  }
+  if(blockDuplicateEnd===null){
+    if(li<blockDuplicateStart){
+      alert('La última línea no puede estar antes de la primera.');
+      return true;
+    }
+    blockDuplicateEnd=li;
+    updateDuplicateChordBanner();
+    renderLyrics();
+    return true;
+  }
+
+  var start=blockDuplicateStart,end=blockDuplicateEnd,dest=li;
+  var count=end-start+1;
+  var lines=getSongText(current).split('\n');
+  if(dest+count>lines.length){
+    alert('No hay suficientes líneas desde ese punto para duplicar el bloque completo.');
+    return true;
+  }
+
+  var d=getChordData(current);
+  var mismatch=duplicateWordCountMismatch(lines,start,end,dest);
+  var existing=false;
+
+  for(var x=0;x<count;x++){
+    var targetLine=dest+x;
+    if(d.lines[targetLine])existing=true;
+    Object.keys(d.words||{}).forEach(function(k){
+      if(Number(String(k).split(':')[0])===targetLine)existing=true;
+    });
+  }
+
+  var msg='Duplicar '+count+' línea'+(count===1?'':'s')+
+    ' desde '+(start+1)+'–'+(end+1)+
+    ' hacia '+(dest+1)+'–'+(dest+count)+'.';
+  if(mismatch)msg+='\n\nAviso: '+mismatch+' línea'+(mismatch===1?' tiene':'s tienen')+' distinto número de palabras. Revisa visualmente los acordes después.';
+  if(existing)msg+='\n\nEl destino ya contiene acordes y se sustituirán por los del bloque.';
+  msg+='\n\n¿Continuar?';
+
+  if(!confirm(msg))return true;
+
+  // Limpiar destino para que sea una copia exacta.
+  for(var j=0;j<count;j++){
+    delete d.lines[dest+j];
+  }
+  Object.keys(d.words||{}).forEach(function(k){
+    var ln=Number(String(k).split(':')[0]);
+    if(ln>=dest&&ln<dest+count)delete d.words[k];
+  });
+
+  // Copiar acordes de línea.
+  for(var off=0;off<count;off++){
+    var srcLine=start+off,target=dest+off;
+    if(d.lines[srcLine])d.lines[target]=d.lines[srcLine];
+  }
+
+  // Copiar acordes por palabra manteniendo posición relativa.
+  var wordCopies=[];
+  Object.keys(d.words||{}).forEach(function(k){
+    var parts=String(k).split(':');
+    var ln=Number(parts[0]),wi=Number(parts[1]);
+    if(ln>=start&&ln<=end){
+      wordCopies.push({off:ln-start,wi:wi,val:d.words[k]});
+    }
+  });
+  wordCopies.forEach(function(item){
+    d.words[(dest+item.off)+':'+item.wi]=item.val;
+  });
+
+  saveChordData(current,d);
+  blockDuplicateMode=false;
+  blockDuplicateStart=null;
+  blockDuplicateEnd=null;
+  renderLyrics();
+  showSavedToast();
+  if(mismatch)alert('Bloque duplicado. Hay '+mismatch+' línea'+(mismatch===1?'':'s')+' con distinta longitud: revisa que los acordes hayan quedado en el punto correcto.');
+  return true;
+}
+
 function renderLyrics(){
   if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';
   ly.classList.toggle('editingLyrics',editingChords);view.classList.toggle('editing',editingChords);view.classList.toggle('placingInstrumental',placingInstrumental);
@@ -1656,6 +1842,7 @@ function renderLyrics(){
   if(pn){
     pn.textContent=instrumentAction?(instrumentAction.type==='move'?'Selecciona dónde quieres MOVER el INSTRUMENTAL.':'Selecciona dónde quieres DUPLICAR el INSTRUMENTAL.'):'Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.';
   }
+  updateDuplicateChordBanner();
   if(d.intro){ly.appendChild(makeSection('INTRO',d.intro,function(){openPicker({mode:'intro',existing:d.intro,label:'INTRO'})}))}
   var lines=getSongText(current).split('\n');
   if(placingInstrumental)addInstrumentSlot(0);
@@ -1663,8 +1850,10 @@ function renderLyrics(){
     var existingInst=d.instrumentals[String(li)]||'';
     if(existingInst && li!==0){ly.appendChild(makeSection('INSTRUMENTAL',existingInst,function(){openPicker({mode:'instrumental',boundary:li,existing:existingInst,label:'INSTRUMENTAL'})},{boundary:li}))}
     var row=document.createElement('div');row.className='lyricLine';
+    if(blockDuplicateMode&&li===blockDuplicateStart)row.classList.add('duplicateSourceStart');
+    if(blockDuplicateMode&&li===blockDuplicateEnd)row.classList.add('duplicateSourceEnd');
     var lineEdit=document.createElement('button');lineEdit.className='lineEditBtn';lineEdit.textContent='♫';lineEdit.title='Editar acordes de esta línea';
-    var lc=d.lines[li]||'';lineEdit.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};row.appendChild(lineEdit);
+    var lc=d.lines[li]||'';lineEdit.onclick=function(){if(handleBlockDuplicateLine(li))return;openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};row.appendChild(lineEdit);
     var body=document.createElement('div');body.className='lineBody';
     if(lc){var c=document.createElement('span');c.className='lineChord'+(editingChords?' clickable':'');c.textContent=lc;if(editingChords)c.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};body.appendChild(c)}
     if(line===''){
@@ -1753,6 +1942,7 @@ chordMode.onclick=function(){
 var saveChordEdit=document.getElementById('saveChordEdit');
 if(saveChordEdit)saveChordEdit.onclick=function(){
   if(current<0)return;
+  blockDuplicateMode=false;blockDuplicateStart=null;blockDuplicateEnd=null;
   var d=getChordData(current);
   saveChordData(current,d);
   editingChords=false;
@@ -2123,6 +2313,12 @@ buildPicker();render('');
     });
   });
 
+  var duplicateBlockBtn=document.getElementById('settingsDuplicateChordBlock');
+  if(duplicateBlockBtn)duplicateBlockBtn.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){startBlockDuplicate();setTimeout(sync,50)},30);
+  });
+
   var scrollToggle=document.getElementById('settingsScrollToggle');
   if(scrollToggle)scrollToggle.addEventListener('click',function(){
     shut();
@@ -2162,7 +2358,7 @@ buildPicker();render('');
   function sync(){
     var src;
     var hasSong=(typeof current!=='undefined' && current>=0);
-    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsClearChords','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
+    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsClearChords','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
       var el=document.getElementById(id);
       if(el)el.disabled=!hasSong;
     });
@@ -2685,7 +2881,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=37;
+const APP_VERSION=38;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2774,7 +2970,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=37',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=38',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},1200);
