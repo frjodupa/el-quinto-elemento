@@ -1,17 +1,13 @@
-EL QUINTO ELEMENTO · v34 · CLOUDFLARE D1 SYNC
+EL QUINTO ELEMENTO · v35 · CLOUDFLARE D1 SYNC
 
-MEJORA RESPONSIVE DEL EDITOR DE CANCIÓN EN IPAD
-- El editor utiliza prácticamente toda la pantalla disponible.
-- Cabecera de edición más compacta.
-- Campo de título más compacto.
-- El área de letra crece automáticamente para ocupar todo el espacio restante.
-- Se reduce el espacio vacío y se muestran muchas más líneas de letra.
-- Restaurar original y Guardar letra permanecen siempre visibles abajo.
-- Ajuste específico para iPad en vertical y horizontal.
-- Compatible con iPadOS 16.7.16.
-- No modifica letras, acordes, transposición, pases, scroll, sincronización D1 ni funcionamiento offline.
-
-Se mantiene la transposición automática de acordes incorporada en v33.
+MEJORA DE ACORDES
+- La pantalla de edición de acordes se utiliza únicamente mientras se están modificando.
+- Nuevo botón "✓ Guardar acordes" visible durante la edición.
+- Al guardar, se cierra el modo edición y la canción queda en vista limpia de interpretación.
+- Al volver a abrir una canción siempre se abre en vista normal, con letra y acordes, nunca en modo edición.
+- Los acordes continúan guardándose localmente y sincronizándose automáticamente con Cloudflare D1.
+- Se aumenta el tamaño de los acordes sobre palabras, líneas, INTRO e INSTRUMENTALES.
+- Se mantienen transposición, pases, scroll, edición de letra y funcionamiento offline.
 
 DESPLIEGUE
-GitHub está conectado a Cloudflare. Al actualizar main, Cloudflare despliega automáticamente.
+GitHub → Cloudflare automático.

@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=34">
+<link rel="manifest" href="manifest.webmanifest?v=35">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -916,6 +916,44 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
   #lyricEditorText{padding:8px 10px!important;line-height:1.28!important}
   .lyricEditorFoot{min-height:48px!important;padding:4px 8px max(4px,env(safe-area-inset-bottom))!important}
   .lyricEditorFoot button{min-height:38px!important}
+}
+
+
+/* v35 · Guardado y vista final de acordes */
+.saveChordEditBtn{
+  display:none!important;
+  flex:0 0 auto;
+  min-height:44px;
+  border:1px solid #e6c36a!important;
+  background:#e6c36a!important;
+  color:#111!important;
+  font-weight:900!important;
+}
+.view.editing .saveChordEditBtn{display:inline-flex!important;align-items:center;justify-content:center}
+.view:not(.editing) .chordHelp,
+.view:not(.editing) .placingNote{display:none!important}
+
+/* Acordes más legibles en vista normal y edición */
+.lineChord{
+  font-size:.72em!important;
+  line-height:1.08!important;
+  font-weight:900!important;
+}
+.wordChord{
+  font-size:.64em!important;
+  line-height:1.05!important;
+  min-height:.78em!important;
+  font-weight:900!important;
+}
+.musicChordChip{
+  font-size:1.08rem!important;
+  font-weight:900!important;
+  padding:7px 11px!important;
+}
+@media(max-width:1024px){
+  .lineChord{font-size:.74em!important}
+  .wordChord{font-size:.66em!important}
+  .musicChordChip{font-size:1.12rem!important}
 }
 
 </style>
@@ -1120,7 +1158,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v34</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v35</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1141,6 +1179,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
     <button id="next">›</button>
     <button id="settingsBtn" class="sectionTool">⚙ Ajustes</button>
     <button id="chordMode" class="chordBtn" style="display:none">♫ Acordes</button>
+    <button id="saveChordEdit" class="saveChordEditBtn" type="button">✓ Guardar acordes</button>
     <button id="introTool" class="sectionTool" style="display:none">＋ Intro</button>
     <button id="instrumentTool" class="sectionTool" style="display:none">＋ Instrumental</button>
     <button id="clearChords" class="clearChordBtn" style="display:none">Borrar acordes</button><button id="editLyrics" class="lyricEditBtn" style="display:none">✎ Editar letra</button>
@@ -1519,7 +1558,7 @@ document.getElementById('chordSave').onclick=function(){storePicker(false)};
 document.getElementById('chordDelete').onclick=function(){storePicker(true)};
 document.getElementById('chordCancel').onclick=closePicker;
 chordModal.addEventListener('click',function(e){if(e.target===chordModal)closePicker()});
-function openSong(i){stopAutoScroll();current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();placingInstrumental=false;st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics()}
+function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics()}
 function closeSong(){view.classList.remove('on');placingInstrumental=false}
 q.oninput=function(){render(q.value)};
 document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
@@ -1533,7 +1572,22 @@ document.getElementById('next').onclick=function(){
 };
 document.getElementById('plus').onclick=function(){size=Math.min(1.6,size+.1);ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')'};
 document.getElementById('minus').onclick=function(){size=Math.max(.75,size-.1);ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')'};
-chordMode.onclick=function(){editingChords=!editingChords;if(!editingChords)placingInstrumental=false;renderLyrics()};
+chordMode.onclick=function(){
+  editingChords=!editingChords;
+  if(!editingChords){placingInstrumental=false;instrumentAction=null}
+  renderLyrics()
+};
+var saveChordEdit=document.getElementById('saveChordEdit');
+if(saveChordEdit)saveChordEdit.onclick=function(){
+  if(current<0)return;
+  var d=getChordData(current);
+  saveChordData(current,d);
+  editingChords=false;
+  placingInstrumental=false;
+  instrumentAction=null;
+  renderLyrics();
+  showSavedToast();
+};
 introTool.onclick=function(){var d=getChordData(current);openPicker({mode:'intro',existing:d.intro||'',label:'Cabecera de la canción'})};
 instrumentTool.onclick=function(){
   if(instrumentAction){cancelInstrumentAction();return}
@@ -2458,7 +2512,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=34;
+const APP_VERSION=35;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2547,7 +2601,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=34',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=35',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},1200);
