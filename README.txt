@@ -1,19 +1,18 @@
-EL QUINTO ELEMENTO · v32 · CLOUDFLARE D1 SYNC
+EL QUINTO ELEMENTO · v33 · CLOUDFLARE D1 SYNC
 
-MEJORA DE AJUSTES
-- Al pulsar una acción dentro de ⚙ Ajustes, el panel se cierra automáticamente.
-- Editar canción abre directamente el editor.
-- Acordes, Intro e Instrumental vuelven directamente a la canción con la función activa.
-- Borrar acordes ejecuta la acción sin obligar a cerrar Ajustes manualmente.
-- Tema claro/oscuro aplica el cambio y cierra Ajustes.
-- Iniciar/Pausar scroll cierra Ajustes y actúa inmediatamente.
-- Reiniciar scroll cierra Ajustes y vuelve al inicio de la letra.
-- Actualizar app y Copia/Importar pasan directamente a su acción.
-- ☁ Sincronizar ahora también cierra el panel al pulsarlo.
-- Se mantiene sincronización D1, offline, pases y todas las funciones de v31.
+NUEVA FUNCIÓN PREMIUM: TRANSPOSICIÓN DE ACORDES
+- Nuevo bloque "Tonalidad" dentro de ⚙ Ajustes.
+- ♭ −1 baja todos los acordes un semitono.
+- ♯ +1 sube todos los acordes un semitono.
+- ↺ Original devuelve la canción a su tonalidad de partida.
+- Transpone acordes sobre palabras, acordes de línea, INTRO e INSTRUMENTALES.
+- Soporta bajos/inversiones tipo DO/MI.
+- Conserva sufijos como m, 7, m7, maj7, sus2, sus4, dim, etc.
+- Al bajar usa bemoles y al subir usa sostenidos.
+- La letra nunca se modifica.
+- Se muestra un indicador de transposición cuando la canción no está en tono original.
+- El estado se guarda por canción y se sincroniza con Cloudflare D1 entre Mac e iPads.
+- Se mantienen offline, pases, scroll, edición y copia/importar.
 
 DESPLIEGUE
-Desde esta carpeta:
-npm install
-npm run deploy
-AUTO DEPLOY ACTIVADO
+GitHub está conectado a Cloudflare. Al actualizar main, Cloudflare despliega automáticamente.

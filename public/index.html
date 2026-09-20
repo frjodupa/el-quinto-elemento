@@ -786,8 +786,24 @@ body.lightTheme .cloudSyncDetail{color:#6b675f}
   .cloudSyncBox{grid-template-columns:1fr}
 }
 
+
+/* v33 · Transposición automática de acordes */
+.transposeBox{border:1px solid #34343a;background:#17181b;border-radius:12px;padding:12px}
+.transposeStatus{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.transposeStatus span{color:#aaa;font-weight:700}
+.transposeStatus strong{color:#e6c36a;font-size:1.05rem}
+.transposeControls{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:9px}
+.transposeControls button{min-height:46px;border-radius:10px;border:1px solid #4a432b;background:#1a1812;color:#e6c36a;font-weight:900;font-size:1rem}
+.transposeControls button:active{transform:translateY(1px)}
+.transposeHint{margin-top:9px;color:#999;font-size:.82rem;line-height:1.35}
+.transposeBadge{width:max-content;max-width:calc(100% - 40px);margin:-10px auto 18px;padding:5px 10px;border:1px solid #4a432b;border-radius:999px;color:#e6c36a;background:#17150f;font-size:.8rem;font-weight:900;letter-spacing:.03em}
+body.lightTheme .transposeBox{background:#fff;border-color:#d0c8b6}
+body.lightTheme .transposeControls button{background:#fff;color:#6a5317;border-color:#cdb86e}
+body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#cdb86e}
+@media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
+
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=32">
+<link rel="manifest" href="manifest.webmanifest?v=33">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -875,6 +891,22 @@ body.lightTheme .cloudSyncDetail{color:#6b675f}
           <button id="settingsIntro" type="button">＋ Intro</button>
           <button id="settingsInstrumental" type="button">＋ Instrumental</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Tonalidad</h3>
+        <div class="transposeBox">
+          <div class="transposeStatus">
+            <span>Transposición</span>
+            <strong id="transposeValue">ORIGINAL</strong>
+          </div>
+          <div class="transposeControls">
+            <button id="transposeDown" type="button">♭ −1</button>
+            <button id="transposeReset" type="button">↺ Original</button>
+            <button id="transposeUp" type="button">♯ +1</button>
+          </div>
+          <div class="transposeHint">Cambia todos los acordes de la canción, incluida INTRO e INSTRUMENTALES. La letra no se modifica.</div>
         </div>
       </section>
 
@@ -1002,7 +1034,7 @@ body.lightTheme .cloudSyncDetail{color:#6b675f}
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v32</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v33</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1036,6 +1068,7 @@ body.lightTheme .cloudSyncDetail{color:#6b675f}
     <button id="minus">A−</button><button id="plus">A+</button>
   </div>
   <h1 id="st" class="title"></h1>
+  <div id="transposeBadge" class="transposeBadge" style="display:none"></div>
   <div class="chordHelp"><b>Edición de acordes:</b> toca una palabra para poner un acorde. Usa <b>♫</b> para acordes de toda una línea. <b>Intro</b> crea una cabecera musical y <b>Instrumental</b> permite insertar una sección entre dos líneas. Todos los acordes pueden volver a editarse. Los instrumentales también se pueden mover, duplicar o eliminar.</div>
   <div class="placingNote">Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.</div>
   <div id="ly" class="lyrics"></div>
@@ -1423,6 +1456,73 @@ instrumentTool.onclick=function(){
 clearChords.onclick=function(){if(current<0)return;if(confirm('¿Borrar todos los acordes, INTRO e INSTRUMENTALES de esta canción?')){try{localStorage.removeItem(songKey(current))}catch(e){}placingInstrumental=false;renderLyrics()}};
 document.addEventListener('keydown',function(e){if(!view.classList.contains('on'))return;if(e.key==='Escape'){if(chordModal.classList.contains('on'))closePicker();else closeSong()}if(e.key==='ArrowRight'&&!editingChords)document.getElementById('next').click();if(e.key==='ArrowLeft'&&!editingChords)document.getElementById('prev').click()});
 buildPicker();render('');
+</script>
+<script>
+
+(function(){
+  var SHARP=['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
+  var FLAT=['DO','RE♭','RE','MI♭','MI','FA','SOL♭','SOL','LA♭','LA','SI♭','SI'];
+  var ROOT_TO_PC={'DO':0,'DO#':1,'RE♭':1,'REB':1,'RE':2,'RE#':3,'MI♭':3,'MIB':3,'MI':4,'FA':5,'FA#':6,'SOL♭':6,'SOLB':6,'SOL':7,'SOL#':8,'LA♭':8,'LAB':8,'LA':9,'LA#':10,'SI♭':10,'SIB':10,'SI':11};
+  function transKey(i){return 'quintoElemento.transpose.v1.'+i}
+  function getOffset(i){try{return Number(localStorage.getItem(transKey(i))||0)||0}catch(e){return 0}}
+  function normalizeOffset(n){n=((Number(n)||0)%12+12)%12;if(n>6)n-=12;return n}
+  function setOffset(i,n){n=normalizeOffset(n);try{if(n===0)localStorage.removeItem(transKey(i));else localStorage.setItem(transKey(i),String(n))}catch(e){}}
+  function offsetLabel(n){if(!n)return 'ORIGINAL';return (n>0?'+':'')+n+' SEMITONO'+(Math.abs(n)===1?'':'S')}
+  function parseRoot(text){
+    var s=String(text||'').trim();if(!s)return null;
+    var normalized=s.replace(/Db/gi,'RE♭').replace(/Eb/gi,'MI♭').replace(/Gb/gi,'SOL♭').replace(/Ab/gi,'LA♭').replace(/Bb/gi,'SI♭');
+    var roots=['SOL#','SOL♭','SOLB','SOL','DO#','DO','RE#','RE♭','REB','RE','MI♭','MIB','MI','FA#','FA','LA#','LA♭','LAB','LA','SI♭','SIB','SI'];
+    var upper=normalized.toUpperCase();
+    for(var j=0;j<roots.length;j++){var r=roots[j];if(upper.indexOf(r)===0)return {root:r,pc:ROOT_TO_PC[r],rest:normalized.slice(r.length)}}
+    return null;
+  }
+  function transposeSingle(chord,delta,preferFlats){
+    var raw=String(chord||'').trim();if(!raw)return raw;
+    var slash=raw.indexOf('/'),main=slash>=0?raw.slice(0,slash):raw,bass=slash>=0?raw.slice(slash+1):'';
+    var p=parseRoot(main);if(!p)return raw;
+    var names=preferFlats?FLAT:SHARP,pc=(p.pc+delta)%12;if(pc<0)pc+=12;
+    var result=names[pc]+p.rest;
+    if(bass){var pb=parseRoot(bass);if(pb){var bpc=(pb.pc+delta)%12;if(bpc<0)bpc+=12;result+='/'+names[bpc]+pb.rest}else result+='/'+bass}
+    return result;
+  }
+  function transposeSequence(value,delta,preferFlats){if(!value)return value;return splitSeq(value).map(function(c){return transposeSingle(c,delta,preferFlats)}).join(' · ')}
+  function transposeMap(map,delta,preferFlats){Object.keys(map||{}).forEach(function(k){map[k]=transposeSequence(map[k],delta,preferFlats)})}
+  function transposeCurrent(delta){
+    if(typeof current==='undefined'||current<0){alert('Abre una canción para cambiar la tonalidad.');return}
+    var d=getChordData(current);
+    var hasAny=!!d.intro||Object.keys(d.lines||{}).length||Object.keys(d.words||{}).length||Object.keys(d.instrumentals||{}).length;
+    if(!hasAny){alert('Esta canción todavía no tiene acordes añadidos.');return}
+    var preferFlats=delta<0;
+    d.intro=transposeSequence(d.intro,delta,preferFlats);transposeMap(d.lines,delta,preferFlats);transposeMap(d.words,delta,preferFlats);transposeMap(d.instrumentals,delta,preferFlats);
+    saveChordData(current,d);setOffset(current,getOffset(current)+delta);updateTransposeUI();renderLyrics();
+  }
+  function resetCurrent(){
+    if(typeof current==='undefined'||current<0)return;
+    var offset=getOffset(current);if(!offset){updateTransposeUI();return}
+    var d=getChordData(current),delta=-offset,preferFlats=delta<0;
+    d.intro=transposeSequence(d.intro,delta,preferFlats);transposeMap(d.lines,delta,preferFlats);transposeMap(d.words,delta,preferFlats);transposeMap(d.instrumentals,delta,preferFlats);
+    saveChordData(current,d);setOffset(current,0);updateTransposeUI();renderLyrics();
+  }
+  function updateTransposeUI(){
+    var value=document.getElementById('transposeValue'),badge=document.getElementById('transposeBadge');
+    var valid=typeof current!=='undefined'&&current>=0,n=valid?getOffset(current):0;
+    if(value)value.textContent=valid?offsetLabel(n):'ABRE UNA CANCIÓN';
+    if(badge){if(valid&&n){badge.style.display='block';badge.textContent='TONALIDAD · '+offsetLabel(n)}else{badge.style.display='none';badge.textContent=''}}
+  }
+  window.updateTransposeUI=updateTransposeUI;
+  window.addEventListener('load',function(){
+    var down=document.getElementById('transposeDown'),up=document.getElementById('transposeUp'),reset=document.getElementById('transposeReset');
+    if(down)down.addEventListener('click',function(){transposeCurrent(-1)});
+    if(up)up.addEventListener('click',function(){transposeCurrent(1)});
+    if(reset)reset.addEventListener('click',resetCurrent);
+    var settingsBtn=document.getElementById('settingsBtn'),settingsIndexBtn=document.getElementById('settingsIndexBtn');
+    if(settingsBtn)settingsBtn.addEventListener('click',function(){setTimeout(updateTransposeUI,0)});
+    if(settingsIndexBtn)settingsIndexBtn.addEventListener('click',function(){setTimeout(updateTransposeUI,0)});
+    updateTransposeUI();
+  });
+  if(typeof openSong==='function'){var _openSong=openSong;openSong=function(i){_openSong(i);updateTransposeUI()}}
+})();
+
 </script>
 
 
@@ -2272,7 +2372,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=32;
+const APP_VERSION=33;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2361,7 +2461,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=32',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=33',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},1200);
