@@ -1,17 +1,14 @@
-EL QUINTO ELEMENTO · v36 · CLOUDFLARE D1 SYNC
+EL QUINTO ELEMENTO · v37 · CLOUDFLARE D1 SYNC
 
-COPIAS DE SEGURIDAD AUTOMÁTICAS VERSIONADAS
-- Cloudflare D1 crea automáticamente una copia cada vez que se sincroniza un cambio real.
-- Se conservan las últimas 10 versiones.
-- Las copias idénticas no se duplican.
-- Nuevo apartado "Copias automáticas" dentro de ⚙ Ajustes.
-- Se puede crear una copia manual en cualquier momento.
-- Se puede restaurar cualquiera de las últimas 10 versiones.
-- Antes de restaurar, la versión actual se guarda automáticamente como seguridad.
-- Las copias funcionan para letras, títulos, acordes, transposición, pases y resto de datos sincronizados.
-- No afecta al funcionamiento offline: las copias se gestionan cuando hay conexión.
+MEJORA DE EDICIÓN
+- En modo edición de acordes, las líneas vacías se identifican visualmente.
+- Cada línea vacía muestra el botón "✕ Borrar línea".
+- Al borrarla, se reajustan correctamente los índices de acordes por línea y por palabra.
+- También se reajustan las posiciones de los INSTRUMENTALES.
+- Los cambios se guardan y sincronizan con Cloudflare D1.
+- En la vista normal no aparece ningún control de borrado.
 
-Se mantienen todas las funciones de v35.
+Se mantienen copias automáticas, transposición, pases, scroll, offline y todas las funciones anteriores.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

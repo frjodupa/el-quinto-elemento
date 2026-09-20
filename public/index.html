@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=36">
+<link rel="manifest" href="manifest.webmanifest?v=37">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1014,6 +1014,42 @@ body.lightTheme .cloudBackupItem button{background:#fff;color:#6a5317;border-col
 @media(max-width:700px){
   .autoBackupTop{align-items:stretch;flex-direction:column}
   .autoBackupTop button{width:100%}
+}
+
+
+/* v37 · Borrado de líneas vacías */
+.emptyLyricLine{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:5px 8px;
+  border:1px dashed #5a4a25;
+  border-radius:9px;
+  color:#9b8a5d;
+  font-size:.72em;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+.emptyLineDeleteBtn{
+  min-height:36px!important;
+  padding:5px 10px!important;
+  border:1px solid #7a3636!important;
+  background:#221515!important;
+  color:#ff9a9a!important;
+  border-radius:8px!important;
+  font-size:.72em!important;
+  font-weight:900!important;
+}
+body.lightTheme .emptyLyricLine{
+  border-color:#bda55e;
+  color:#7a682f;
+}
+body.lightTheme .emptyLineDeleteBtn{
+  background:#fff5f5!important;
+  color:#a22!important;
+  border-color:#d88!important;
 }
 
 </style>
@@ -1234,7 +1270,7 @@ body.lightTheme .cloudBackupItem button{background:#fff;color:#6a5317;border-col
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v36</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v37</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1569,6 +1605,47 @@ document.getElementById('lyricEditorRestore').onclick=function(){
 };
 lyricEditorModal.addEventListener('click',function(e){if(e.target===lyricEditorModal)closeLyricEditor()});
 
+function deleteEmptyLyricLine(li){
+  if(current<0)return;
+  var oldText=getSongText(current);
+  var lines=String(oldText||'').split('\n');
+  if(li<0||li>=lines.length||String(lines[li]||'').trim()!=='')return;
+
+  var d=getChordData(current);
+  lines.splice(li,1);
+  var newText=lines.join('\n');
+
+  var nd={lines:{},words:{},intro:d.intro||'',instrumentals:{}};
+
+  Object.keys(d.lines||{}).forEach(function(k){
+    var n=Number(k);
+    if(n<li)nd.lines[n]=d.lines[k];
+    else if(n>li)nd.lines[n-1]=d.lines[k];
+  });
+
+  Object.keys(d.words||{}).forEach(function(k){
+    var parts=String(k).split(':');
+    var ln=Number(parts[0]),wi=parts[1];
+    if(ln<li)nd.words[ln+':'+wi]=d.words[k];
+    else if(ln>li)nd.words[(ln-1)+':'+wi]=d.words[k];
+  });
+
+  Object.keys(d.instrumentals||{}).forEach(function(k){
+    var b=Number(k),target=b<=li?b:b-1,val=d.instrumentals[k];
+    if(!val)return;
+    if(nd.instrumentals[target] && nd.instrumentals[target]!==val){
+      nd.instrumentals[target]=nd.instrumentals[target]+' · '+val;
+    }else{
+      nd.instrumentals[target]=val;
+    }
+  });
+
+  saveSongText(current,newText);
+  saveChordData(current,nd);
+  renderLyrics();
+  showSavedToast();
+}
+
 function renderLyrics(){
   if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';
   ly.classList.toggle('editingLyrics',editingChords);view.classList.toggle('editing',editingChords);view.classList.toggle('placingInstrumental',placingInstrumental);
@@ -1590,7 +1667,27 @@ function renderLyrics(){
     var lc=d.lines[li]||'';lineEdit.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};row.appendChild(lineEdit);
     var body=document.createElement('div');body.className='lineBody';
     if(lc){var c=document.createElement('span');c.className='lineChord'+(editingChords?' clickable':'');c.textContent=lc;if(editingChords)c.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};body.appendChild(c)}
-    if(line===''){body.appendChild(document.createTextNode('\u00a0'))}else{
+    if(line===''){
+      if(editingChords){
+        var emptyWrap=document.createElement('div');
+        emptyWrap.className='emptyLyricLine';
+        var emptyLabel=document.createElement('span');
+        emptyLabel.textContent='LÍNEA VACÍA';
+        var emptyDelete=document.createElement('button');
+        emptyDelete.type='button';
+        emptyDelete.className='emptyLineDeleteBtn';
+        emptyDelete.textContent='✕ Borrar línea';
+        emptyDelete.onclick=function(e){
+          e.stopPropagation();
+          if(confirm('¿Borrar esta línea vacía?'))deleteEmptyLyricLine(li);
+        };
+        emptyWrap.appendChild(emptyLabel);
+        emptyWrap.appendChild(emptyDelete);
+        body.appendChild(emptyWrap);
+      }else{
+        body.appendChild(document.createTextNode('\u00a0'));
+      }
+    }else{
       line.split(/\s+/).forEach(function(word,wi){var wrap=document.createElement('span');wrap.className='wordWrap';var key=li+':'+wi,wc=d.words[key]||'';var cc=document.createElement('span');cc.className='wordChord';cc.textContent=wc||'\u00a0';wrap.appendChild(cc);var token=document.createElement('span');token.className='wordToken';token.textContent=word;token.onclick=function(){if(editingChords)openPicker({mode:'word',line:li,word:wi,existing:wc,label:'Palabra: '+word})};wrap.appendChild(token);body.appendChild(wrap)});
     }
     row.appendChild(body);ly.appendChild(row);
@@ -2588,7 +2685,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=36;
+const APP_VERSION=37;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2677,7 +2774,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=36',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=37',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},1200);
