@@ -1,17 +1,20 @@
-EL QUINTO ELEMENTO · v41 · DETECCIÓN AUTOMÁTICA DE REPETICIONES
+EL QUINTO ELEMENTO · v42 · MODO CONCIERTO ULTRALIMPIO
 
-NUEVA FUNCIÓN PRIORITARIA
-- En ⚙ Ajustes → Edición aparece "⌕ Detectar repeticiones".
-- La app analiza la letra de la canción abierta.
-- Detecta bloques repetidos de 2 o más líneas.
-- Solo propone copiar cuando una repetición ya tiene acordes y la otra todavía no está completa.
-- Muestra líneas origen → destino, número de líneas y cantidad de acordes.
-- "Copiar acordes" replica acordes de línea y acordes por palabra.
-- El destino existente se sustituye solo después de confirmación.
-- La detección es conservadora: usa coincidencias de texto normalizado para evitar copiar sobre secciones distintas.
-- Después de copiar, los acordes pueden recolocarse individualmente con la función v40.
+NUEVA FUNCIÓN
+- En ⚙ Ajustes → Visualización aparece "🎤 Modo concierto".
+- Oculta completamente la barra superior y todos los controles de edición.
+- Mantiene visibles únicamente título, letra, acordes, INTRO e INSTRUMENTALES.
+- Amplía el ancho útil de la canción para aprovechar mejor el iPad.
+- Botón flotante discreto "•••" para mostrar controles cuando hagan falta.
+- Los controles temporales incluyen Índice, anterior, siguiente, iniciar/pausar scroll, A−, A+ y Salir.
+- Los controles se ocultan automáticamente tras unos segundos.
+- En iPad se puede deslizar horizontalmente para pasar a canción anterior/siguiente sin mostrar controles.
+- Escape sale del modo concierto en ordenador.
+- El scroll automático sigue funcionando con la velocidad configurada.
 
-Se mantienen duplicación manual, mover acordes, carga rápida, transposición, pases, copias automáticas, D1 y offline.
+INTRO e INSTRUMENTAL se mantienen como los marcadores musicales principales del repertorio.
+
+Se conservan detección de repeticiones, mover acordes, duplicar bloques, transposición, pases, D1, copias y offline.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=41">
+<link rel="manifest" href="manifest.webmanifest?v=42">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1212,6 +1212,117 @@ body.lightTheme .repeatPreview{color:#222}
   .repeatCopyBtn{width:100%}
 }
 
+
+/* v42 · Modo concierto ultralimpio */
+.concertToggleControls,
+.concertControls{display:none}
+body.concertMode .view.on .bar,
+body.concertMode .view.on .chordHelp,
+body.concertMode .view.on .placingNote,
+body.concertMode .view.on .duplicateChordBanner,
+body.concertMode .view.on .moveChordBanner{
+  display:none!important;
+}
+body.concertMode .view.on{
+  padding-top:max(8px,env(safe-area-inset-top));
+}
+body.concertMode .view.on .title{
+  margin:18px auto 18px;
+  max-width:1120px;
+  padding-left:max(24px,env(safe-area-inset-left));
+  padding-right:max(24px,env(safe-area-inset-right));
+}
+body.concertMode .view.on .lyrics{
+  max-width:1120px;
+  padding-left:max(24px,env(safe-area-inset-left));
+  padding-right:max(24px,env(safe-area-inset-right));
+  padding-bottom:max(14vh,env(safe-area-inset-bottom));
+}
+body.concertMode .view.on .lyricLine{
+  gap:0!important;
+}
+body.concertMode .view.on .lineEditBtn{
+  display:none!important;
+}
+body.concertMode .view.on .musicSection{
+  max-width:1120px;
+}
+body.concertMode .concertToggleControls{
+  display:flex;
+  position:fixed;
+  right:max(12px,env(safe-area-inset-right));
+  bottom:max(12px,env(safe-area-inset-bottom));
+  z-index:80;
+  width:48px;height:48px;min-height:48px;
+  align-items:center;justify-content:center;
+  border-radius:999px;
+  border:1px solid rgba(230,195,106,.45);
+  background:rgba(12,12,13,.62);
+  color:#e6c36a;
+  font-weight:900;
+  font-size:1.15rem;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+body.concertMode .concertControls.on{
+  display:flex;
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:max(14px,env(safe-area-inset-bottom));
+  z-index:90;
+  align-items:center;
+  gap:7px;
+  padding:8px;
+  max-width:calc(100vw - 28px);
+  border:1px solid #3c3626;
+  border-radius:14px;
+  background:rgba(10,10,11,.9);
+  box-shadow:0 8px 30px rgba(0,0,0,.35);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+body.concertMode .concertControls button{
+  min-width:44px;
+  min-height:44px;
+  padding:7px 10px;
+  border:1px solid #37373c;
+  border-radius:9px;
+  background:#17181b;
+  color:#fff;
+  font-weight:900;
+}
+body.concertMode .concertControls #concertScroll{
+  color:#e6c36a;
+  border-color:#5b5031;
+}
+body.concertMode .concertControls #concertScroll.active{
+  background:#e6c36a;
+  color:#111;
+}
+body.lightTheme.concertMode .concertToggleControls,
+body.lightTheme.concertMode .concertControls.on{
+  background:rgba(255,255,255,.9);
+  border-color:#cdb86e;
+}
+body.lightTheme.concertMode .concertControls button{
+  background:#fff;color:#171717;border-color:#d0c8b6;
+}
+@media(max-width:700px){
+  body.concertMode .view.on .title,
+  body.concertMode .view.on .lyrics{
+    padding-left:max(16px,env(safe-area-inset-left));
+    padding-right:max(16px,env(safe-area-inset-right));
+  }
+  body.concertMode .concertControls.on{
+    gap:5px;
+    padding:6px;
+  }
+  body.concertMode .concertControls button{
+    padding:5px 8px;
+  }
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1296,6 +1407,7 @@ body.lightTheme .repeatPreview{color:#222}
         <h3>Visualización</h3>
         <div class="settingsGrid">
           <button id="settingsTheme" type="button">☀ Tema claro</button>
+          <button id="settingsConcertMode" type="button">🎤 Modo concierto</button>
         </div>
       </section>
 
@@ -1445,7 +1557,7 @@ body.lightTheme .repeatPreview{color:#222}
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v41</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v42</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1484,6 +1596,16 @@ body.lightTheme .repeatPreview{color:#222}
   <div class="chordHelp"><b>Edición de acordes:</b> toca una palabra para poner un acorde. Usa <b>♫</b> para acordes de toda una línea. <b>Intro</b> crea una cabecera musical y <b>Instrumental</b> permite insertar una sección entre dos líneas. Todos los acordes pueden volver a editarse. Los instrumentales también se pueden mover, duplicar o eliminar.</div>
   <div class="placingNote">Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.</div>
   <div id="ly" class="lyrics"></div>
+  <button id="concertToggleControls" class="concertToggleControls" type="button" aria-label="Mostrar controles">•••</button>
+  <div id="concertControls" class="concertControls" aria-hidden="true">
+    <button id="concertIndex" type="button">← Índice</button>
+    <button id="concertPrev" type="button">‹</button>
+    <button id="concertScroll" type="button">▶</button>
+    <button id="concertNext" type="button">›</button>
+    <button id="concertMinus" type="button">A−</button>
+    <button id="concertPlus" type="button">A+</button>
+    <button id="concertExit" type="button">Salir</button>
+  </div>
 </section>
 
 <script>
@@ -2547,6 +2669,15 @@ buildPicker();render('');
     });
   });
 
+  var concertModeBtn=document.getElementById('settingsConcertMode');
+  if(concertModeBtn)concertModeBtn.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){
+      if(window.enterConcertMode)window.enterConcertMode();
+      setTimeout(sync,50);
+    },30);
+  });
+
   var duplicateBlockBtn=document.getElementById('settingsDuplicateChordBlock');
   if(duplicateBlockBtn)duplicateBlockBtn.addEventListener('click',function(){
     shut();
@@ -2601,7 +2732,7 @@ buildPicker();render('');
   function sync(){
     var src;
     var hasSong=(typeof current!=='undefined' && current>=0);
-    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsDetectRepeats','settingsClearChords','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
+    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsDetectRepeats','settingsClearChords','settingsConcertMode','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
       var el=document.getElementById(id);
       if(el)el.disabled=!hasSong;
     });
@@ -3124,7 +3255,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=41;
+const APP_VERSION=42;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3213,7 +3344,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=41',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=42',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -3522,6 +3653,150 @@ if('serviceWorker' in navigator){
   }
   if(closeBtn)closeBtn.onclick=close;
   if(modal)modal.addEventListener('click',function(e){if(e.target===modal)close()});
+})();
+
+</script>
+<script>
+
+(function(){
+  var concert=false;
+  var controlsTimer=null;
+  var touchStartX=null;
+  var touchStartY=null;
+  var toggle=document.getElementById('concertToggleControls');
+  var controls=document.getElementById('concertControls');
+
+  function syncConcertScrollButton(){
+    var src=document.getElementById('autoScrollBtn');
+    var dst=document.getElementById('concertScroll');
+    if(!src||!dst)return;
+    var active=src.classList.contains('active');
+    dst.classList.toggle('active',active);
+    dst.textContent=active?'Ⅱ':'▶';
+  }
+
+  function hideControls(){
+    if(!controls)return;
+    controls.classList.remove('on');
+    controls.setAttribute('aria-hidden','true');
+    clearTimeout(controlsTimer);
+  }
+
+  function showControls(){
+    if(!controls)return;
+    controls.classList.add('on');
+    controls.setAttribute('aria-hidden','false');
+    clearTimeout(controlsTimer);
+    controlsTimer=setTimeout(hideControls,4500);
+    syncConcertScrollButton();
+  }
+
+  function exitConcertMode(){
+    concert=false;
+    document.body.classList.remove('concertMode');
+    hideControls();
+    if(toggle)toggle.style.display='';
+  }
+
+  function enterConcertMode(){
+    if(typeof current==='undefined'||current<0){
+      alert('Abre primero una canción.');
+      return;
+    }
+    if(typeof editingChords!=='undefined')editingChords=false;
+    if(typeof placingInstrumental!=='undefined')placingInstrumental=false;
+    if(typeof instrumentAction!=='undefined')instrumentAction=null;
+    if(typeof moveWordChordAction!=='undefined')moveWordChordAction=null;
+    if(typeof blockDuplicateMode!=='undefined')blockDuplicateMode=false;
+    concert=true;
+    document.body.classList.add('concertMode');
+    if(typeof renderLyrics==='function')renderLyrics();
+    hideControls();
+  }
+
+  window.enterConcertMode=enterConcertMode;
+  window.exitConcertMode=exitConcertMode;
+
+  if(toggle)toggle.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(controls&&controls.classList.contains('on'))hideControls();else showControls();
+  });
+
+  var indexBtn=document.getElementById('concertIndex');
+  if(indexBtn)indexBtn.onclick=function(){
+    exitConcertMode();
+    var b=document.getElementById('back');if(b)b.click();
+  };
+
+  var prevBtn=document.getElementById('concertPrev');
+  if(prevBtn)prevBtn.onclick=function(){
+    var b=document.getElementById('prev');if(b)b.click();
+    showControls();
+  };
+
+  var nextBtn=document.getElementById('concertNext');
+  if(nextBtn)nextBtn.onclick=function(){
+    var b=document.getElementById('next');if(b)b.click();
+    showControls();
+  };
+
+  var minusBtn=document.getElementById('concertMinus');
+  if(minusBtn)minusBtn.onclick=function(){
+    var b=document.getElementById('minus');if(b)b.click();
+    showControls();
+  };
+
+  var plusBtn=document.getElementById('concertPlus');
+  if(plusBtn)plusBtn.onclick=function(){
+    var b=document.getElementById('plus');if(b)b.click();
+    showControls();
+  };
+
+  var scrollBtn=document.getElementById('concertScroll');
+  if(scrollBtn)scrollBtn.onclick=function(){
+    var b=document.getElementById('autoScrollBtn');if(b)b.click();
+    syncConcertScrollButton();
+    showControls();
+  };
+
+  var exitBtn=document.getElementById('concertExit');
+  if(exitBtn)exitBtn.onclick=exitConcertMode;
+
+  var view=document.getElementById('view');
+  if(view){
+    view.addEventListener('touchstart',function(e){
+      if(!concert||!e.touches||e.touches.length!==1)return;
+      touchStartX=e.touches[0].clientX;
+      touchStartY=e.touches[0].clientY;
+    },{passive:true});
+
+    view.addEventListener('touchend',function(e){
+      if(!concert||touchStartX===null||!e.changedTouches||!e.changedTouches.length)return;
+      var dx=e.changedTouches[0].clientX-touchStartX;
+      var dy=e.changedTouches[0].clientY-touchStartY;
+      touchStartX=null;touchStartY=null;
+      if(Math.abs(dx)>90 && Math.abs(dx)>Math.abs(dy)*1.4){
+        if(dx<0){
+          var n=document.getElementById('next');if(n)n.click();
+        }else{
+          var p=document.getElementById('prev');if(p)p.click();
+        }
+      }
+    },{passive:true});
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(!concert)return;
+    if(e.key==='Escape'){
+      e.preventDefault();
+      exitConcertMode();
+    }
+  });
+
+  var obsTarget=document.getElementById('autoScrollBtn');
+  if(obsTarget && window.MutationObserver){
+    new MutationObserver(syncConcertScrollButton).observe(obsTarget,{attributes:true,attributeFilter:['class']});
+  }
 })();
 
 </script>
