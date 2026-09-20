@@ -1,18 +1,17 @@
-EL QUINTO ELEMENTO · v33 · CLOUDFLARE D1 SYNC
+EL QUINTO ELEMENTO · v34 · CLOUDFLARE D1 SYNC
 
-NUEVA FUNCIÓN PREMIUM: TRANSPOSICIÓN DE ACORDES
-- Nuevo bloque "Tonalidad" dentro de ⚙ Ajustes.
-- ♭ −1 baja todos los acordes un semitono.
-- ♯ +1 sube todos los acordes un semitono.
-- ↺ Original devuelve la canción a su tonalidad de partida.
-- Transpone acordes sobre palabras, acordes de línea, INTRO e INSTRUMENTALES.
-- Soporta bajos/inversiones tipo DO/MI.
-- Conserva sufijos como m, 7, m7, maj7, sus2, sus4, dim, etc.
-- Al bajar usa bemoles y al subir usa sostenidos.
-- La letra nunca se modifica.
-- Se muestra un indicador de transposición cuando la canción no está en tono original.
-- El estado se guarda por canción y se sincroniza con Cloudflare D1 entre Mac e iPads.
-- Se mantienen offline, pases, scroll, edición y copia/importar.
+MEJORA RESPONSIVE DEL EDITOR DE CANCIÓN EN IPAD
+- El editor utiliza prácticamente toda la pantalla disponible.
+- Cabecera de edición más compacta.
+- Campo de título más compacto.
+- El área de letra crece automáticamente para ocupar todo el espacio restante.
+- Se reduce el espacio vacío y se muestran muchas más líneas de letra.
+- Restaurar original y Guardar letra permanecen siempre visibles abajo.
+- Ajuste específico para iPad en vertical y horizontal.
+- Compatible con iPadOS 16.7.16.
+- No modifica letras, acordes, transposición, pases, scroll, sincronización D1 ni funcionamiento offline.
+
+Se mantiene la transposición automática de acordes incorporada en v33.
 
 DESPLIEGUE
 GitHub está conectado a Cloudflare. Al actualizar main, Cloudflare despliega automáticamente.

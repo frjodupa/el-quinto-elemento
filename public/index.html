@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=33">
+<link rel="manifest" href="manifest.webmanifest?v=34">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -832,6 +832,92 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 .sequenceMode .addChordBtn{display:block}
 .chordHint strong{color:#e6c36a}
 @media(max-width:700px){.musicSection{margin-left:10px;margin-right:10px}.lineEditBtn{flex-basis:42px;width:42px;height:42px}}
+
+/* v34 · Editor de canción iPad: máximo espacio útil */
+@media (max-width:1024px){
+  .lyricEditorModal{
+    padding:
+      max(4px,env(safe-area-inset-top))
+      max(4px,env(safe-area-inset-right))
+      max(4px,env(safe-area-inset-bottom))
+      max(4px,env(safe-area-inset-left))!important;
+  }
+  .lyricEditorPanel{
+    width:100%!important;
+    height:100%!important;
+    max-height:100%!important;
+    border-radius:10px!important;
+  }
+  .lyricEditorHead{
+    min-height:48px!important;
+    padding:6px 10px!important;
+    gap:6px!important;
+  }
+  .lyricEditorHead h2{
+    font-size:1rem!important;
+    line-height:1.1!important;
+  }
+  .lyricEditorHead button{
+    min-height:38px!important;
+    padding:6px 10px!important;
+  }
+  .lyricEditorBody{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    overflow:hidden!important;
+    padding:7px 10px!important;
+  }
+  .lyricEditorBody label{
+    flex:0 0 auto!important;
+    font-size:.82rem!important;
+    line-height:1.1!important;
+    margin:2px 0 4px!important;
+  }
+  #lyricEditorSongTitle{
+    flex:0 0 auto!important;
+    min-height:40px!important;
+    padding:8px 10px!important;
+    margin-bottom:7px!important;
+    font-size:15px!important;
+    border-radius:9px!important;
+  }
+  #lyricEditorText{
+    flex:1 1 auto!important;
+    height:0!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:10px 12px!important;
+    font-size:1rem!important;
+    line-height:1.32!important;
+    border-radius:9px!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .lyricEditorFoot{
+    flex:0 0 auto!important;
+    min-height:54px!important;
+    padding:6px 10px max(6px,env(safe-area-inset-bottom))!important;
+    gap:8px!important;
+    position:relative!important;
+  }
+  .lyricEditorFoot .note{display:none!important}
+  .lyricEditorFoot button{
+    min-height:42px!important;
+    padding:6px 10px!important;
+    font-size:.95rem!important;
+  }
+}
+@media (orientation:landscape) and (max-width:1180px){
+  .lyricEditorHead{min-height:44px!important;padding:4px 8px!important}
+  .lyricEditorBody{padding:5px 8px!important}
+  #lyricEditorSongTitle{min-height:36px!important;padding:6px 8px!important;margin-bottom:5px!important}
+  #lyricEditorText{padding:8px 10px!important;line-height:1.28!important}
+  .lyricEditorFoot{min-height:48px!important;padding:4px 8px max(4px,env(safe-area-inset-bottom))!important}
+  .lyricEditorFoot button{min-height:38px!important}
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1034,7 +1120,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v33</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v34</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -2372,7 +2458,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=33;
+const APP_VERSION=34;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -2461,7 +2547,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=33',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=34',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},1200);
