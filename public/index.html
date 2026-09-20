@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=40">
+<link rel="manifest" href="manifest.webmanifest?v=41">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1147,6 +1147,71 @@ body.lightTheme .moveChordBanner{
   border-color:#c8a94f;
 }
 
+
+/* v41 · Detección automática de repeticiones */
+.repeatDetectModal{
+  position:fixed;inset:0;z-index:190000;display:none;
+  background:rgba(0,0,0,.8);
+  padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right))
+          max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  align-items:center;justify-content:center;
+}
+.repeatDetectModal.on{display:flex}
+.repeatDetectPanel{
+  width:min(780px,97vw);
+  max-height:92vh;
+  display:flex;flex-direction:column;
+  background:#111214;color:#fff;
+  border:1px solid #3b3b41;border-radius:18px;overflow:hidden;
+}
+.repeatDetectHead{
+  display:flex;gap:12px;align-items:center;
+  padding:14px 16px;border-bottom:1px solid #303036;
+}
+.repeatDetectHead>div{flex:1;min-width:0}
+.repeatDetectHead strong{color:#e6c36a;letter-spacing:.04em}
+.repeatDetectSub{font-size:.8rem;color:#999;margin-top:3px}
+.repeatDetectHead button,
+.repeatCopyBtn{
+  min-height:42px;border-radius:10px;border:1px solid #3a3a40;
+  background:#1a1b1f;color:#fff;padding:8px 12px;font-weight:900;
+}
+.repeatDetectList{
+  padding:12px;overflow:auto;-webkit-overflow-scrolling:touch;
+}
+.repeatCard{
+  border:1px solid #34343a;background:#17181b;
+  border-radius:12px;padding:11px;margin-bottom:9px;
+}
+.repeatCardTop{
+  display:flex;gap:10px;align-items:center;
+}
+.repeatCardMain{flex:1;min-width:0}
+.repeatRange{font-weight:900;color:#e6c36a}
+.repeatPreview{
+  margin-top:5px;color:#ddd;font-size:.9rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.repeatMeta{margin-top:4px;color:#999;font-size:.78rem}
+.repeatCopyBtn{
+  color:#111!important;background:#e6c36a!important;border-color:#e6c36a!important;
+  flex:0 0 auto;
+}
+.repeatEmpty{
+  padding:24px 12px;text-align:center;color:#aaa;line-height:1.45;
+}
+.repeatDone{
+  color:#8fd18f;font-weight:900;margin-top:7px;font-size:.82rem;
+}
+body.lightTheme .repeatDetectPanel{background:#fff;color:#171717;border-color:#d0c8b6}
+body.lightTheme .repeatDetectHead{border-color:#d0c8b6}
+body.lightTheme .repeatCard{background:#fff;border-color:#d0c8b6}
+body.lightTheme .repeatPreview{color:#222}
+@media(max-width:620px){
+  .repeatCardTop{align-items:stretch;flex-direction:column}
+  .repeatCopyBtn{width:100%}
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1206,6 +1271,7 @@ body.lightTheme .moveChordBanner{
           <button id="settingsIntro" type="button">＋ Intro</button>
           <button id="settingsInstrumental" type="button">＋ Instrumental</button>
           <button id="settingsDuplicateChordBlock" type="button">⧉ Duplicar bloque</button>
+          <button id="settingsDetectRepeats" type="button">⌕ Detectar repeticiones</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
         </div>
       </section>
@@ -1283,6 +1349,19 @@ body.lightTheme .moveChordBanner{
 </div>
 
 
+
+<div id="repeatDetectModal" class="repeatDetectModal" aria-hidden="true">
+  <div class="repeatDetectPanel">
+    <div class="repeatDetectHead">
+      <div>
+        <strong>REPETICIONES DETECTADAS</strong>
+        <div class="repeatDetectSub">Busca bloques de letra repetidos y reutiliza los acordes ya colocados.</div>
+      </div>
+      <button id="repeatDetectClose" type="button">Cerrar</button>
+    </div>
+    <div id="repeatDetectList" class="repeatDetectList"></div>
+  </div>
+</div>
 
 <div id="backupModal" class="backupModal" aria-hidden="true">
   <div class="backupPanel">
@@ -1366,7 +1445,7 @@ body.lightTheme .moveChordBanner{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v40</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v41</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -2474,6 +2553,15 @@ buildPicker();render('');
     setTimeout(function(){startBlockDuplicate();setTimeout(sync,50)},30);
   });
 
+  var detectRepeatsBtn=document.getElementById('settingsDetectRepeats');
+  if(detectRepeatsBtn)detectRepeatsBtn.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){
+      if(window.openRepeatedSectionsModal)window.openRepeatedSectionsModal();
+      setTimeout(sync,50);
+    },30);
+  });
+
   var scrollToggle=document.getElementById('settingsScrollToggle');
   if(scrollToggle)scrollToggle.addEventListener('click',function(){
     shut();
@@ -2513,7 +2601,7 @@ buildPicker();render('');
   function sync(){
     var src;
     var hasSong=(typeof current!=='undefined' && current>=0);
-    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsClearChords','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
+    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsDetectRepeats','settingsClearChords','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
       var el=document.getElementById(id);
       if(el)el.disabled=!hasSong;
     });
@@ -3036,7 +3124,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=40;
+const APP_VERSION=41;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3125,7 +3213,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=40',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=41',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -3239,6 +3327,201 @@ if('serviceWorker' in navigator){
   window.addEventListener('online',function(){
     if(settingsModal && settingsModal.classList.contains('on'))loadBackups();
   });
+})();
+
+</script>
+<script>
+
+(function(){
+  var modal=document.getElementById('repeatDetectModal');
+  var closeBtn=document.getElementById('repeatDetectClose');
+  var list=document.getElementById('repeatDetectList');
+
+  function normLine(s){
+    s=String(s||'').toUpperCase();
+    try{s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')}catch(e){}
+    return s.replace(/[^A-Z0-9ÑÜ]+/g,' ').replace(/^\s+|\s+$/g,'').replace(/\s+/g,' ');
+  }
+
+  function chordCountForLine(d,line){
+    var n=d.lines&&d.lines[line]?1:0;
+    Object.keys(d.words||{}).forEach(function(k){
+      if(Number(String(k).split(':')[0])===line)n++;
+    });
+    return n;
+  }
+
+  function blockChordCount(d,start,len){
+    var n=0;
+    for(var i=0;i<len;i++)n+=chordCountForLine(d,start+i);
+    return n;
+  }
+
+  function detectRepeats(){
+    if(typeof current==='undefined'||current<0)return [];
+    var lines=getSongText(current).split('\n');
+    var norm=lines.map(normLine);
+    var d=getChordData(current);
+    var found=[];
+    var seen={};
+
+    for(var i=0;i<norm.length;i++){
+      if(!norm[i])continue;
+      for(var j=i+2;j<norm.length;j++){
+        if(!norm[j]||norm[i]!==norm[j])continue;
+        if(i>0&&j>0&&norm[i-1]&&norm[i-1]===norm[j-1])continue;
+
+        var len=0;
+        while(
+          i+len<norm.length &&
+          j+len<norm.length &&
+          norm[i+len] &&
+          norm[i+len]===norm[j+len]
+        ){
+          len++;
+        }
+        if(len<2)continue;
+
+        var aCount=blockChordCount(d,i,len);
+        var bCount=blockChordCount(d,j,len);
+        if(aCount===0&&bCount===0)continue;
+
+        var src=i,dst=j,srcCount=aCount,dstCount=bCount;
+        if(bCount>aCount){
+          src=j;dst=i;srcCount=bCount;dstCount=aCount;
+        }
+        if(srcCount===0)continue;
+        if(dstCount>=srcCount)continue;
+
+        var key=src+':'+len+'>'+dst;
+        if(seen[key])continue;
+        seen[key]=1;
+
+        found.push({
+          src:src,dst:dst,len:len,
+          srcCount:srcCount,dstCount:dstCount,
+          preview:lines[src]||''
+        });
+      }
+    }
+
+    found.sort(function(a,b){
+      if(a.dst!==b.dst)return a.dst-b.dst;
+      return b.len-a.len;
+    });
+
+    // Evitar sugerencias contenidas en otras ya encontradas.
+    var compact=[];
+    found.forEach(function(x){
+      var covered=compact.some(function(y){
+        return x.src>=y.src && x.src+x.len<=y.src+y.len &&
+               x.dst>=y.dst && x.dst+x.len<=y.dst+y.len;
+      });
+      if(!covered)compact.push(x);
+    });
+    return compact.slice(0,12);
+  }
+
+  function copyBlock(item,button){
+    if(typeof current==='undefined'||current<0)return;
+    var d=getChordData(current);
+
+    for(var k=0;k<item.len;k++){
+      delete d.lines[item.dst+k];
+    }
+    Object.keys(d.words||{}).forEach(function(key){
+      var line=Number(String(key).split(':')[0]);
+      if(line>=item.dst&&line<item.dst+item.len)delete d.words[key];
+    });
+
+    for(var off=0;off<item.len;off++){
+      var srcLine=item.src+off;
+      var dstLine=item.dst+off;
+      if(d.lines[srcLine])d.lines[dstLine]=d.lines[srcLine];
+    }
+
+    var copies=[];
+    Object.keys(d.words||{}).forEach(function(key){
+      var parts=String(key).split(':');
+      var line=Number(parts[0]),word=Number(parts[1]);
+      if(line>=item.src&&line<item.src+item.len){
+        copies.push({off:line-item.src,word:word,value:d.words[key]});
+      }
+    });
+    copies.forEach(function(x){
+      d.words[(item.dst+x.off)+':'+x.word]=x.value;
+    });
+
+    saveChordData(current,d);
+    if(typeof renderLyrics==='function')renderLyrics();
+    if(typeof showSavedToast==='function')showSavedToast();
+
+    button.disabled=true;
+    button.textContent='✓ Copiado';
+    var card=button.closest?button.closest('.repeatCard'):null;
+    if(card){
+      var done=document.createElement('div');
+      done.className='repeatDone';
+      done.textContent='Acordes copiados. Puedes cerrar y revisar o mover los que necesites.';
+      card.appendChild(done);
+    }
+  }
+
+  function renderList(){
+    if(!list)return;
+    var items=detectRepeats();
+    list.innerHTML='';
+
+    if(!items.length){
+      list.innerHTML='<div class="repeatEmpty">No he encontrado bloques repetidos de al menos 2 líneas que tengan acordes en una copia y falten en la otra.<br><br>Puedes seguir usando ⧉ Duplicar bloque manualmente.</div>';
+      return;
+    }
+
+    items.forEach(function(item){
+      var card=document.createElement('div');card.className='repeatCard';
+      var top=document.createElement('div');top.className='repeatCardTop';
+      var main=document.createElement('div');main.className='repeatCardMain';
+
+      var range=document.createElement('div');range.className='repeatRange';
+      range.textContent='Líneas '+(item.src+1)+'–'+(item.src+item.len)+' → '+(item.dst+1)+'–'+(item.dst+item.len);
+      main.appendChild(range);
+
+      var preview=document.createElement('div');preview.className='repeatPreview';
+      preview.textContent=item.preview;
+      main.appendChild(preview);
+
+      var meta=document.createElement('div');meta.className='repeatMeta';
+      meta.textContent=item.len+' líneas coincidentes · '+item.srcCount+' acordes en origen · '+item.dstCount+' en destino';
+      main.appendChild(meta);
+
+      var btn=document.createElement('button');btn.type='button';btn.className='repeatCopyBtn';btn.textContent='Copiar acordes';
+      btn.onclick=function(){
+        var extra=item.dstCount?'\n\nEl destino ya tiene algunos acordes y se sustituirán.':'';
+        if(confirm('Copiar los acordes de las líneas '+(item.src+1)+'–'+(item.src+item.len)+' a las líneas '+(item.dst+1)+'–'+(item.dst+item.len)+'?'+extra)){
+          copyBlock(item,btn);
+        }
+      };
+
+      top.appendChild(main);top.appendChild(btn);card.appendChild(top);list.appendChild(card);
+    });
+  }
+
+  window.openRepeatedSectionsModal=function(){
+    if(typeof current==='undefined'||current<0){
+      alert('Abre primero una canción.');
+      return;
+    }
+    renderList();
+    modal.classList.add('on');
+    modal.setAttribute('aria-hidden','false');
+  };
+
+  function close(){
+    modal.classList.remove('on');
+    modal.setAttribute('aria-hidden','true');
+  }
+  if(closeBtn)closeBtn.onclick=close;
+  if(modal)modal.addEventListener('click',function(e){if(e.target===modal)close()});
 })();
 
 </script>
