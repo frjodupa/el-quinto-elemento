@@ -1,9 +1,10 @@
-const CACHE='quinto-elemento-v43';
+const CACHE='quinto-elemento-v44';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=43',
+  './manifest.webmanifest?v=44',
   './version.json',
+  './pdf-chords-v44.json',
   './icon-192.png',
   './icon-512.png',
   './apple-touch-icon.png'

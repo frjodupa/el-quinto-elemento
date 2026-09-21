@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=43">
+<link rel="manifest" href="manifest.webmanifest?v=44">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1334,6 +1334,21 @@ body.lightTheme.concertMode .concertControls button{
   font-weight:900;box-shadow:0 8px 28px rgba(0,0,0,.35);
 }
 
+
+/* v44 · Importación completa de acordes PDF */
+.pdfImportStatus{
+  position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);z-index:230000;
+  max-width:min(820px,calc(100vw - 28px));
+  padding:12px 15px;border-radius:12px;
+  border:1px solid #5b5031;background:#15130d;color:#e6c36a;
+  font-weight:900;line-height:1.35;
+  box-shadow:0 8px 28px rgba(0,0,0,.4);
+}
+body.lightTheme .pdfImportStatus{
+  background:#fff8e2;color:#7a5a12;border-color:#c9b371;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1394,7 +1409,7 @@ body.lightTheme.concertMode .concertControls button{
           <button id="settingsInstrumental" type="button">＋ Instrumental</button>
           <button id="settingsDuplicateChordBlock" type="button">⧉ Duplicar bloque</button>
           <button id="settingsDetectRepeats" type="button">⌕ Detectar repeticiones</button>
-          <button id="settingsPdfTrialChords" type="button">♬ Cargar acordes PDF (5 prueba)</button>
+          <button id="settingsPdfAllChords" type="button">♬ Completar acordes desde PDFs</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
         </div>
       </section>
@@ -1569,7 +1584,7 @@ body.lightTheme.concertMode .concertControls button{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v43</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v44</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -2696,11 +2711,11 @@ buildPicker();render('');
     setTimeout(function(){startBlockDuplicate();setTimeout(sync,50)},30);
   });
 
-  var pdfTrialBtn=document.getElementById('settingsPdfTrialChords');
-  if(pdfTrialBtn)pdfTrialBtn.addEventListener('click',function(){
+  var pdfAllBtn=document.getElementById('settingsPdfAllChords');
+  if(pdfAllBtn)pdfAllBtn.addEventListener('click',function(){
     shut();
     setTimeout(function(){
-      if(window.loadPdfTrialChords)window.loadPdfTrialChords();
+      if(window.importAllPdfChords)window.importAllPdfChords();
     },50);
   });
 
@@ -3275,7 +3290,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=43;
+const APP_VERSION=44;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3364,7 +3379,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=43',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=44',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -3820,95 +3835,154 @@ if('serviceWorker' in navigator){
 })();
 
 </script>
+
 <script>
 
 (function(){
-  var PDF_TRIAL_SEEDS={"LA FLACA":{"intro":[],"entries":[["En la vida conocí mujer igual a la flaca",[[0,"LAm"],[4,"MI"],[8,"RE"]]],["coral negro de La Habana,tremendísima mulata",[[3,"DO"],[4,"MI"],[5,"LAm"]]],["cien libras de piel y hueso,cuarenta kilos de salsa",[[5,"MI"],[8,"RE"]]],["y en la cara dos soles que sin palabras hablan",[[5,"DO"],[6,"MI"],[7,"FA"],[8,"FA#"],[9,"SOL"]]],["que sin palabras hablan",[[2,"LAm"],[3,"MI"]]],["La flaca duerme de día,dice que así al hambre engaña",[[0,"LAm"],[4,"MI"],[9,"RE"]]],["cuando cae la noche baja a bailar a la tasca",[[4,"DO"],[7,"MI"],[9,"LAm"]]],["Y bailar y bailar    y tomar y tomar",[[4,"MI"],[7,"RE"]]],["una cerveza tras otra, pero ella nunca engorda",[[3,"DO"],[4,"MI"],[5,"FA"],[6,"FA#"],[7,"SOL"]]],["pero ella nunca engorda",[[2,"LAm"],[3,"RE7"]]],["Por un beso de la flaca daría lo que fuera",[[0,"FA"],[5,"SOL"],[9,"LAm"]]],["por un beso de ella aunque sólo uno fuera",[[4,"RE"],[8,"FA"]]],["Por un beso de la flaca daría lo que fuera",[[5,"SOL"],[9,"LAm"]]],["por un beso de ella aunque sólo uno fuera",[[4,"RE"],[6,"FA"],[7,"FA#"],[8,"SOL"]]],["Aunque sólo uno fuera",[[2,"LAm"],[3,"MI"]]],["Mojé mis sabanas blancas, como dice la canción",[[0,"LAm"],[3,"MI"],[7,"RE"]]],["recordando las caricias que me brindó el primer día",[[3,"DO"],[5,"MI"],[8,"LAm"]]],["y enloquezco de ganas de dormir a su ladito",[[3,"MI"],[8,"RE"]]],["porque Dios que esta flaca a mí me tiene loquito",[[4,"DO"],[6,"MI"],[7,"FA"],[8,"FA#"],[9,"SOL"]]],["a mí me tiene loquito",[[3,"LAm"],[4,"RE7"]]],["Por un beso de la flaca yo daría lo que fuera",[[0,"FA"],[5,"SOL"],[10,"LAm"]]],["por un beso de ella aunque sólo uno fuera",[[4,"RE7"],[8,"FA"]]],["Por un beso de la flaca yo daría lo que fuera",[[5,"SOL"],[10,"LAm"]]],["por un beso de ella aunque sólo uno fuera",[[3,"RE7"],[6,"FA"],[7,"FA#"],[8,"SOL"]]],["Aunque sólo uno fuera                                                                      Aunque sólo uno fuera",[[3,"LAm"],[4,"RE7"],[7,"FA"]]],["Aunque sólo uno fuera                                                                      Aunque sólo uno fuera",[[3,"LAm"],[4,"RE7"],[7,"FA"]]],["Aunque sólo uno fuera",[[0,"LAm"],[1,"RE"],[2,"FA"],[3,"SOL"]]],["Aunque sólo uno fuera",[[0,"LAm"],[1,"RE7"],[2,"FA"],[3,"SOL"]]],["Aunque sólo uno fuera",[[0,"LAm"],[1,"RE7"],[2,"FA"],[3,"SOL"]]],["Aunque sólo uno fuera                                                                      Aunque sólo uno fuera",[[2,"LAm"],[3,"RE7"],[7,"FA"]]],["Aunque solo uno fuera",[[0,"LAm"],[1,"RE"],[2,"FA"],[3,"SOL"],[3,"LAm"],[3,"RE7"]]],["Aunque solo uno fuera",[[0,"FA"],[1,"SOL"],[2,"LAm"],[3,"RE7"]]],["Aunque solo uno fuera",[[0,"FA"],[1,"SOL"],[2,"LAm"],[3,"RE7"]]],["Aunque solo uno fuera",[[0,"FA"],[1,"SOL"],[2,"LAm"],[3,"RE7"]]]]},"DEPENDE":{"intro":[],"entries":[["Que el blanco sea blanco",[[0,"DO"]]],["porque exactos son los números . . . depende",[[4,"LAm"]]],["Que aquí estamos de prestao,",[[0,"DO"]]],["y este cuento se ha acabao . . . depende",[[5,"LAm"]]],["Depende, de qué depende,",[[0,"FA"],[3,"DO"]]],["de según como se mire todo depende.",[[1,"LAm"],[6,"MI"]]],["Depende, de qué depende,",[[0,"FA"],[3,"MI"]]],["de según como se mire todo depende.",[[1,"SOL"]]],["Que bonito es el amor,",[[0,"DO"]]],["porque estamos en agosto . . . depende",[[3,"LAm"]]],["Que con el paso del tiempo",[[0,"DO"]]],["de abajo a arriba y de arriba a abajo . . . depende",[[8,"LAm"]]],["Que no has conocido a nadie",[[0,"DO"]]],["que de ti se beneficie . . . depende",[[4,"LAm"]]],["Que si quiere decir sí",[[0,"DO"]]],["que hoy sea el dia de tu boda . . . depende",[[6,"LAm"]]]]},"POR LA BOCA VIVE EL PEZ":{"intro":["DO","RE","MIm"],"entries":[["a-algo, lo que me invade,",[[4,"DO"]]],["todo viene de dentro.",[[0,"RE"],[3,"MIm"]]],["nunca lo que me sacie,",[[4,"DO"]]],["siempre quiero, lobo hambriento.",[[1,"RE"],[3,"MIm"]]],["a-todo me queda grande",[[3,"DO"]]],["para no estar contigo",[[0,"RE"],[3,"MIm"]]],["¿sabes?, quisiera amarte",[[2,"DO"]]],["siempre un poco más de lo que te pido.",[[3,"RE"],[8,"MIm"]]],["b-sabes que soñaré",[[2,"RE"]]],["si no estás, que me despierto contigo",[[2,"DO"],[6,"MIm"]]],["sabes que quiero más,",[[3,"RE"]]],["no sé vivir sólo con cinco sentidos.",[[2,"DO"],[6,"MIm"]]],["este mar cada vez guarda más barcos hundidos",[[1,"DO"],[3,"RE"],[4,"MIm"],[5,"DO"],[6,"RE"],[7,"MIm"]]],["c-tu eres aire. yo, papel.",[[2,"DO"]]],["donde vayas yo me iré",[[2,"MIm"]]],["si me quedo a oscuras",[[4,"DO"]]],["luz de la locura, ven y alúmbrame.",[[3,"SI"],[6,"MIm"]]],["c-alguien dijo alguna vez",[[2,"DO"]]],["\"por la boca vive el pez\"",[[3,"MIm"]]],["y yo lo estoy diciendo,",[[3,"DO"]]],["te lo estoy diciendo, otra vez...",[[2,"SI"],[5,"MIm"]]],["d-no estás conmigo siempre que te canto",[[2,"LAm"]]],["yo hago canciones para estar contigo",[[2,"MIm"]]],["porque escribo igual que sangro",[[1,"SI"]]],["porque sangro todo lo que escribo",[[1,"MIm"]]],["d-me he dado cuenta, cada vez que canto,",[[3,"LAm"]]],["que si no canto no sé lo que digo",[[3,"MIm"]]],["la pena está bailando con el llanto",[[2,"SI"]]],["y cuando quiera bailará conmigo",[[2,"MIm"]]],["d-la vida eterna sólo dura un rato",[[2,"LAm"]]],["que es lo que tengo para estar contigo",[[4,"MIm"]]],["para decirte lo que nunca canto",[[1,"SI"]]],["para cantarte lo que nunca digo",[[1,"MIm"]]]]},"CADILLAC SOLITARIO":{"intro":[],"entries":[["Siempre quise ir a L.A.",[[0,"RE"],[2,"LA"],[4,"SIm"]]],["Dejar un dia esta ciudad.",[[2,"SOL"],[4,"RE"]]],["Cruzar el mar en tu compañia",[[2,"LA"],[4,"SIm"],[5,"SOL"]]],["Pero ya hace tiempo que me has dejado,",[[0,"RE"],[3,"LA"],[7,"SIm"]]],["y probablemente me habras olvidado",[[2,"SOL"],[4,"RE"]]],["no se que aventuras correr sin ti.",[[3,"LA"],[5,"SIm"],[6,"SOL"]]],["Y ahora estoy aqui sentado",[[0,"SIm"],[2,"SOL"],[4,"SIm"]]],["en un viejo Cadillac de segunda mano",[[3,"SOL"],[6,"RE"]]],["junto al Mervell, a mis pies mi ciudad,",[[3,"LA"],[6,"SIm"],[7,"SOL"]]],["y hace un momento que me ha dejado,",[[0,"SIm"],[3,"SOL"],[7,"SIm"]]],["aqui en la ladera del Tibidabo,",[[3,"SOL"],[5,"RE"]]],["la ultima rubia que me vino a probar",[[2,"LA"],[7,"SIm"]]],["el asiento de atras.",[[3,"SOL"]]],["Quizas el Martini me ha hecho recordar,",[[0,"RE"],[2,"LA"],[6,"SIm"]]],["nena, ¿por que, no volviste a llamar?",[[2,"SOL"],[6,"RE"]]],["Crei que podia olvidarte sin mas y aun a ratos ya ves.",[[2,"LA"],[5,"SIm"],[11,"SOL"]]],["Y al irse la rubia me he sentido extraño, me he quedado",[[0,"SIm"],[4,"SOL"],[8,"SIm"]]],["solo, fumando un cigarro, quizas he pensado,",[[0,"SOL"],[3,"RE"],[6,"LA"]]],["nostalgia de ti,",[[1,"SIm"],[2,"SOL"]]],["y desde esta curva donde estoy parado",[[0,"SIm"],[3,"SOL"],[6,"SIm"]]],["me he sorprendido mirando a tu barrio",[[3,"SOL"],[6,"RE"]]],["y me han atrapado luces de ciudad.",[[4,"LA"],[6,"SOL"]]],["El amanecer me sorprendera dormido, borracho en el Cadillac,",[[0,"RE"],[2,"LA"],[4,"SIm"],[5,"SOL"],[8,"RE"]]],["bajo las palmeras luce solitario...",[[2,"LA"],[3,"SIm"],[4,"SOL"]]],["Y dice la gente que ahora eres formal y yo aqui borracho",[[0,"RE"],[3,"LA"],[7,"SIm"],[11,"SOL"]]],["en el Cadillac, bajo las palmeras luce solitario y no estas tu... nenaaa!",[[3,"RE"],[5,"LA"],[7,"SIm"],[11,"SOL"]]],["El amanecer me sorprendera dormido, borracho en el Cadillac,",[[0,"RE"],[2,"LA"],[4,"SIm"],[5,"SOL"],[8,"RE"]]],["bajo las palmeras luce solitario...",[[2,"LA"],[3,"SIm"],[4,"SOL"]]],["Y dice la gente que ahora eres formal y yo aqui borracho",[[0,"RE"],[3,"LA"],[7,"SIm"],[11,"SOL"]]],["en el Cadillac bajo las palmeras luce solitario y no estas tu...                                         nenaaa!",[[3,"RE"],[6,"LA"],[8,"SIm"],[11,"SOL"]]],["y no estas tu .....y no estas tu... nena nena nena",[[0,"RE"],[3,"LA"],[7,"SIm"],[8,"SOL"]]]]},"GRITA":{"intro":["FA","SOL","LAm7","REm"],"entries":[["Hace dias que te obsevo, he contado con los dedos,",[[0,"DO"],[6,"MI7"]]],["cuantas veces te has reido, una mano me ha valido.",[[0,"LAm"],[6,"FA"]]],["Hace dias que me fijo, no se que guardas ahí dentro",[[0,"DO"],[7,"MI7"]]],["a juzgar por lo que veo, nada bueno, nada bueno.",[[0,"LAm"],[6,"SOL"]]],["De qué tienes miedo, a reir y a llorar luego,",[[0,"DO"],[4,"MI7"]]],["a romper el hielo, que recubre tu silencio.",[[0,"LAm"],[4,"FA"]]],["Suéltate ya! y cuéntame, que aquí estamos para eso,",[[0,"DO"],[5,"MI7"]]],["\"pa\" lo bueno y \"pa\" lo malo, llora ahora y ríe luego.",[[0,"LAm"],[7,"SOL"],[11,"FA"]]],["Si salgo corriendo, tú me agarras por el cuello,",[[0,"SOL"],[6,"LAm"],[7,"REm"],[8,"FA"]]],["Te tiendo la mano, tú agarra todo el brazo,",[[0,"SOL"]]],["y si quieres más pues, Grita! INSTRUMENTAL",[[0,"LAm"],[5,"REm"]]],["Cuando sin motivo alguno se te iba el mundo al suelo",[[0,"DO"]]],["Y si quieres yo te explico en qué consiste el misterio",[[0,"MI7"]]],["Que no hay cielo, mar ni tierra; que la vida es un sueño.",[[0,"LAm"],[8,"SOL"]]],["Grita, grita, grita, grita Si salgo corriendo...GRITA SUBIENDO",[[0,"FA"],[1,"SOL"],[2,"LAm"],[3,"REm"]]]]}};
-
-  function norm(s){
+  function pdfNorm(s){
     s=String(s||'').trim();
-    s=s.replace(/^[A-D]\s*[-:]\s*/i,'');
+    s=s.replace(/^[A-Da-d]\s*[-:]\s*/,'');
     s=s.replace(/\bINSTRUMENTAL\b\s*$/i,'');
     try{s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')}catch(e){}
-    return s.toUpperCase().replace(/[^A-Z0-9ÑÜ]+/g,' ').replace(/^\s+|\s+$/g,'').replace(/\s+/g,' ');
+    return s.toUpperCase()
+      .replace(/[^A-Z0-9ÑÜ]+/g,' ')
+      .replace(/^\s+|\s+$/g,'')
+      .replace(/\s+/g,' ');
   }
 
-  function showPdfTrialStatus(msg,ms){
-    var old=document.getElementById('pdfTrialStatus');
-    if(old)old.remove();
-    var d=document.createElement('div');
-    d.id='pdfTrialStatus';d.className='pdfTrialStatus';d.textContent=msg;
-    document.body.appendChild(d);
-    setTimeout(function(){if(d&&d.parentNode)d.parentNode.removeChild(d)},ms||4500);
+  function pdfTokens(s){
+    var n=pdfNorm(s);
+    return n?n.split(' '):[];
   }
 
-  function findSongIndex(title){
-    var target=norm(title);
+  function similarity(a,b){
+    var aa=pdfTokens(a),bb=pdfTokens(b);
+    if(!aa.length||!bb.length)return 0;
+    var map={},hit=0;
+    aa.forEach(function(x){map[x]=(map[x]||0)+1});
+    bb.forEach(function(x){if(map[x]){hit++;map[x]--}});
+    return (2*hit)/(aa.length+bb.length);
+  }
+
+  function findSongIndexPdf(title){
+    var target=pdfNorm(title);
     for(var i=0;i<songs.length;i++){
-      if(norm(getSongTitle(i))===target)return i;
+      if(pdfNorm(getSongTitle(i))===target)return i;
     }
     return -1;
   }
 
-  function findTargetLine(lines,source,startAt,used){
-    var target=norm(source);
-    var i;
+  function findTargetPdfLine(lines,source,startAt,used){
+    var target=pdfNorm(source),i;
+    if(!target)return -1;
+
     for(i=Math.max(0,startAt||0);i<lines.length;i++){
-      if(!used[i]&&norm(lines[i])===target)return i;
+      if(!used[i]&&pdfNorm(lines[i])===target)return i;
     }
     for(i=0;i<lines.length;i++){
-      if(!used[i]&&norm(lines[i])===target)return i;
+      if(!used[i]&&pdfNorm(lines[i])===target)return i;
     }
-    // fallback conservative: only near-exact containment on sufficiently long lines
-    if(target.length>=18){
+
+    if(target.length>=16){
+      for(i=Math.max(0,startAt||0);i<lines.length;i++){
+        if(used[i])continue;
+        var n=pdfNorm(lines[i]);
+        if(n.length>=16&&(n.indexOf(target)>=0||target.indexOf(n)>=0))return i;
+      }
       for(i=0;i<lines.length;i++){
         if(used[i])continue;
-        var n=norm(lines[i]);
-        if(n.length>=18&&(n.indexOf(target)>=0||target.indexOf(n)>=0))return i;
+        var n2=pdfNorm(lines[i]);
+        if(n2.length>=16&&(n2.indexOf(target)>=0||target.indexOf(n2)>=0))return i;
       }
     }
-    return -1;
+
+    // Último recurso conservador para pequeñas diferencias del PDF.
+    var best=-1,bestScore=.86;
+    var from=Math.max(0,(startAt||0)-3);
+    var to=Math.min(lines.length,(startAt||0)+18);
+    for(i=from;i<to;i++){
+      if(used[i])continue;
+      var score=similarity(source,lines[i]);
+      if(score>bestScore){bestScore=score;best=i}
+    }
+    return best;
   }
 
-  async function loadPdfTrialChords(){
-    if(typeof songs==='undefined')return;
-    var report=[];
-    var totalAdded=0,totalMatched=0,totalMissing=0,totalSkipped=0;
+  function showPdfImportStatus(msg,ms){
+    var old=document.getElementById('pdfImportStatus');
+    if(old)old.remove();
+    var d=document.createElement('div');
+    d.id='pdfImportStatus';
+    d.className='pdfImportStatus';
+    d.textContent=msg;
+    document.body.appendChild(d);
+    setTimeout(function(){if(d&&d.parentNode)d.parentNode.removeChild(d)},ms||5500);
+  }
 
-    for(var title in PDF_TRIAL_SEEDS){
-      if(!Object.prototype.hasOwnProperty.call(PDF_TRIAL_SEEDS,title))continue;
-      var songIndex=findSongIndex(title);
+  async function importAllPdfChords(){
+    if(!navigator.onLine){
+      alert('Necesitas conexión la primera vez para cargar el paquete de acordes de los PDFs.');
+      return;
+    }
+
+    showPdfImportStatus('Cargando acordes del repertorio…',12000);
+
+    var seeds;
+    try{
+      var r=await fetch('./pdf-chords-v44.json?_='+Date.now(),{cache:'no-store'});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      seeds=await r.json();
+    }catch(e){
+      alert('No se pudo cargar el paquete de acordes. Inténtalo de nuevo.');
+      return;
+    }
+
+    var songsUpdated=0,totalAdded=0,totalMatched=0,totalMissing=0,totalPreserved=0,emptySources=0;
+    var reports=[];
+
+    Object.keys(seeds).forEach(function(title){
+      var seed=seeds[title]||{};
+      var songIndex=findSongIndexPdf(title);
       if(songIndex<0){
-        report.push(title+': canción no encontrada');
-        continue;
+        reports.push(title+': canción no localizada');
+        return;
       }
 
-      var seed=PDF_TRIAL_SEEDS[title];
-      var d=getChordData(songIndex);
       var lines=getSongText(songIndex).split('\n');
+      var d=getChordData(songIndex);
       var used={};
-      var cursor=0,added=0,matched=0,missing=0,skipped=0;
+      var cursor=0,added=0,matched=0,missing=0,preserved=0;
 
-      if(seed.intro&&seed.intro.length&&!d.intro){
-        d.intro=seed.intro.join(' · ');
-        added+=seed.intro.length;
+      if(seed.intro&&seed.intro.length){
+        if(!d.intro){
+          d.intro=seed.intro.join(' · ');
+          added+=seed.intro.length;
+        }else{
+          preserved+=seed.intro.length;
+        }
       }
 
-      seed.entries.forEach(function(entry){
-        var src=entry[0],assign=entry[1]||[];
-        var li=findTargetLine(lines,src,cursor,used);
-        if(li<0){missing++;return}
-        used[li]=true;cursor=li+1;matched++;
+      (seed.entries||[]).forEach(function(entry){
+        var source=entry[0],assignments=entry[1]||[];
+        var li=findTargetPdfLine(lines,source,cursor,used);
+        if(li<0){
+          missing++;
+          return;
+        }
+        used[li]=true;
+        cursor=li+1;
+        matched++;
+
         var words=normalizeWords(lines[li]||'');
         if(!words.length)return;
 
-        assign.forEach(function(a){
+        assignments.forEach(function(a){
           var wi=Math.max(0,Math.min(Number(a[0])||0,words.length-1));
           var chord=String(a[1]||'').trim();
           if(!chord)return;
           var key=li+':'+wi;
           if(d.words[key]){
-            skipped++;
+            preserved++;
             return;
           }
           d.words[key]=chord;
@@ -3916,27 +3990,57 @@ if('serviceWorker' in navigator){
         });
       });
 
-      if(added>0)saveChordData(songIndex,d);
-      totalAdded+=added;totalMatched+=matched;totalMissing+=missing;totalSkipped+=skipped;
-      report.push(title+': '+added+' acordes añadidos, '+missing+' líneas no localizadas'+(skipped?' · '+skipped+' posiciones conservadas':''));
+      (seed.lineSeq||[]).forEach(function(entry){
+        var li=findTargetPdfLine(lines,entry[0],0,{});
+        if(li<0){missing++;return}
+        matched++;
+        if(d.lines[li]){
+          preserved++;
+        }else{
+          d.lines[li]=entry[1];
+          added+=splitSeq(entry[1]).length||1;
+        }
+      });
+
+      if(added>0){
+        saveChordData(songIndex,d);
+        songsUpdated++;
+      }
+      if(!(seed.entries&&seed.entries.length) && !(seed.intro&&seed.intro.length) && !(seed.lineSeq&&seed.lineSeq.length)){
+        emptySources++;
+      }
+
+      totalAdded+=added;
+      totalMatched+=matched;
+      totalMissing+=missing;
+      totalPreserved+=preserved;
+
+      if(missing||!added){
+        reports.push(title+': '+added+' añadidos, '+missing+' líneas sin casar'+(preserved?' · '+preserved+' conservados':''));
+      }
+    });
+
+    if(typeof renderLyrics==='function' && typeof current!=='undefined' && current>=0)renderLyrics();
+
+    showPdfImportStatus('✓ '+totalAdded+' acordes añadidos en '+songsUpdated+' canciones. Sin sobrescribir tus cambios.',7000);
+
+    var msg='IMPORTACIÓN DE ACORDES DESDE PDFs\n\n'+
+      'Canciones actualizadas: '+songsUpdated+'\n'+
+      'Acordes añadidos: '+totalAdded+'\n'+
+      'Líneas del PDF localizadas: '+totalMatched+'\n'+
+      'Acordes/posiciones existentes respetados: '+totalPreserved+'\n';
+
+    if(totalMissing)msg+='Líneas sin coincidencia segura: '+totalMissing+' (se han dejado intactas)\n';
+    if(emptySources)msg+='PDFs sin datos importables automáticamente: '+emptySources+'\n';
+
+    msg+='\nNo se ha sobrescrito ningún acorde que ya hubieras editado.';
+    if(reports.length){
+      msg+='\n\nLas excepciones quedan sin tocar para revisarlas manualmente.';
     }
-
-    try{
-      if(window.forceCloudSync)await window.forceCloudSync();
-    }catch(e){}
-
-    showPdfTrialStatus('PDF prueba: '+totalAdded+' acordes añadidos en 5 canciones. Revisa su colocación.',6000);
-    alert(
-      'PRUEBA DE ACORDES DESDE PDF\n\n'+
-      report.join('\n')+
-      '\n\nTotal: '+totalAdded+' acordes añadidos.'+
-      (totalSkipped?'\nSe han respetado '+totalSkipped+' acordes que ya existían.':'')+
-      (totalMissing?'\nHay '+totalMissing+' líneas del PDF que no coincidieron exactamente y no se tocaron.':'')+
-      '\n\nNo se ha sobrescrito ningún acorde existente.'
-    );
+    alert(msg);
   }
 
-  window.loadPdfTrialChords=loadPdfTrialChords;
+  window.importAllPdfChords=importAllPdfChords;
 })();
 
 </script>

@@ -1,22 +1,17 @@
-EL QUINTO ELEMENTO · v43 · PRUEBA DE ACORDES DESDE PDF
+EL QUINTO ELEMENTO · v44 · ACORDES DEL RESTO DEL REPERTORIO
 
-PRUEBA PILOTO CON 5 CANCIONES
-- LA FLACA
-- DEPENDE
-- POR LA BOCA VIVE EL PEZ
-- CADILLAC SOLITARIO
-- GRITA
+IMPORTACIÓN COMPLETA DESDE LOS PDFs DEL USUARIO
+- Nuevo botón: ⚙ Ajustes → Edición → "♬ Completar acordes desde PDFs".
+- Se incorpora un paquete local con los acordes extraídos del resto de PDFs del repertorio.
+- Los acordes se colocan sobre las palabras según la posición conservada en los PDFs.
+- Se convierten las notas al formato usado por la app (DO, RE, MI, FA, SOL, LA, SI) para conservar la transposición.
+- Nunca se sobrescriben acordes que ya existan o que hayan sido corregidos manualmente.
+- Si una línea no coincide con suficiente seguridad, se deja intacta.
+- Se conservan INTRO y secuencias de línea cuando el PDF las indica.
+- Tras importar se puede seguir usando "Mover acorde" y "Detectar repeticiones".
+- El paquete JSON queda en la caché offline del Service Worker.
 
-FUNCIONAMIENTO
-- Los acordes se han localizado a partir de la posición visual en los PDFs originales.
-- La app relaciona cada acorde con la palabra correspondiente de la letra.
-- Se respetan siempre los acordes que ya existan: nunca se sobrescriben.
-- Las líneas que no coincidan de forma suficientemente segura se dejan sin tocar.
-- INTRO se importa cuando está indicada explícitamente en el PDF.
-- Tras importar, los acordes pueden moverse individualmente con la función v40.
-- Los cambios se sincronizan con D1 y quedan cubiertos por las copias automáticas.
+La versión v43 de 5 canciones queda preservada: la importación v44 solo completa lo que falte.
 
-CÓMO PROBAR
-⚙ Ajustes → Edición → "♬ Cargar acordes PDF (5 prueba)"
-
-Esta versión es deliberadamente piloto. Si la colocación es satisfactoria, se puede extender al resto del repertorio.
+DESPLIEGUE
+GitHub → Cloudflare automático.
