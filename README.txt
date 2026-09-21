@@ -1,12 +1,20 @@
-EL QUINTO ELEMENTO · v46 · BORRAR ACORDE INDIVIDUAL
+EL QUINTO ELEMENTO · v47 · DESHACER ACORDES
 
-MEJORA
-- En modo edición, cada acorde colocado sobre una palabra muestra ahora un pequeño botón ×.
-- Pulsar × borra únicamente ese acorde.
-- No borra la palabra ni modifica el resto de acordes de la línea.
-- Si ese acorde estaba seleccionado para mover, se cancela también ese movimiento.
-- El cambio se guarda, sincroniza con D1 y queda cubierto por las copias automáticas.
-- Se mantienen mover acorde, cambiar acorde, duplicar bloques, detectar repeticiones y resto de funciones.
+NUEVA FUNCIÓN
+- En modo edición aparece el botón "↶ Deshacer".
+- Permite deshacer los últimos cambios de acordes de la canción actual.
+- Guarda hasta 20 pasos por canción durante la sesión.
+- Funciona con:
+  · añadir o cambiar acordes
+  · borrar acordes individuales
+  · mover acordes
+  · duplicar bloques
+  · editar INTRO e INSTRUMENTALES
+  · transposición y otras modificaciones que alteren los acordes
+- El botón muestra cuántos pasos quedan disponibles.
+- Al deshacer se actualiza inmediatamente la canción y la sincronización D1 recoge el cambio.
+
+El historial es deliberadamente de sesión: no se persiste entre cierres de la app para evitar restauraciones accidentales antiguas.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=46">
+<link rel="manifest" href="manifest.webmanifest?v=47">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1384,6 +1384,30 @@ body.lightTheme .wordChordDeleteBtn{
   border-color:#d99!important;
 }
 
+
+/* v47 · Deshacer cambios de acordes */
+.undoChordBtn{
+  display:none;
+  border-color:#665733!important;
+  color:#e6c36a!important;
+  background:#17150f!important;
+  font-weight:900!important;
+}
+.view.editing .undoChordBtn{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+}
+.undoChordBtn:disabled{
+  opacity:.38!important;
+  cursor:default!important;
+}
+body.lightTheme .undoChordBtn{
+  background:#fff8e2!important;
+  color:#846718!important;
+  border-color:#c9b371!important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1619,7 +1643,7 @@ body.lightTheme .wordChordDeleteBtn{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v46</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v47</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1641,6 +1665,7 @@ body.lightTheme .wordChordDeleteBtn{
     <button id="settingsBtn" class="sectionTool">⚙ Ajustes</button>
     <button id="chordMode" class="chordBtn" style="display:none">♫ Acordes</button>
     <button id="saveChordEdit" class="saveChordEditBtn" type="button">✓ Guardar acordes</button>
+    <button id="undoChordBtn" class="undoChordBtn" type="button" disabled>↶ Deshacer</button>
     <button id="introTool" class="sectionTool" style="display:none">＋ Intro</button>
     <button id="instrumentTool" class="sectionTool" style="display:none">＋ Instrumental</button>
     <button id="clearChords" class="clearChordBtn" style="display:none">Borrar acordes</button><button id="editLyrics" class="lyricEditBtn" style="display:none">✎ Editar letra</button>
@@ -1759,7 +1784,62 @@ function getChordData(i){
     return d;
   }catch(e){return emptyData();}
 }
-function saveChordData(i,d){try{if(window.localStorage)localStorage.setItem(songKey(i),JSON.stringify(d));}catch(e){}}
+var chordUndoStacks={};
+var chordUndoRestoring=false;
+
+function updateUndoChordButton(){
+  var b=document.getElementById('undoChordBtn');
+  if(!b)return;
+  var stack=(typeof current!=='undefined'&&current>=0)?(chordUndoStacks[current]||[]):[];
+  b.disabled=!stack.length;
+  b.textContent=stack.length?'↶ Deshacer ('+stack.length+')':'↶ Deshacer';
+}
+
+function saveChordData(i,d){
+  try{
+    if(!window.localStorage)return;
+    var key=songKey(i);
+    var next=JSON.stringify(d);
+    var prev=localStorage.getItem(key);
+    if(prev===next)return;
+
+    if(!chordUndoRestoring){
+      var stack=chordUndoStacks[i]||(chordUndoStacks[i]=[]);
+      stack.push(prev===null?JSON.stringify(emptyData()):prev);
+      if(stack.length>20)stack.shift();
+    }
+
+    localStorage.setItem(key,next);
+    updateUndoChordButton();
+  }catch(e){}
+}
+
+function undoChordChange(){
+  if(typeof current==='undefined'||current<0)return;
+  var stack=chordUndoStacks[current]||[];
+  if(!stack.length)return;
+
+  var previous=stack.pop();
+  try{
+    chordUndoRestoring=true;
+    localStorage.setItem(songKey(current),previous);
+  }catch(e){}finally{
+    chordUndoRestoring=false;
+  }
+
+  moveWordChordAction=null;
+  blockDuplicateMode=false;
+  blockDuplicateStart=null;
+  blockDuplicateEnd=null;
+  placingInstrumental=false;
+  instrumentAction=null;
+
+  renderLyrics();
+  if(window.updateTransposeUI)window.updateTransposeUI();
+  updateUndoChordButton();
+  showSavedToast();
+}
+
 function splitSeq(v){return (v||'').split(/\s*·\s*|\s*,\s*/).map(function(x){return x.trim();}).filter(Boolean);}
 function seqText(items){return items.join(' · ');}
 function render(f){
@@ -2395,7 +2475,7 @@ function saveSongFontSize(){
   try{localStorage.setItem(songFontSizeKey(current),String(size))}catch(e){}
 }
 
-function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics()}
+function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
 function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null}
 q.oninput=function(){render(q.value)};
 document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
@@ -2412,8 +2492,11 @@ document.getElementById('minus').onclick=function(){size=Math.max(.75,size-.1);l
 chordMode.onclick=function(){
   editingChords=!editingChords;
   if(!editingChords){placingInstrumental=false;instrumentAction=null}
-  renderLyrics()
+  renderLyrics();
+  updateUndoChordButton();
 };
+var undoChordBtn=document.getElementById('undoChordBtn');
+if(undoChordBtn)undoChordBtn.onclick=undoChordChange;
 var saveChordEdit=document.getElementById('saveChordEdit');
 if(saveChordEdit)saveChordEdit.onclick=function(){
   if(current<0)return;
@@ -3382,7 +3465,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=46;
+const APP_VERSION=47;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3471,7 +3554,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=46',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=47',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
