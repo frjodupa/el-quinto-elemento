@@ -1,20 +1,22 @@
-EL QUINTO ELEMENTO · v42 · MODO CONCIERTO ULTRALIMPIO
+EL QUINTO ELEMENTO · v43 · PRUEBA DE ACORDES DESDE PDF
 
-NUEVA FUNCIÓN
-- En ⚙ Ajustes → Visualización aparece "🎤 Modo concierto".
-- Oculta completamente la barra superior y todos los controles de edición.
-- Mantiene visibles únicamente título, letra, acordes, INTRO e INSTRUMENTALES.
-- Amplía el ancho útil de la canción para aprovechar mejor el iPad.
-- Botón flotante discreto "•••" para mostrar controles cuando hagan falta.
-- Los controles temporales incluyen Índice, anterior, siguiente, iniciar/pausar scroll, A−, A+ y Salir.
-- Los controles se ocultan automáticamente tras unos segundos.
-- En iPad se puede deslizar horizontalmente para pasar a canción anterior/siguiente sin mostrar controles.
-- Escape sale del modo concierto en ordenador.
-- El scroll automático sigue funcionando con la velocidad configurada.
+PRUEBA PILOTO CON 5 CANCIONES
+- LA FLACA
+- DEPENDE
+- POR LA BOCA VIVE EL PEZ
+- CADILLAC SOLITARIO
+- GRITA
 
-INTRO e INSTRUMENTAL se mantienen como los marcadores musicales principales del repertorio.
+FUNCIONAMIENTO
+- Los acordes se han localizado a partir de la posición visual en los PDFs originales.
+- La app relaciona cada acorde con la palabra correspondiente de la letra.
+- Se respetan siempre los acordes que ya existan: nunca se sobrescriben.
+- Las líneas que no coincidan de forma suficientemente segura se dejan sin tocar.
+- INTRO se importa cuando está indicada explícitamente en el PDF.
+- Tras importar, los acordes pueden moverse individualmente con la función v40.
+- Los cambios se sincronizan con D1 y quedan cubiertos por las copias automáticas.
 
-Se conservan detección de repeticiones, mover acordes, duplicar bloques, transposición, pases, D1, copias y offline.
+CÓMO PROBAR
+⚙ Ajustes → Edición → "♬ Cargar acordes PDF (5 prueba)"
 
-DESPLIEGUE
-GitHub → Cloudflare automático.
+Esta versión es deliberadamente piloto. Si la colocación es satisfactoria, se puede extender al resto del repertorio.
