@@ -1,17 +1,16 @@
-EL QUINTO ELEMENTO · v44 · ACORDES DEL RESTO DEL REPERTORIO
+EL QUINTO ELEMENTO · v45 · AJUSTES POR CANCIÓN
 
-IMPORTACIÓN COMPLETA DESDE LOS PDFs DEL USUARIO
-- Nuevo botón: ⚙ Ajustes → Edición → "♬ Completar acordes desde PDFs".
-- Se incorpora un paquete local con los acordes extraídos del resto de PDFs del repertorio.
-- Los acordes se colocan sobre las palabras según la posición conservada en los PDFs.
-- Se convierten las notas al formato usado por la app (DO, RE, MI, FA, SOL, LA, SI) para conservar la transposición.
-- Nunca se sobrescriben acordes que ya existan o que hayan sido corregidos manualmente.
-- Si una línea no coincide con suficiente seguridad, se deja intacta.
-- Se conservan INTRO y secuencias de línea cuando el PDF las indica.
-- Tras importar se puede seguir usando "Mover acorde" y "Detectar repeticiones".
-- El paquete JSON queda en la caché offline del Service Worker.
+MEJORA
+- El tamaño de letra A− / A+ se guarda ahora de forma independiente para cada canción.
+- Al volver a abrir una canción recupera automáticamente el tamaño que dejaste.
+- La velocidad de scroll ya era específica por canción y se mantiene.
+- La transposición ya era específica por canción y se mantiene.
+- Todos estos ajustes usan claves quintoElemento.* y por tanto entran en la sincronización D1 y en las copias de seguridad.
 
-La versión v43 de 5 canciones queda preservada: la importación v44 solo completa lo que falte.
+FLUJO
+Abres una canción → ajustas tamaño / velocidad / tonalidad → al volver a abrirla recupera esos valores.
+
+Se mantienen acordes PDF, modo concierto, detección de repeticiones, pases, offline, D1 y copias automáticas.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.
