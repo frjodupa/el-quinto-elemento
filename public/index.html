@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=45">
+<link rel="manifest" href="manifest.webmanifest?v=46">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1349,6 +1349,41 @@ body.lightTheme .pdfImportStatus{
   background:#fff8e2;color:#7a5a12;border-color:#c9b371;
 }
 
+
+/* v46 · Borrar acorde individual */
+.wordChordEditWrap{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  min-height:.78em;
+}
+.wordChordDeleteBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  min-height:22px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:999px!important;
+  border:1px solid #7a3636!important;
+  background:#211313!important;
+  color:#ff9a9a!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  line-height:1!important;
+}
+.wordChordDeleteBtn:active{
+  transform:scale(.94);
+}
+body.lightTheme .wordChordDeleteBtn{
+  background:#fff3f3!important;
+  color:#a22!important;
+  border-color:#d99!important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1584,7 +1619,7 @@ body.lightTheme .pdfImportStatus{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v45</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v46</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -2181,6 +2216,23 @@ function placeMovedWordChord(line,word){
   return true;
 }
 
+function deleteWordChordAt(line,word){
+  if(current<0)return;
+  var d=getChordData(current);
+  var key=Number(line)+':'+Number(word);
+  if(!d.words||!d.words[key])return;
+  delete d.words[key];
+  saveChordData(current,d);
+  if(moveWordChordAction &&
+     moveWordChordAction.line===Number(line) &&
+     moveWordChordAction.word===Number(word)){
+    moveWordChordAction=null;
+    updateMoveChordBanner();
+  }
+  renderLyrics();
+  showSavedToast();
+}
+
 function renderLyrics(){
   if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';
   ly.classList.toggle('editingLyrics',editingChords);view.classList.toggle('editing',editingChords);view.classList.toggle('placingInstrumental',placingInstrumental);
@@ -2245,7 +2297,27 @@ function renderLyrics(){
         if(moveWordChordAction&&moveWordChordAction.line===li&&moveWordChordAction.word===wi){
           wrap.classList.add('movingChordSource');
         }
-        wrap.appendChild(cc);
+
+        if(editingChords&&wc){
+          var chordEditWrap=document.createElement('span');
+          chordEditWrap.className='wordChordEditWrap';
+          chordEditWrap.appendChild(cc);
+
+          var delChord=document.createElement('button');
+          delChord.type='button';
+          delChord.className='wordChordDeleteBtn';
+          delChord.textContent='×';
+          delChord.title='Borrar acorde '+wc;
+          delChord.setAttribute('aria-label','Borrar acorde '+wc);
+          delChord.onclick=function(e){
+            e.stopPropagation();
+            deleteWordChordAt(li,wi);
+          };
+          chordEditWrap.appendChild(delChord);
+          wrap.appendChild(chordEditWrap);
+        }else{
+          wrap.appendChild(cc);
+        }
 
         var token=document.createElement('span');
         token.className='wordToken';
@@ -3310,7 +3382,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=45;
+const APP_VERSION=46;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3399,7 +3471,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=45',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=46',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);

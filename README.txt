@@ -1,16 +1,12 @@
-EL QUINTO ELEMENTO · v45 · AJUSTES POR CANCIÓN
+EL QUINTO ELEMENTO · v46 · BORRAR ACORDE INDIVIDUAL
 
 MEJORA
-- El tamaño de letra A− / A+ se guarda ahora de forma independiente para cada canción.
-- Al volver a abrir una canción recupera automáticamente el tamaño que dejaste.
-- La velocidad de scroll ya era específica por canción y se mantiene.
-- La transposición ya era específica por canción y se mantiene.
-- Todos estos ajustes usan claves quintoElemento.* y por tanto entran en la sincronización D1 y en las copias de seguridad.
-
-FLUJO
-Abres una canción → ajustas tamaño / velocidad / tonalidad → al volver a abrirla recupera esos valores.
-
-Se mantienen acordes PDF, modo concierto, detección de repeticiones, pases, offline, D1 y copias automáticas.
+- En modo edición, cada acorde colocado sobre una palabra muestra ahora un pequeño botón ×.
+- Pulsar × borra únicamente ese acorde.
+- No borra la palabra ni modifica el resto de acordes de la línea.
+- Si ese acorde estaba seleccionado para mover, se cancela también ese movimiento.
+- El cambio se guarda, sincroniza con D1 y queda cubierto por las copias automáticas.
+- Se mantienen mover acorde, cambiar acorde, duplicar bloques, detectar repeticiones y resto de funciones.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.
