@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=48">
+<link rel="manifest" href="manifest.webmanifest?v=49">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1409,14 +1409,14 @@ body.lightTheme .undoChordBtn{
 }
 
 
-/* v48 · Texto adicional en INTRO */
-.introTextWrap{margin:12px 0 4px;padding:10px;border:1px solid #34343a;border-radius:10px;background:#121317}
-.introTextWrap label{display:block;margin-bottom:6px;color:#d7d7d7;font-size:.86rem;font-weight:800}
-#introTextInput{width:100%;min-height:44px;padding:9px 11px;border:1px solid #45454c;border-radius:9px;background:#0b0c0e;color:#fff;font-size:16px}
+/* v48 · Texto adicional en secciones */
+.sectionTextWrap{margin:12px 0 4px;padding:10px;border:1px solid #34343a;border-radius:10px;background:#121317}
+.sectionTextWrap label{display:block;margin-bottom:6px;color:#d7d7d7;font-size:.86rem;font-weight:800}
+#sectionTextInput{width:100%;min-height:44px;padding:9px 11px;border:1px solid #45454c;border-radius:9px;background:#0b0c0e;color:#fff;font-size:16px}
 .musicSectionNote{margin-top:8px;color:#f0d88c;font-size:.9em;line-height:1.2;font-weight:900;letter-spacing:.02em}
-body.lightTheme .introTextWrap{background:#fff;border-color:#d0c8b6}
-body.lightTheme .introTextWrap label{color:#5c574d}
-body.lightTheme #introTextInput{background:#fff;color:#171717;border-color:#cfc6b3}
+body.lightTheme .sectionTextWrap{background:#fff;border-color:#d0c8b6}
+body.lightTheme .sectionTextWrap label{color:#5c574d}
+body.lightTheme #sectionTextInput{background:#fff;color:#171717;border-color:#cfc6b3}
 body.lightTheme .musicSectionNote{color:#7d6017}
 
 </style>
@@ -1640,9 +1640,9 @@ body.lightTheme .musicSectionNote{color:#7d6017}
     <h2 id="chordModalTitle">Editar acorde</h2>
     <div id="chordTarget" class="chordTarget"></div>
     <div id="chordCurrent" class="chordCurrent">—</div>
-    <div id="introTextWrap" class="introTextWrap" style="display:none">
-      <label for="introTextInput">Texto / indicación de la INTRO</label>
-      <input id="introTextInput" type="text" autocomplete="off" maxlength="120" placeholder="Ej.: Cejilla 5">
+    <div id="sectionTextWrap" class="sectionTextWrap" style="display:none">
+      <label id="sectionTextLabel" for="sectionTextInput">Texto / indicación</label>
+      <input id="sectionTextInput" type="text" autocomplete="off" maxlength="120" placeholder="Ej.: Cejilla 5 / Solo guitarra / 4 compases">
     </div>
     <p class="chordHint">Elige <strong>nota</strong> y <strong>tipo</strong>. En INTRO, INSTRUMENTAL y línea puedes añadir tantos acordes como necesites.</p>
     <div id="rootGrid" class="chordGrid"></div>
@@ -1658,7 +1658,7 @@ body.lightTheme .musicSectionNote{color:#7d6017}
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v48</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v49</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1790,12 +1790,12 @@ newSongModal.addEventListener('click',function(e){if(e.target===newSongModal)clo
 
 document.getElementById('count').textContent=songs.length+' canciones';
 function songKey(i){return 'quintoElemento.chords.v2.'+i;}
-function emptyData(){return {lines:{},words:{},intro:'',introText:'',instrumentals:{}};}
+function emptyData(){return {lines:{},words:{},intro:'',introText:'',instrumentals:{},instrumentalsText:{}};}
 function getChordData(i){
   try{
     var raw=window.localStorage?localStorage.getItem(songKey(i)):null;
     var d=raw?JSON.parse(raw):emptyData();
-    if(!d.lines)d.lines={}; if(!d.words)d.words={}; if(!d.instrumentals)d.instrumentals={}; if(!d.intro)d.intro=''; if(!d.introText)d.introText='';
+    if(!d.lines)d.lines={}; if(!d.words)d.words={}; if(!d.instrumentals)d.instrumentals={}; if(!d.instrumentalsText)d.instrumentalsText={}; if(!d.intro)d.intro=''; if(!d.introText)d.introText='';
     return d;
   }catch(e){return emptyData();}
 }
@@ -1882,7 +1882,7 @@ function makeSection(label,value,onEdit,opts){
   splitSeq(value).forEach(function(c){var chip=document.createElement('span');chip.className='musicChordChip';chip.textContent=c;row.appendChild(chip)});
   if(!value){var em=document.createElement('span');em.style.opacity='.6';em.textContent='Sin acordes';row.appendChild(em)}
   box.appendChild(row);
-  if(label==='INTRO' && opts && opts.text){
+  if((label==='INTRO'||label==='INSTRUMENTAL') && opts && opts.text){
     var note=document.createElement('div');
     note.className='musicSectionNote';
     note.textContent=opts.text;
@@ -1905,7 +1905,7 @@ function makeSection(label,value,onEdit,opts){
     del.onclick=function(e){
       e.stopPropagation();
       if(confirm('¿Eliminar este instrumental?')){
-        var d=getChordData(current);delete d.instrumentals[String(opts.boundary)];saveChordData(current,d);renderLyrics()
+        var d=getChordData(current);delete d.instrumentals[String(opts.boundary)];if(d.instrumentalsText)delete d.instrumentalsText[String(opts.boundary)];saveChordData(current,d);renderLyrics()
       }
     };actions.appendChild(del);
 
@@ -1916,7 +1916,7 @@ function makeSection(label,value,onEdit,opts){
   return box;
 }
 function beginInstrumentAction(type,boundary,value){
-  instrumentAction={type:type,from:Number(boundary),value:value||''};
+  var d=getChordData(current);instrumentAction={type:type,from:Number(boundary),value:value||'',text:(d.instrumentalsText&&d.instrumentalsText[String(boundary)])||''};
   placingInstrumental=true;
   renderLyrics();
 }
@@ -1925,7 +1925,7 @@ function cancelInstrumentAction(){
 }
 function placeInstrumentAction(boundary){
   if(!instrumentAction)return;
-  var d=getChordData(current);d.instrumentals=d.instrumentals||{};
+  var d=getChordData(current);d.instrumentals=d.instrumentals||{};d.instrumentalsText=d.instrumentalsText||{};
   var target=String(boundary),source=String(instrumentAction.from);
   if(d.instrumentals[target] && target!==source){
     if(!confirm('Ya hay un instrumental en esa posición. ¿Quieres reemplazarlo?'))return;
@@ -1934,6 +1934,8 @@ function placeInstrumentAction(boundary){
     if(target===source){cancelInstrumentAction();return}
     delete d.instrumentals[source];
     d.instrumentals[target]=instrumentAction.value;
+    if(instrumentAction.text)d.instrumentalsText[target]=instrumentAction.text;else delete d.instrumentalsText[target];
+    if(instrumentAction.text)d.instrumentalsText[target]=instrumentAction.text;else delete d.instrumentalsText[target];delete d.instrumentalsText[source]
   }else if(instrumentAction.type==='duplicate'){
     d.instrumentals[target]=instrumentAction.value;
   }
@@ -1948,7 +1950,7 @@ function addInstrumentSlot(boundary){
     b.onclick=function(){placeInstrumentAction(boundary)};
   }else{
     b.textContent='＋ Insertar INSTRUMENTAL aquí';
-    b.onclick=function(){var d=getChordData(current),existing=d.instrumentals[String(boundary)]||'';openPicker({mode:'instrumental',boundary:boundary,existing:existing,label:'INSTRUMENTAL entre líneas'})};
+    b.onclick=function(){var d=getChordData(current),existing=d.instrumentals[String(boundary)]||'';openPicker({mode:'instrumental',boundary:boundary,existing:existing,text:(d.instrumentalsText&&d.instrumentalsText[String(boundary)])||'',label:'INSTRUMENTAL entre líneas'})};
   }
   ly.appendChild(b);
 }
@@ -1987,9 +1989,9 @@ function saveSongText(i,text){try{if(window.localStorage)localStorage.setItem(ly
 function restoreSongText(i){try{if(window.localStorage)localStorage.removeItem(lyricKey(i))}catch(e){}}
 function normalizeWords(line){return String(line||'').trim().split(/\s+/).filter(Boolean)}
 function migrateChordData(oldText,newText,data){
-  data=data||{lines:{},words:{},intro:'',introText:'',instrumentals:{}};
+  data=data||{lines:{},words:{},intro:'',introText:'',instrumentals:{},instrumentalsText:{}};
   var oldLines=String(oldText||'').split('\n'),newLines=String(newText||'').split('\n');
-  var newData={lines:{},words:{},intro:data.intro||'',introText:data.introText||'',instrumentals:data.instrumentals||{}},usedOld={};
+  var newData={lines:{},words:{},intro:data.intro||'',introText:data.introText||'',instrumentals:data.instrumentals||{},instrumentalsText:data.instrumentalsText||{}},usedOld={};
   function normLine(s){return String(s||'').toLowerCase().replace(/\s+/g,' ').trim()}
   function bestOldIndex(newLine,newIndex){
     var target=normLine(newLine),i;
@@ -2351,7 +2353,8 @@ function renderLyrics(){
   if(placingInstrumental)addInstrumentSlot(0);
   lines.forEach(function(line,li){
     var existingInst=d.instrumentals[String(li)]||'';
-    if(existingInst && li!==0){ly.appendChild(makeSection('INSTRUMENTAL',existingInst,function(){openPicker({mode:'instrumental',boundary:li,existing:existingInst,label:'INSTRUMENTAL'})},{boundary:li}))}
+    var existingInstText=(d.instrumentalsText&&d.instrumentalsText[String(li)])||'';
+    if((existingInst||existingInstText) && li!==0){ly.appendChild(makeSection('INSTRUMENTAL',existingInst,function(){openPicker({mode:'instrumental',boundary:li,existing:existingInst,text:existingInstText,label:'INSTRUMENTAL'})},{boundary:li,text:existingInstText}))}
     var row=document.createElement('div');row.className='lyricLine';
     if(blockDuplicateMode&&li===blockDuplicateStart)row.classList.add('duplicateSourceStart');
     if(blockDuplicateMode&&li===blockDuplicateEnd)row.classList.add('duplicateSourceEnd');
@@ -2438,7 +2441,8 @@ function renderLyrics(){
     row.appendChild(body);ly.appendChild(row);
     if(placingInstrumental)addInstrumentSlot(li+1);
     var after=d.instrumentals[String(li+1)]||'';
-    if(after && li+1===lines.length){ly.appendChild(makeSection('INSTRUMENTAL',after,function(){openPicker({mode:'instrumental',boundary:li+1,existing:after,label:'INSTRUMENTAL'})}))}
+    var afterText=(d.instrumentalsText&&d.instrumentalsText[String(li+1)])||'';
+    if((after||afterText) && li+1===lines.length){ly.appendChild(makeSection('INSTRUMENTAL',after,function(){openPicker({mode:'instrumental',boundary:li+1,existing:after,text:afterText,label:'INSTRUMENTAL'})},{boundary:li+1,text:afterText}))}
   });
 }
 function selectedChord(){return picker.root+picker.qual;}
@@ -2460,10 +2464,12 @@ function openPicker(opts){
   picker.mode=opts.mode;picker.line=opts.line||0;picker.word=opts.word||0;picker.boundary=opts.boundary||0;picker.root='DO';picker.qual='';picker.existing=opts.existing||'';picker.text=opts.text||'';picker.items=isSequenceMode()?splitSeq(picker.existing):[];
   if(opts.mode==='word'&&opts.existing){var m=opts.existing.match(/^(DO#?|RE#?|MI|FA#?|SOL#?|LA#?|SI)(.*)$/i);if(m){picker.root=m[1].toUpperCase();picker.qual=m[2]||''}}
   document.getElementById('chordModalTitle').textContent=opts.mode==='intro'?'Editar INTRO':opts.mode==='instrumental'?'Editar INSTRUMENTAL':opts.mode==='line'?'Editar acordes de línea':'Acorde sobre palabra';
-  var introTextWrap=document.getElementById('introTextWrap');
-  var introTextInput=document.getElementById('introTextInput');
-  if(introTextWrap)introTextWrap.style.display=opts.mode==='intro'?'block':'none';
-  if(introTextInput)introTextInput.value=opts.mode==='intro'?(opts.text||''):'';
+  var sectionTextWrap=document.getElementById('sectionTextWrap');
+  var sectionTextInput=document.getElementById('sectionTextInput');
+  var sectionTextLabel=document.getElementById('sectionTextLabel');
+  if(sectionTextWrap)sectionTextWrap.style.display=(opts.mode==='intro'||opts.mode==='instrumental')?'block':'none';
+  if(sectionTextLabel)sectionTextLabel.textContent=opts.mode==='intro'?'Texto / indicación de la INTRO':opts.mode==='instrumental'?'Texto / indicación del INSTRUMENTAL':'Texto / indicación';
+  if(sectionTextInput)sectionTextInput.value=(opts.mode==='intro'||opts.mode==='instrumental')?(opts.text||''):'';
   chordTarget.textContent=opts.label||'';chordModal.classList.add('on');chordModal.setAttribute('aria-hidden','false');refreshPicker();
 }
 function closePicker(){chordModal.classList.remove('on');chordModal.setAttribute('aria-hidden','true');}
@@ -2471,8 +2477,8 @@ function storePicker(clear){
   if(current<0)return;var d=getChordData(current),value=clear?'':(isSequenceMode()?seqText(picker.items):selectedChord());
   if(picker.mode==='word'){var k=picker.line+':'+picker.word;if(value)d.words[k]=value;else delete d.words[k]}
   else if(picker.mode==='line'){if(value)d.lines[picker.line]=value;else delete d.lines[picker.line]}
-  else if(picker.mode==='intro'){d.intro=value;var it=document.getElementById('introTextInput');d.introText=clear?'':(it?String(it.value||'').trim():'')}
-  else if(picker.mode==='instrumental'){var bk=String(picker.boundary);if(value)d.instrumentals[bk]=value;else delete d.instrumentals[bk]}
+  else if(picker.mode==='intro'){d.intro=value;var it=document.getElementById('sectionTextInput');d.introText=clear?'':(it?String(it.value||'').trim():'')}
+  else if(picker.mode==='instrumental'){var bk=String(picker.boundary);if(value)d.instrumentals[bk]=value;else delete d.instrumentals[bk];var st=document.getElementById('sectionTextInput');if(!d.instrumentalsText)d.instrumentalsText={};if(clear){delete d.instrumentalsText[bk]}else{var sv=st?String(st.value||'').trim():'';if(sv)d.instrumentalsText[bk]=sv;else delete d.instrumentalsText[bk]}}
   saveChordData(current,d);closePicker();placingInstrumental=false;renderLyrics();
 }
 addChord.onclick=function(){picker.items.push(selectedChord());refreshPicker()};
@@ -3490,7 +3496,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=48;
+const APP_VERSION=49;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3579,7 +3585,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=48',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=49',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);

@@ -1,12 +1,13 @@
-EL QUINTO ELEMENTO · v48 · TEXTO ADICIONAL EN INTRO
+EL QUINTO ELEMENTO · v49 · TEXTO LIBRE EN INSTRUMENTAL
 
-- La INTRO sigue permitiendo varios acordes.
-- Ahora también admite texto libre, por ejemplo: "Cejilla 5".
-- El texto aparece debajo de los acordes dentro del bloque INTRO.
-- Puede existir INTRO solo con texto, sin acordes.
-- El texto no se transpone al cambiar la tonalidad.
-- Se sincroniza con D1, entra en las copias y funciona con Deshacer.
-- Borrar la INTRO elimina acordes y texto.
+- Los INSTRUMENTALES, igual que la INTRO, pueden guardar varios acordes y texto libre.
+- Ejemplos: "Solo guitarra", "4 compases", "Entra batería", "Cejilla 5".
+- El texto aparece dentro del bloque INSTRUMENTAL.
+- Puede existir un INSTRUMENTAL solo con texto, sin acordes.
+- Al mover o duplicar un INSTRUMENTAL se mueve/duplica también su texto.
+- Al borrar el INSTRUMENTAL se elimina también el texto.
+- El texto no se transpone.
+- Se sincroniza con D1, entra en las copias de seguridad y funciona con Deshacer.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.
