@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=50">
+<link rel="manifest" href="manifest.webmanifest?v=51">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1480,6 +1480,41 @@ body.lightTheme .referenceMarkBanner button{
 }
 body.concertMode .referenceMarkBanner{display:none!important}
 
+
+/* v51 · Deshacer visible en todas las ventanas */
+.globalUndoBtn{
+  min-height:40px!important;
+  border-radius:9px!important;
+  border:1px solid #665733!important;
+  background:#17150f!important;
+  color:#e6c36a!important;
+  padding:7px 10px!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+}
+.globalUndoBtn:disabled{
+  opacity:.35!important;
+  cursor:default!important;
+}
+.newSongHead{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+}
+body.lightTheme .globalUndoBtn{
+  background:#fff8e2!important;
+  color:#846718!important;
+  border-color:#c9b371!important;
+}
+@media(max-width:700px){
+  .globalUndoBtn{
+    min-height:38px!important;
+    padding:6px 8px!important;
+    font-size:.88rem!important;
+  }
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1488,7 +1523,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
   <div class="passPanel small">
-    <div class="passHead"><strong>Guardar pase</strong><button id="passNameClose" type="button">Cerrar</button></div>
+    <div class="passHead"><strong>Guardar pase</strong><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="passNameClose" type="button">Cerrar</button></div>
     <div class="passBody">
       <label for="passNameInput">Nombre del pase</label>
       <input id="passNameInput" type="text" maxlength="60" placeholder="EJ. PASE 1 · VERBENA">
@@ -1502,7 +1537,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
 
 <div id="passesModal" class="passModal" aria-hidden="true">
   <div class="passPanel">
-    <div class="passHead"><strong>PASES</strong><button id="passesClose" type="button">Cerrar</button></div>
+    <div class="passHead"><strong>PASES</strong><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="passesClose" type="button">Cerrar</button></div>
     <div id="passesList" class="passesList"></div>
   </div>
 </div>
@@ -1511,6 +1546,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
   <div class="passPanel">
     <div class="passHead">
       <strong id="passDetailTitle">PASE</strong>
+      <button class="globalUndoBtn" type="button">↶ Deshacer</button>
       <button id="passDetailClose" type="button">Cerrar</button>
     </div>
     <div class="passDetailTop">
@@ -1528,6 +1564,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
   <div class="settingsPanel">
     <div class="settingsHead">
       <strong>AJUSTES</strong>
+      <button class="globalUndoBtn" type="button">↶ Deshacer</button>
       <button id="settingsClose" type="button">Cerrar</button>
     </div>
     <div class="settingsBody">
@@ -1629,6 +1666,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
         <strong>REPETICIONES DETECTADAS</strong>
         <div class="repeatDetectSub">Busca bloques de letra repetidos y reutiliza los acordes ya colocados.</div>
       </div>
+      <button class="globalUndoBtn" type="button">↶ Deshacer</button>
       <button id="repeatDetectClose" type="button">Cerrar</button>
     </div>
     <div id="repeatDetectList" class="repeatDetectList"></div>
@@ -1639,6 +1677,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
   <div class="backupPanel">
     <div class="backupHead">
       <strong>Copia de seguridad</strong>
+      <button class="globalUndoBtn" type="button">↶ Deshacer</button>
       <button id="backupClose" type="button">Cerrar</button>
     </div>
     <div class="backupBody">
@@ -1657,7 +1696,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
 
 <div id="newSongModal" class="newSongModal" aria-hidden="true">
   <div class="newSongPanel">
-    <div class="newSongHead">Nueva canción</div>
+    <div class="newSongHead"><span>Nueva canción</span><button class="globalUndoBtn" type="button">↶ Deshacer</button></div>
     <div class="newSongBody">
       <label for="newSongTitle">Título</label>
       <input id="newSongTitle" type="text" autocomplete="off" placeholder="TÍTULO DE LA CANCIÓN">
@@ -1682,7 +1721,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
 
 <div id="lyricEditorModal" class="lyricEditorModal" aria-hidden="true">
   <div class="lyricEditorPanel" role="dialog" aria-modal="true" aria-labelledby="lyricEditorTitle">
-    <div class="lyricEditorHead"><h2 id="lyricEditorTitle">Editar letra</h2><span class="spacer"></span><button id="lyricEditorCancel" type="button">Cancelar</button></div>
+    <div class="lyricEditorHead"><h2 id="lyricEditorTitle">Editar letra</h2><span class="spacer"></span><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="lyricEditorCancel" type="button">Cancelar</button></div>
     <div class="lyricEditorBody">
       <label for="lyricEditorSongTitle" style="display:block;color:#cfcfcf;font-weight:800;margin:0 0 6px">Título</label>
       <input id="lyricEditorSongTitle" type="text" autocomplete="off" style="width:100%;font-size:16px;background:#09090a;color:#fff;border:1px solid #35353b;border-radius:11px;padding:12px;margin-bottom:12px;text-transform:uppercase">
@@ -1712,6 +1751,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
     <div id="qualGrid" class="qualGrid"></div>
     <button id="addChord" class="addChordBtn" type="button">＋ Añadir acorde a la secuencia</button>
     <div class="chordActions">
+      <button class="globalUndoBtn" type="button">↶ Deshacer</button>
       <button id="chordDelete" class="danger" type="button">Borrar</button>
       <button id="chordCancel" type="button">Cancelar</button>
       <button id="chordSave" class="save" type="button">Guardar</button>
@@ -1721,7 +1761,7 @@ body.concertMode .referenceMarkBanner{display:none!important}
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v50</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v51</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1818,6 +1858,7 @@ const newSongTitle=document.getElementById('newSongTitle');
 const newSongLyrics=document.getElementById('newSongLyrics');
 
 function openNewSong(){
+  bindGlobalUndoButtons();updateUndoChordButton();
   newSongTitle.value='';
   newSongLyrics.value='';
   newSongModal.classList.add('on');
@@ -1866,11 +1907,16 @@ var chordUndoStacks={};
 var chordUndoRestoring=false;
 
 function updateUndoChordButton(){
-  var b=document.getElementById('undoChordBtn');
-  if(!b)return;
   var stack=(typeof current!=='undefined'&&current>=0)?(chordUndoStacks[current]||[]):[];
-  b.disabled=!stack.length;
-  b.textContent=stack.length?'↶ Deshacer ('+stack.length+')':'↶ Deshacer';
+  var buttons=[];
+  var main=document.getElementById('undoChordBtn');
+  if(main)buttons.push(main);
+  var all=document.querySelectorAll('.globalUndoBtn');
+  Array.prototype.forEach.call(all,function(b){buttons.push(b)});
+  buttons.forEach(function(b){
+    b.disabled=!stack.length;
+    b.textContent=stack.length?'↶ Deshacer ('+stack.length+')':'↶ Deshacer';
+  });
 }
 
 function saveChordData(i,d){
@@ -1891,6 +1937,24 @@ function saveChordData(i,d){
     updateUndoChordButton();
   }catch(e){}
 }
+
+function bindGlobalUndoButtons(){
+  var buttons=document.querySelectorAll('.globalUndoBtn');
+  Array.prototype.forEach.call(buttons,function(b){
+    if(b.getAttribute('data-undo-bound')==='1')return;
+    b.setAttribute('data-undo-bound','1');
+    b.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      undoChordChange();
+      setTimeout(updateUndoChordButton,0);
+    });
+  });
+  updateUndoChordButton();
+}
+
+window.bindGlobalUndoButtons=bindGlobalUndoButtons;
+window.updateUndoChordButton=updateUndoChordButton;
 
 function undoChordChange(){
   if(typeof current==='undefined'||current<0)return;
@@ -2080,6 +2144,7 @@ const lyricEditorText=document.getElementById('lyricEditorText');
 const lyricEditorSongTitle=document.getElementById('lyricEditorSongTitle');
 const editLyricsBtn=document.getElementById('editLyrics');
 function openLyricEditor(){stopAutoScroll();
+  bindGlobalUndoButtons();updateUndoChordButton();
   if(current<0)return;
   document.getElementById('lyricEditorTitle').textContent='Editar canción';
   lyricEditorSongTitle.value=getSongTitle(current);
@@ -2740,7 +2805,7 @@ instrumentTool.onclick=function(){
 };
 clearChords.onclick=function(){if(current<0)return;if(confirm('¿Borrar todos los acordes, INTRO e INSTRUMENTALES de esta canción?')){try{localStorage.removeItem(songKey(current))}catch(e){}placingInstrumental=false;renderLyrics()}};
 document.addEventListener('keydown',function(e){if(!view.classList.contains('on'))return;if(e.key==='Escape'){if(chordModal.classList.contains('on'))closePicker();else closeSong()}if(e.key==='ArrowRight'&&!editingChords)document.getElementById('next').click();if(e.key==='ArrowLeft'&&!editingChords)document.getElementById('prev').click()});
-buildPicker();render('');
+buildPicker();render('');bindGlobalUndoButtons();
 </script>
 <script>
 
@@ -2974,6 +3039,7 @@ buildPicker();render('');
   if(!btn || !modal || !close || !exportBtn || !input)return;
 
   function open(){modal.classList.add('on');modal.setAttribute('aria-hidden','false')}
+    bindGlobalUndoButtons();updateUndoChordButton();
   function shut(){modal.classList.remove('on');modal.setAttribute('aria-hidden','true')}
   btn.addEventListener('click',open);
   close.addEventListener('click',shut);
@@ -3063,6 +3129,7 @@ buildPicker();render('');
   function open(){
     sync();
     modal.classList.add('on');
+    bindGlobalUndoButtons();updateUndoChordButton();
     modal.setAttribute('aria-hidden','false');
   }
   function shut(){
@@ -3701,7 +3768,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=50;
+const APP_VERSION=51;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3790,7 +3857,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=50',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=51',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -4454,5 +4521,20 @@ if('serviceWorker' in navigator){
   window.importAllPdfChords=importAllPdfChords;
 })();
 
+</script>
+<script>
+(function(){
+  document.addEventListener('click',function(e){
+    if(e.target && (e.target.id==='managePassesBtn' || e.target.id==='createPassBtn' ||
+       e.target.id==='settingsBtn' || e.target.id==='settingsIndexBtn' ||
+       e.target.id==='backupBtn' || e.target.id==='editLyrics' ||
+       e.target.id==='settingsDetectRepeats')){
+      setTimeout(function(){
+        if(window.bindGlobalUndoButtons)window.bindGlobalUndoButtons();
+        if(window.updateUndoChordButton)window.updateUndoChordButton();
+      },40);
+    }
+  });
+})();
 </script>
 </body></html>
