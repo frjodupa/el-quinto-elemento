@@ -1,13 +1,15 @@
-EL QUINTO ELEMENTO · v49 · TEXTO LIBRE EN INSTRUMENTAL
+EL QUINTO ELEMENTO · v50 · REFERENCIAS DE COLOR EN LA LETRA
 
-- Los INSTRUMENTALES, igual que la INTRO, pueden guardar varios acordes y texto libre.
-- Ejemplos: "Solo guitarra", "4 compases", "Entra batería", "Cejilla 5".
-- El texto aparece dentro del bloque INSTRUMENTAL.
-- Puede existir un INSTRUMENTAL solo con texto, sin acordes.
-- Al mover o duplicar un INSTRUMENTAL se mueve/duplica también su texto.
-- Al borrar el INSTRUMENTAL se elimina también el texto.
-- El texto no se transpone.
-- Se sincroniza con D1, entra en las copias de seguridad y funciona con Deshacer.
+NUEVA FUNCIÓN
+- En ⚙ Ajustes → Edición aparece "◈ Marcar referencia".
+- En iPad: toca la primera palabra y después la última palabra del fragmento.
+- Todo el fragmento queda en un color turquesa claramente distinto de los acordes.
+- La selección puede abarcar varias palabras y varias líneas.
+- Si en modo Marcar referencia tocas una zona ya marcada, puedes quitar esa referencia.
+- "✕ Borrar referencias" elimina todas las marcas de la canción.
+- Las referencias se guardan por canción, se sincronizan con D1, entran en copias de seguridad y funcionan con ↶ Deshacer.
+- Las marcas se ven también en modo concierto, pero los controles de marcado no.
+- Al borrar una línea vacía se conservan y reajustan las referencias.
 
 DESPLIEGUE
 GitHub → Cloudflare automático.

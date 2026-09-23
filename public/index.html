@@ -803,7 +803,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=49">
+<link rel="manifest" href="manifest.webmanifest?v=50">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1419,6 +1419,67 @@ body.lightTheme .sectionTextWrap label{color:#5c574d}
 body.lightTheme #sectionTextInput{background:#fff;color:#171717;border-color:#cfc6b3}
 body.lightTheme .musicSectionNote{color:#7d6017}
 
+
+/* v50 · Referencias de color en la letra */
+.wordToken.referenceText{
+  color:#63dbc7!important;
+  font-weight:900!important;
+  text-decoration:underline;
+  text-decoration-thickness:2px;
+  text-underline-offset:4px;
+  text-decoration-color:rgba(99,219,199,.55);
+}
+.wordToken.referenceStartWord{
+  background:rgba(99,219,199,.2)!important;
+  outline:2px solid #63dbc7!important;
+  border-radius:5px;
+}
+.referenceMarkBanner{
+  position:sticky;
+  top:72px;
+  z-index:18;
+  margin:8px auto 12px;
+  max-width:980px;
+  padding:10px 12px;
+  border:1px solid #397e74;
+  border-radius:10px;
+  background:#0f1c1a;
+  color:#78e5d2;
+  font-weight:900;
+  line-height:1.3;
+}
+.referenceMarkBanner button{
+  margin-left:10px;
+  min-height:34px;
+  border:1px solid #397e74;
+  border-radius:8px;
+  background:#10211e;
+  color:#78e5d2;
+  font-weight:900;
+}
+.view.referenceMarkMode .wordToken{
+  cursor:pointer;
+}
+.view.referenceMarkMode .wordToken:active{
+  background:rgba(99,219,199,.16);
+  border-radius:4px;
+}
+body.lightTheme .wordToken.referenceText{
+  color:#087a69!important;
+  text-decoration-color:rgba(8,122,105,.42);
+}
+body.lightTheme .referenceMarkBanner{
+  background:#ecfffb;
+  color:#086f61;
+  border-color:#7ccbbb;
+}
+body.lightTheme .referenceMarkBanner button{
+  background:#fff;
+  color:#086f61;
+  border-color:#7ccbbb;
+}
+body.concertMode .referenceMarkBanner{display:none!important}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -1479,6 +1540,8 @@ body.lightTheme .musicSectionNote{color:#7d6017}
           <button id="settingsInstrumental" type="button">＋ Instrumental</button>
           <button id="settingsDuplicateChordBlock" type="button">⧉ Duplicar bloque</button>
           <button id="settingsDetectRepeats" type="button">⌕ Detectar repeticiones</button>
+          <button id="settingsReferenceText" type="button">◈ Marcar referencia</button>
+          <button id="settingsClearReferences" type="button">✕ Borrar referencias</button>
           <button id="settingsPdfAllChords" type="button">♬ Completar acordes desde PDFs</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
         </div>
@@ -1658,7 +1721,7 @@ body.lightTheme .musicSectionNote{color:#7d6017}
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v49</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v50</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -1790,12 +1853,12 @@ newSongModal.addEventListener('click',function(e){if(e.target===newSongModal)clo
 
 document.getElementById('count').textContent=songs.length+' canciones';
 function songKey(i){return 'quintoElemento.chords.v2.'+i;}
-function emptyData(){return {lines:{},words:{},intro:'',introText:'',instrumentals:{},instrumentalsText:{}};}
+function emptyData(){return {lines:{},words:{},intro:'',introText:'',instrumentals:{},instrumentalsText:{},references:[]};}
 function getChordData(i){
   try{
     var raw=window.localStorage?localStorage.getItem(songKey(i)):null;
     var d=raw?JSON.parse(raw):emptyData();
-    if(!d.lines)d.lines={}; if(!d.words)d.words={}; if(!d.instrumentals)d.instrumentals={}; if(!d.instrumentalsText)d.instrumentalsText={}; if(!d.intro)d.intro=''; if(!d.introText)d.introText='';
+    if(!d.lines)d.lines={}; if(!d.words)d.words={}; if(!d.instrumentals)d.instrumentals={}; if(!d.instrumentalsText)d.instrumentalsText={}; if(!d.intro)d.intro=''; if(!d.introText)d.introText=''; if(!Array.isArray(d.references))d.references=[];
     return d;
   }catch(e){return emptyData();}
 }
@@ -1989,9 +2052,9 @@ function saveSongText(i,text){try{if(window.localStorage)localStorage.setItem(ly
 function restoreSongText(i){try{if(window.localStorage)localStorage.removeItem(lyricKey(i))}catch(e){}}
 function normalizeWords(line){return String(line||'').trim().split(/\s+/).filter(Boolean)}
 function migrateChordData(oldText,newText,data){
-  data=data||{lines:{},words:{},intro:'',introText:'',instrumentals:{},instrumentalsText:{}};
+  data=data||{lines:{},words:{},intro:'',introText:'',instrumentals:{},instrumentalsText:{},references:[]};
   var oldLines=String(oldText||'').split('\n'),newLines=String(newText||'').split('\n');
-  var newData={lines:{},words:{},intro:data.intro||'',introText:data.introText||'',instrumentals:data.instrumentals||{},instrumentalsText:data.instrumentalsText||{}},usedOld={};
+  var newData={lines:{},words:{},intro:data.intro||'',introText:data.introText||'',instrumentals:data.instrumentals||{},instrumentalsText:data.instrumentalsText||{},references:Array.isArray(data.references)?data.references.slice():[]},usedOld={};
   function normLine(s){return String(s||'').toLowerCase().replace(/\s+/g,' ').trim()}
   function bestOldIndex(newLine,newIndex){
     var target=normLine(newLine),i;
@@ -2077,7 +2140,7 @@ function deleteEmptyLyricLine(li){
   lines.splice(li,1);
   var newText=lines.join('\n');
 
-  var nd={lines:{},words:{},intro:d.intro||'',instrumentals:{}};
+  var nd={lines:{},words:{},intro:d.intro||'',introText:d.introText||'',instrumentals:{},instrumentalsText:{},references:[]};
 
   Object.keys(d.lines||{}).forEach(function(k){
     var n=Number(k);
@@ -2100,6 +2163,22 @@ function deleteEmptyLyricLine(li){
     }else{
       nd.instrumentals[target]=val;
     }
+  });
+
+  Object.keys(d.instrumentalsText||{}).forEach(function(k){
+    var b=Number(k),target=b<=li?b:b-1,val=d.instrumentalsText[k];
+    if(val)nd.instrumentalsText[target]=val;
+  });
+
+  (d.references||[]).forEach(function(r){
+    var nr={
+      startLine:Number(r.startLine),startWord:Number(r.startWord),
+      endLine:Number(r.endLine),endWord:Number(r.endWord)
+    };
+    if(nr.startLine>li)nr.startLine--;
+    if(nr.endLine>li)nr.endLine--;
+    if(nr.startLine===li || nr.endLine===li)return;
+    nd.references.push(nr);
   });
 
   saveSongText(current,newText);
@@ -2277,6 +2356,7 @@ function beginMoveWordChord(line,word,value){
   moveWordChordAction={line:Number(line),word:Number(word),value:String(value)};
   updateDuplicateChordBanner();
   updateMoveChordBanner();
+  updateReferenceBanner();
   renderLyrics();
 }
 
@@ -2332,6 +2412,111 @@ function deleteWordChordAt(line,word){
     moveWordChordAction=null;
     updateMoveChordBanner();
   }
+  renderLyrics();
+  showSavedToast();
+}
+
+
+var referenceMarkMode=false;
+var referenceStart=null;
+
+function compareWordPos(a,b){
+  if(a.line!==b.line)return a.line-b.line;
+  return a.word-b.word;
+}
+function normalizedReference(a,b){
+  if(compareWordPos(a,b)<=0)return {startLine:a.line,startWord:a.word,endLine:b.line,endWord:b.word};
+  return {startLine:b.line,startWord:b.word,endLine:a.line,endWord:a.word};
+}
+function wordInReference(li,wi,r){
+  if(!r)return false;
+  var p={line:Number(li),word:Number(wi)};
+  var a={line:Number(r.startLine),word:Number(r.startWord)};
+  var b={line:Number(r.endLine),word:Number(r.endWord)};
+  return compareWordPos(p,a)>=0 && compareWordPos(p,b)<=0;
+}
+function findReferenceAt(d,li,wi){
+  var refs=(d&&Array.isArray(d.references))?d.references:[];
+  for(var i=0;i<refs.length;i++)if(wordInReference(li,wi,refs[i]))return i;
+  return -1;
+}
+function updateReferenceBanner(){
+  var old=document.getElementById('referenceMarkBanner');
+  if(old)old.remove();
+  view.classList.toggle('referenceMarkMode',referenceMarkMode);
+  if(!referenceMarkMode)return;
+  var b=document.createElement('div');
+  b.id='referenceMarkBanner';
+  b.className='referenceMarkBanner';
+  var msg=document.createElement('span');
+  msg.textContent=referenceStart?
+    '2/2 · Toca la ÚLTIMA palabra de la referencia.' :
+    '1/2 · Toca la PRIMERA palabra. Si tocas una referencia ya marcada, podrás borrarla.';
+  b.appendChild(msg);
+  var cancel=document.createElement('button');
+  cancel.type='button';
+  cancel.textContent='Salir';
+  cancel.onclick=function(){cancelReferenceMode()};
+  b.appendChild(cancel);
+  ly.parentNode.insertBefore(b,ly);
+}
+function startReferenceMode(){
+  if(current<0)return;
+  editingChords=false;
+  placingInstrumental=false;
+  instrumentAction=null;
+  moveWordChordAction=null;
+  blockDuplicateMode=false;
+  blockDuplicateStart=null;
+  blockDuplicateEnd=null;
+  referenceMarkMode=true;
+  referenceStart=null;
+  renderLyrics();
+}
+function cancelReferenceMode(){
+  referenceMarkMode=false;
+  referenceStart=null;
+  updateReferenceBanner();
+  renderLyrics();
+}
+function handleReferenceWord(li,wi){
+  if(!referenceMarkMode)return false;
+  var d=getChordData(current);
+  var existing=findReferenceAt(d,li,wi);
+
+  if(referenceStart===null && existing>=0){
+    if(confirm('Esta parte ya está marcada como referencia. ¿Quieres quitar el color?')){
+      d.references.splice(existing,1);
+      saveChordData(current,d);
+      renderLyrics();
+      showSavedToast();
+    }
+    return true;
+  }
+
+  if(referenceStart===null){
+    referenceStart={line:Number(li),word:Number(wi)};
+    renderLyrics();
+    return true;
+  }
+
+  var r=normalizedReference(referenceStart,{line:Number(li),word:Number(wi)});
+  d.references=d.references||[];
+  d.references.push(r);
+  saveChordData(current,d);
+  referenceStart=null;
+  renderLyrics();
+  showSavedToast();
+  return true;
+}
+function clearReferences(){
+  if(current<0)return;
+  var d=getChordData(current);
+  if(!d.references||!d.references.length)return;
+  if(!confirm('¿Borrar todas las referencias de color de esta canción?'))return;
+  d.references=[];
+  saveChordData(current,d);
+  referenceStart=null;
   renderLyrics();
   showSavedToast();
 }
@@ -2426,7 +2611,15 @@ function renderLyrics(){
         var token=document.createElement('span');
         token.className='wordToken';
         token.textContent=word;
+        if(findReferenceAt(d,li,wi)>=0)token.classList.add('referenceText');
+        if(referenceMarkMode && referenceStart && referenceStart.line===li && referenceStart.word===wi){
+          token.classList.add('referenceStartWord');
+        }
         token.onclick=function(){
+          if(referenceMarkMode){
+            handleReferenceWord(li,wi);
+            return;
+          }
           if(!editingChords)return;
           if(moveWordChordAction){
             placeMovedWordChord(li,wi);
@@ -2506,8 +2699,8 @@ function saveSongFontSize(){
   try{localStorage.setItem(songFontSizeKey(current),String(size))}catch(e){}
 }
 
-function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
-function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null}
+function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
+function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null}
 q.oninput=function(){render(q.value)};
 document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
 document.getElementById('prev').onclick=function(){
@@ -2925,6 +3118,18 @@ buildPicker();render('');
     },50);
   });
 
+  var referenceTextBtn=document.getElementById('settingsReferenceText');
+  if(referenceTextBtn)referenceTextBtn.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){startReferenceMode();setTimeout(sync,50)},30);
+  });
+
+  var clearReferencesBtn=document.getElementById('settingsClearReferences');
+  if(clearReferencesBtn)clearReferencesBtn.addEventListener('click',function(){
+    shut();
+    setTimeout(function(){clearReferences();setTimeout(sync,50)},30);
+  });
+
   var detectRepeatsBtn=document.getElementById('settingsDetectRepeats');
   if(detectRepeatsBtn)detectRepeatsBtn.addEventListener('click',function(){
     shut();
@@ -2973,7 +3178,7 @@ buildPicker();render('');
   function sync(){
     var src;
     var hasSong=(typeof current!=='undefined' && current>=0);
-    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsDetectRepeats','settingsClearChords','settingsConcertMode','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
+    ['settingsChordMode','settingsEditLyrics','settingsIntro','settingsInstrumental','settingsDuplicateChordBlock','settingsDetectRepeats','settingsReferenceText','settingsClearReferences','settingsClearChords','settingsConcertMode','settingsScrollToggle','settingsScrollReset'].forEach(function(id){
       var el=document.getElementById(id);
       if(el)el.disabled=!hasSong;
     });
@@ -3496,7 +3701,7 @@ buildPicker();render('');
 
 </script>
 <script>
-const APP_VERSION=49;
+const APP_VERSION=50;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -3585,7 +3790,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=49',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=50',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
