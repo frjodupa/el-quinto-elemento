@@ -2808,6 +2808,78 @@ instrumentTool.onclick=function(){
 };
 clearChords.onclick=function(){if(current<0)return;if(confirm('¿Borrar todos los acordes, INTRO e INSTRUMENTALES de esta canción?')){try{localStorage.removeItem(songKey(current))}catch(e){}placingInstrumental=false;renderLyrics()}};
 document.addEventListener('keydown',function(e){if(!view.classList.contains('on'))return;if(e.key==='Escape'){if(chordModal.classList.contains('on'))closePicker();else closeSong()}if(e.key==='ArrowRight'&&!editingChords)document.getElementById('next').click();if(e.key==='ArrowLeft'&&!editingChords)document.getElementById('prev').click()});
+
+// v53 · Swipe horizontal reforzado en canción individual y pases
+(function(){
+  var host=document.getElementById('view');
+  if(!host)return;
+
+  var sx=null,sy=null,lastX=null,lastY=null,axis=null,moved=false;
+  var H_THRESHOLD=72;
+  var AXIS_LOCK=12;
+  var DOMINANCE=1.35;
+
+  function interactiveTarget(t){
+    if(!t||!t.closest)return false;
+    return !!t.closest('button,input,textarea,select,a,[contenteditable="true"],.chordModal,.settingsModal,.passModal,.newSongModal,.lyricEditModal');
+  }
+
+  function reset(){
+    sx=sy=lastX=lastY=null;
+    axis=null;
+    moved=false;
+  }
+
+  host.addEventListener('touchstart',function(e){
+    if(!host.classList.contains('on'))return;
+    if(!e.touches||e.touches.length!==1)return;
+    if(interactiveTarget(e.target)){reset();return}
+    var t=e.touches[0];
+    sx=lastX=t.clientX;
+    sy=lastY=t.clientY;
+    axis=null;
+    moved=false;
+  },{passive:true});
+
+  host.addEventListener('touchmove',function(e){
+    if(sx===null||!e.touches||e.touches.length!==1)return;
+    var t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;
+    lastX=t.clientX; lastY=t.clientY;
+
+    if(!axis){
+      if(Math.abs(dx)<AXIS_LOCK && Math.abs(dy)<AXIS_LOCK)return;
+      if(Math.abs(dy)>=Math.abs(dx)*DOMINANCE)axis='v';
+      else if(Math.abs(dx)>=Math.abs(dy)*DOMINANCE)axis='h';
+      else axis='v';
+    }
+
+    if(axis==='h'){
+      moved=true;
+      // Una vez claramente horizontal, evitamos que Safari convierta el gesto en scroll vertical.
+      if(e.cancelable)e.preventDefault();
+    }
+    // En eje vertical no prevenimos nada: el scroll vertical queda intacto y prioritario.
+  },{passive:false});
+
+  host.addEventListener('touchend',function(e){
+    if(sx===null){reset();return}
+    var ex=(e.changedTouches&&e.changedTouches.length)?e.changedTouches[0].clientX:lastX;
+    var ey=(e.changedTouches&&e.changedTouches.length)?e.changedTouches[0].clientY:lastY;
+    var dx=(ex===null?0:ex-sx),dy=(ey===null?0:ey-sy);
+    var doSwipe=axis==='h' && moved && Math.abs(dx)>=H_THRESHOLD && Math.abs(dx)>=Math.abs(dy)*DOMINANCE;
+    reset();
+    if(!doSwipe)return;
+
+    if(dx<0){
+      var n=document.getElementById('next'); if(n)n.click();
+    }else{
+      var p=document.getElementById('prev'); if(p)p.click();
+    }
+  },{passive:true});
+
+  host.addEventListener('touchcancel',reset,{passive:true});
+})();
+
 buildPicker();render('');bindGlobalUndoButtons();
 </script>
 <script>
@@ -3896,7 +3968,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=52;
+const APP_VERSION=53;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
