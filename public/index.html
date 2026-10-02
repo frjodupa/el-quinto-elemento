@@ -1651,6 +1651,9 @@ body.lightTheme .globalUndoBtn{
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
           <button id="settingsBackup" type="button">💾 Copia / Importar</button>
+          <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
+          <input id="laPasmaImportInput" type="file" accept="application/json,.json" style="display:none">
+          <div id="laPasmaImportStatus" style="grid-column:1/-1;color:#e6c36a;font-weight:800;font-size:.84rem"></div>
         </div>
       </section>
     </div>
@@ -3768,7 +3771,132 @@ buildPicker();render('');bindGlobalUndoButtons();
 
 </script>
 <script>
-const APP_VERSION=51;
+/* v52 · Importación segura de LA PASMA (NUEVA)
+   No sobrescribe canciones existentes: sólo añade títulos ausentes
+   y reconstruye el pase ya creado respetando el orden de 23 canciones. */
+(function(){
+  var ORDER=[
+    'CIEN GAVIOTAS','CLAVADO EN UN BAR','ESCUELA DE CALOR','HACE CALOR',
+    'LOBO-HOMBRE EN PARÍS','MIL CALLES LLEVAN HACIA TI','SABOR DE AMOR','EL LÍMITE',
+    'LA CHICA DE AYER','EL RITMO DEL GARAJE','SALTA','NO PUEDO VIVIR SIN TI',
+    'ESO QUE TÚ ME DAS','INSURRECCIÓN','QUERIDA MILAGROS','ENAMORADO DE LA MODA JUVENIL',
+    'ADIÓS PAPÁ','CADILLAC SOLITARIO','CAROLINA','CUANDO BRILLE EL SOL',
+    'DÉJAME','FRÍO','MIÑA TERRA GALEGA'
+  ];
+  var PASS_NAME='LA PASMA (NUEVA)';
+  var PASSES_KEY='quintoElemento.passes.v1';
+
+  function key(s){
+    return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim();
+  }
+  function status(msg){
+    var el=document.getElementById('laPasmaImportStatus');
+    if(el)el.textContent=msg||'';
+  }
+  function rebuildSongs(cs){
+    if(!Array.isArray(window.songs)||typeof window.baseSongCount!=='number')return;
+    songs.splice(baseSongCount);
+    cs.forEach(function(s){
+      if(s&&s.title&&s.text){
+        songs.push({
+          title:typeof normalizeMasterTitle==='function'?normalizeMasterTitle(s.title):String(s.title).toUpperCase(),
+          text:typeof normalizeMasterText==='function'?normalizeMasterText(s.text):String(s.text)
+        });
+      }
+    });
+  }
+  function songIndexMap(){
+    var m={};
+    (songs||[]).forEach(function(s,i){
+      var k=key(s&&s.title);
+      if(k && m[k]===undefined)m[k]=i;
+    });
+    return m;
+  }
+  function applyPackage(pkg){
+    if(!pkg||!Array.isArray(pkg.songs))throw new Error('El archivo no contiene canciones válidas.');
+    var cs=typeof loadCustomSongs==='function'?loadCustomSongs():[];
+    if(!Array.isArray(cs))cs=[];
+    rebuildSongs(cs);
+    var map=songIndexMap();
+    var added=0;
+
+    pkg.songs.forEach(function(s){
+      if(!s||!s.title||!s.text)return;
+      var k=key(s.title);
+      if(map[k]!==undefined)return;
+      var item={
+        title:typeof normalizeMasterTitle==='function'?normalizeMasterTitle(s.title):String(s.title).toUpperCase(),
+        text:typeof normalizeMasterText==='function'?normalizeMasterText(s.text):String(s.text)
+      };
+      cs.push(item);
+      songs.push({title:item.title,text:item.text});
+      map[k]=songs.length-1;
+      added++;
+    });
+
+    if(typeof saveCustomSongs==='function')saveCustomSongs(cs);
+    else localStorage.setItem('quintoElemento.customSongs.v1',JSON.stringify(cs));
+
+    map=songIndexMap();
+    var missing=ORDER.filter(function(t){return map[key(t)]===undefined;});
+    if(missing.length)throw new Error('Faltan canciones: '+missing.join(', '));
+
+    var passes=[];
+    try{passes=JSON.parse(localStorage.getItem(PASSES_KEY)||'[]')}catch(e){passes=[]}
+    if(!Array.isArray(passes))passes=[];
+    var target=null;
+    for(var i=0;i<passes.length;i++){
+      if(key(passes[i]&&passes[i].name)===key(PASS_NAME)){target=passes[i];break;}
+    }
+    if(!target)throw new Error('No encuentro el pase “'+PASS_NAME+'”. Créalo primero y vuelve a importar.');
+
+    target.songs=ORDER.map(function(t){return map[key(t)];});
+    localStorage.setItem(PASSES_KEY,JSON.stringify(passes));
+    localStorage.setItem('quintoElemento.laPasmaImport.v52',String(Date.now()));
+
+    if(typeof render==='function')render('');
+    if(window.updateCount)window.updateCount();
+    status('✓ LA PASMA cargada: 23 canciones · '+added+' nuevas.');
+    var modal=document.getElementById('settingsModal');
+    if(modal){modal.classList.remove('on');modal.setAttribute('aria-hidden','true');}
+    setTimeout(function(){
+      alert('LA PASMA (NUEVA) preparada con 23 canciones. Nuevas añadidas: '+added+'. Los cambios se sincronizarán con Cloudflare.');
+    },50);
+  }
+
+  window.addEventListener('load',function(){
+    var btn=document.getElementById('settingsImportLaPasma');
+    var input=document.getElementById('laPasmaImportInput');
+    if(!btn||!input)return;
+    btn.addEventListener('click',function(){
+      status('Selecciona el archivo LA_PASMA_v52_seed.json.');
+      input.value='';
+      input.click();
+    });
+    input.addEventListener('change',function(){
+      var file=input.files&&input.files[0];
+      if(!file)return;
+      status('Leyendo paquete de LA PASMA…');
+      var reader=new FileReader();
+      reader.onload=function(){
+        try{
+          var pkg=JSON.parse(String(reader.result||'{}'));
+          applyPackage(pkg);
+        }catch(err){
+          status('✕ '+String(err&&err.message||err));
+          alert('No se pudo cargar LA PASMA: '+String(err&&err.message||err));
+        }
+      };
+      reader.onerror=function(){status('✕ No se pudo leer el archivo.');};
+      reader.readAsText(file,'utf-8');
+    });
+  });
+})();
+</script>
+
+<script>
+const APP_VERSION=52;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
