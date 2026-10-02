@@ -1,4 +1,4 @@
-const CACHE='quinto-elemento-v52';
+const CACHE='quinto-elemento-v53';
 const CORE=[
   './',
   './index.html',
