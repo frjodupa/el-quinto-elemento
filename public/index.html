@@ -1554,6 +1554,7 @@ body.lightTheme .globalUndoBtn{
     <div class="passDetailTop">
       <button id="startPassBtn" type="button" class="primary">▶ Empezar pase</button>
       <button id="renamePassBtn" type="button">✎ Renombrar</button>
+      <button id="duplicatePassBtn" type="button">⧉ Duplicar pase</button>
       <button id="deletePassBtn" type="button" class="danger">Eliminar pase</button>
     </div>
     <div style="padding:10px;border:1px solid #494949;border-radius:10px;margin:10px 0">
@@ -1634,6 +1635,36 @@ body.lightTheme .globalUndoBtn{
           <span id="settingsSpeedValue">5</span>
           <button id="settingsScrollReset" type="button">↺ Reiniciar</button>
         </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Directo y ficha musical</h3>
+        <div class="settingsGrid">
+          <button id="qeDirectMode" type="button">🎤 Activar modo directo</button>
+          <button id="qeCountIn" type="button">1·2·3·4 Entrada</button>
+        </div>
+        <div id="qeSongMeta" style="margin-top:10px;display:grid;gap:8px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <label>BPM<input id="qeBpm" inputmode="numeric" type="number" min="20" max="300" style="width:100%;box-sizing:border-box;min-height:42px"></label>
+            <label>Compás<select id="qeMeter" style="width:100%;min-height:42px"><option value="">—</option><option>4/4</option><option>3/4</option><option>6/8</option><option>2/4</option></select></label>
+          </div>
+          <label>Colecciones / etiquetas<input id="qeTags" type="text" placeholder="MP5, Ensayo, 80, Rock…" style="width:100%;box-sizing:border-box;min-height:42px"></label>
+          <label>Notas privadas de directo<textarea id="qeNotes" rows="3" placeholder="Final seco, María empieza, enganchar con siguiente…" style="width:100%;box-sizing:border-box"></textarea></label>
+          <label>Estructura musical<textarea id="qeStructure" rows="3" placeholder="INTRO · ESTROFA · ESTRIBILLO · SOLO · FINAL" style="width:100%;box-sizing:border-box"></textarea></label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap"><label><input id="qeLyricsOk" type="checkbox"> Letra revisada</label><label><input id="qeChordsOk" type="checkbox"> Acordes revisados</label><label><input id="qeReady" type="checkbox"> Lista para directo</label></div>
+          <button id="qeSaveMeta" type="button" class="primary">✓ Guardar ficha de la canción</button>
+        </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Estado del cancionero</h3>
+        <div id="qeHealth" class="cloudSyncDetail">Calculando…</div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Instalación</h3>
+        <div class="settingsGrid"><button id="qeInstall" type="button">＋ Instalar El Quinto Elemento</button></div>
+        <div id="qeInstallHelp" class="cloudSyncDetail">En iPad/iPhone: Compartir → Añadir a pantalla de inicio.</div>
       </section>
 
       <section class="settingsGroup">
@@ -4087,7 +4118,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=57;
+const APP_VERSION=58;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4853,6 +4884,95 @@ if('serviceWorker' in navigator){
         if(window.updateUndoChordButton)window.updateUndoChordButton();
       },40);
     }
+  });
+})();
+</script>
+<style>
+body.qeDirect .bar #settingsBtn,body.qeDirect .bar #chordMode,body.qeDirect .bar #saveChordEdit,body.qeDirect .bar #undoChordBtn,body.qeDirect .bar #introTool,body.qeDirect .bar #instrumentTool,body.qeDirect .bar #clearChords,body.qeDirect .bar #editLyrics,body.qeDirect .bar #appUpdateBtn,body.qeDirect .bar #themeToggleView,body.qeDirect .bar #minus,body.qeDirect .bar #plus{display:none!important}
+body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
+#qeLiveMeta{font-size:.82rem;color:#e6c36a;font-weight:800;margin:-8px 0 12px}
+#qeLiveNotes{padding:9px 12px;border-left:3px solid #e6c36a;background:#181818;margin:0 0 12px;font-size:.9rem}
+#qeCountOverlay{position:fixed;inset:0;z-index:99999;background:#050505eF;color:#e6c36a;display:none;align-items:center;justify-content:center;font-size:min(45vw,320px);font-weight:900}
+.songStatusBadge{font-size:.68rem;opacity:.8;margin-left:6px}
+</style>
+<div id="qeCountOverlay" aria-live="assertive"></div>
+<script>
+(function(){
+  var META_PREFIX='quintoElemento.songMeta.v1.';
+  function metaKey(i){return META_PREFIX+i}
+  function loadMeta(i){try{return JSON.parse(localStorage.getItem(metaKey(i))||'{}')||{}}catch(e){return {}}}
+  function saveMeta(i,m){try{localStorage.setItem(metaKey(i),JSON.stringify(m))}catch(e){}}
+  function fields(){
+    return {bpm:document.getElementById('qeBpm'),meter:document.getElementById('qeMeter'),tags:document.getElementById('qeTags'),notes:document.getElementById('qeNotes'),structure:document.getElementById('qeStructure'),lyricsOk:document.getElementById('qeLyricsOk'),chordsOk:document.getElementById('qeChordsOk'),ready:document.getElementById('qeReady')};
+  }
+  function loadForm(){
+    if(typeof current==='undefined'||current<0)return;
+    var m=loadMeta(current),f=fields();
+    f.bpm.value=m.bpm||'';f.meter.value=m.meter||'';f.tags.value=m.tags||'';f.notes.value=m.notes||'';f.structure.value=m.structure||'';
+    f.lyricsOk.checked=!!m.lyricsOk;f.chordsOk.checked=!!m.chordsOk;f.ready.checked=!!m.ready;
+    renderLiveMeta();updateHealth();
+  }
+  function renderLiveMeta(){
+    if(typeof current==='undefined'||current<0)return;
+    var title=document.getElementById('st');if(!title)return;
+    var m=loadMeta(current),id='qeLiveMeta',el=document.getElementById(id);
+    if(!el){el=document.createElement('div');el.id=id;title.insertAdjacentElement('afterend',el)}
+    var parts=[];if(m.bpm)parts.push(m.bpm+' BPM');if(m.meter)parts.push(m.meter);if(m.tags)parts.push(m.tags);
+    el.textContent=parts.join(' · ');
+    var notes=document.getElementById('qeLiveNotes');
+    if(!notes){notes=document.createElement('div');notes.id='qeLiveNotes';el.insertAdjacentElement('afterend',notes)}
+    var txt=[];if(m.structure)txt.push(m.structure);if(m.notes)txt.push(m.notes);
+    notes.textContent=txt.join(' · ');notes.style.display=txt.length?'block':'none';
+  }
+  function updateHealth(){
+    var el=document.getElementById('qeHealth');if(!el||typeof songs==='undefined')return;
+    var ready=0,lyrics=0,chords=0,withChordData=0;
+    songs.forEach(function(s,i){
+      var m=loadMeta(i);if(m.ready)ready++;if(m.lyricsOk)lyrics++;if(m.chordsOk)chords++;
+      try{var d=getChordData(i);if(d.intro||Object.keys(d.lines||{}).length||Object.keys(d.words||{}).length||Object.keys(d.instrumentals||{}).length)withChordData++}catch(e){}
+    });
+    el.textContent=songs.length+' canciones · '+withChordData+' con datos de acordes · '+lyrics+' letras revisadas · '+chords+' acordes revisados · '+ready+' listas para directo';
+  }
+  window.qeLoadSongMeta=loadForm;
+  window.qeSongMeta=loadMeta;
+  window.addEventListener('load',function(){
+    var save=document.getElementById('qeSaveMeta');
+    if(save)save.addEventListener('click',function(){
+      if(current<0){alert('Abre una canción.');return}
+      var f=fields();saveMeta(current,{bpm:String(f.bpm.value||''),meter:f.meter.value,tags:f.tags.value.trim(),notes:f.notes.value.trim(),structure:f.structure.value.trim(),lyricsOk:f.lyricsOk.checked,chordsOk:f.chordsOk.checked,ready:f.ready.checked});
+      renderLiveMeta();updateHealth();if(typeof render==='function')render(q.value||'');alert('Ficha guardada para esta canción.');
+    });
+    var direct=document.getElementById('qeDirectMode');
+    if(direct)direct.addEventListener('click',function(){document.body.classList.toggle('qeDirect');direct.textContent=document.body.classList.contains('qeDirect')?'✕ Salir de modo directo':'🎤 Activar modo directo'});
+    var count=document.getElementById('qeCountIn'),overlay=document.getElementById('qeCountOverlay');
+    if(count)count.addEventListener('click',function(){var n=1;overlay.style.display='flex';overlay.textContent=n;var t=setInterval(function(){n++;if(n>4){clearInterval(t);overlay.style.display='none';return}overlay.textContent=n},650)});
+    var install=document.getElementById('qeInstall'),deferred=null;
+    window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
+    if(install)install.addEventListener('click',function(){if(deferred){deferred.prompt();return}alert('En iPad/iPhone: abre Compartir y pulsa “Añadir a pantalla de inicio”.')});
+    updateHealth();
+  });
+  if(typeof openSong==='function'){var qeOpenSong=openSong;openSong=function(i){qeOpenSong(i);loadForm()}}
+  if(typeof render==='function'){var qeRender=render;render=function(f){
+    var original=f||'',needle=original.toLowerCase();
+    if(!needle){qeRender(original);decorate();return}
+    grid.innerHTML='';var n=0;
+    songs.forEach(function(song,i){var title=getSongTitle(i),m=loadMeta(i),hay=(title+' '+(m.tags||'')+' '+(m.bpm||'')+' '+(m.meter||'')).toLowerCase();if(hay.indexOf(needle)<0)return;n++;var b=document.createElement('button');b.className='songBtn';b.textContent=title;b.onclick=function(){if(window.passSelectionClick&&window.passSelectionClick(i))return;openSong(i)};if(window.decoratePassSongButton)window.decoratePassSongButton(b,i);if(m.ready){var badge=document.createElement('span');badge.className='songStatusBadge';badge.textContent=' ✓';b.appendChild(badge)}grid.appendChild(b)});
+    if(!n)grid.innerHTML='<div class="empty">No se encontraron canciones.</div>';
+  }}
+  function decorate(){}
+})();
+</script>
+<script>
+(function(){
+  window.addEventListener('load',function(){
+    var dup=document.getElementById('duplicatePassBtn');if(!dup)return;
+    dup.addEventListener('click',function(){
+      try{
+        var key='quintoElemento.passes.v1',arr=JSON.parse(localStorage.getItem(key)||'[]'),p=arr.find(function(x){return x.id===currentPassId});if(!p)return;
+        var copy={id:'p'+Date.now().toString(36),name:p.name+' · COPIA',songs:(p.songs||[]).slice(),createdAt:new Date().toISOString()};
+        arr.push(copy);localStorage.setItem(key,JSON.stringify(arr));currentPassId=copy.id;renderPassDetail();alert('Pase duplicado.');
+      }catch(e){alert('No se pudo duplicar el pase.')}
+    });
   });
 })();
 </script>
