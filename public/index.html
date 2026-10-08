@@ -1563,7 +1563,7 @@ body.lightTheme .globalUndoBtn{
       <button id="renamePassBtn" type="button">✎ Renombrar</button>
       <button id="duplicatePassBtn" type="button">⧉ Duplicar pase</button>
       <button id="sharePassBtn" type="button">↗ Compartir pase</button>
-      <button id="printPassBtn" type="button">🖨 Imprimir / PDF</button>
+      <button id="printPassBtn" type="button">🖨 Imprimir títulos / PDF</button>
       <button id="deletePassBtn" type="button" class="danger">Eliminar pase</button>
     </div>
     <div style="padding:10px;border:1px solid #494949;border-radius:10px;margin:10px 0">
@@ -1709,7 +1709,7 @@ body.lightTheme .globalUndoBtn{
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
           <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
-          <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
+          <button id="qeGuideBtn" type="button">? Guía de uso</button>
           <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
           <input id="laPasmaImportInput" type="file" accept="application/json,.json" style="display:none">
@@ -1721,6 +1721,21 @@ body.lightTheme .globalUndoBtn{
 </div>
 
 
+
+<div id="qeGuideModal" class="settingsModal" aria-hidden="true">
+  <div class="settingsPanel">
+    <div class="settingsHead"><strong>GUÍA DE USO</strong><button id="qeGuideClose" type="button">Cerrar</button></div>
+    <div class="settingsBody" style="line-height:1.45">
+      <section class="settingsGroup"><h3>1. Canciones</h3><p>Busca una canción por título, etiqueta, BPM o compás. Tócala para abrir la letra estructurada con sus acordes.</p></section>
+      <section class="settingsGroup"><h3>2. Acordes y tonalidad</h3><p>Desde Ajustes puedes editar acordes, completar los disponibles, transponer y guardar una tonalidad específica para directo. Los cambios se guardan por canción.</p></section>
+      <section class="settingsGroup"><h3>3. Pases</h3><p>Crea pases, añade canciones, reordénalas y toca directamente el título para abrir una canción. Puedes duplicar, compartir o imprimir el pase.</p></section>
+      <section class="settingsGroup"><h3>4. Imprimir y enviar</h3><p>En un pase pulsa “Imprimir títulos / PDF”. Se genera una guía limpia con sólo los títulos, preparada para imprimir o guardar como PDF y enviarla. “Compartir pase” envía la lista de títulos.</p></section>
+      <section class="settingsGroup"><h3>5. Directo</h3><p>El Modo Directo simplifica la pantalla. Puedes guardar BPM, compás, estructura, notas privadas y estado de revisión de cada canción, además de usar scroll automático y cuenta 1·2·3·4.</p></section>
+      <section class="settingsGroup"><h3>6. Compartir la app</h3><p>“Compartir cancionero” envía el enlace de la PWA. El permiso de edición para otras personas se gestionará mediante acceso autorizado; compartir el enlace por sí solo no debe conceder permisos de edición.</p></section>
+      <section class="settingsGroup"><h3>7. Seguridad</h3><p>Usa las copias automáticas y la sincronización antes de cambios importantes. Las modificaciones del repertorio deben conservar tus letras, acordes, pases y tonalidades guardadas.</p></section>
+    </div>
+  </div>
+</div>
 
 <div id="repeatDetectModal" class="repeatDetectModal" aria-hidden="true">
   <div class="repeatDetectPanel">
@@ -3717,13 +3732,11 @@ buildPicker();render('');bindGlobalUndoButtons();
   function passPrintHtml(p){
     var items=(p.songs||[]).map(function(songIndex,pos){
       if(!songs[songIndex])return '';
-      var m=(window.qeSongMeta&&window.qeSongMeta(songIndex))||{};
-      var meta=[];if(m.bpm)meta.push(m.bpm+' BPM');if(m.meter)meta.push(m.meter);if(m.tags)meta.push(m.tags);
-      return '<li><strong>'+escapeHtml(getSongTitle(songIndex))+'</strong>'+(meta.length?'<span>'+escapeHtml(meta.join(' · '))+'</span>':'')+'</li>';
+      return '<li><strong>'+escapeHtml(getSongTitle(songIndex))+'</strong></li>';
     }).join('');
-    return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}li span{display:block;color:#666;font-size:12px;margin-top:3px}@media print{body{margin:18mm}}</style></head><body><h1>'+escapeHtml(p.name)+'</h1><p>'+(p.songs||[]).length+' canciones · El Quinto Elemento</p><ol>'+items+'</ol><script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>';
+    return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}}</style></head><body><h1>'+escapeHtml(p.name)+'</h1><p>'+(p.songs||[]).length+' canciones · El Quinto Elemento</p><ol>'+items+'</ol><script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>';
   }
-  function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+    function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
   var sharePassBtn=document.getElementById('sharePassBtn');
   if(sharePassBtn)sharePassBtn.addEventListener('click',function(){
     var p=getPass(currentPassId);if(!p)return;var data={title:p.name,text:passPlainText(p)};
@@ -4188,7 +4201,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=62;
+const APP_VERSION=63;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5047,7 +5060,11 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     if(direct)direct.addEventListener('click',function(){document.body.classList.toggle('qeDirect');direct.textContent=document.body.classList.contains('qeDirect')?'✕ Salir de modo directo':'🎤 Activar modo directo'});
     var count=document.getElementById('qeCountIn'),overlay=document.getElementById('qeCountOverlay');
     if(count)count.addEventListener('click',function(){var n=1;overlay.style.display='flex';overlay.textContent=n;var t=setInterval(function(){n++;if(n>4){clearInterval(t);overlay.style.display='none';return}overlay.textContent=n},650)});
-    var shareApp=document.getElementById('qeShareApp');
+    var guideBtn=document.getElementById('qeGuideBtn'),guideModal=document.getElementById('qeGuideModal'),guideClose=document.getElementById('qeGuideClose');
+    if(guideBtn&&guideModal)guideBtn.addEventListener('click',function(){guideModal.classList.add('on')});
+    if(guideClose&&guideModal)guideClose.addEventListener('click',function(){guideModal.classList.remove('on')});
+    if(guideModal)guideModal.addEventListener('click',function(e){if(e.target===guideModal)guideModal.classList.remove('on')});
+        var shareApp=document.getElementById('qeShareApp');
     if(shareApp)shareApp.addEventListener('click',function(){
       var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:location.href};
       if(navigator.share){navigator.share(data).catch(function(){})}
