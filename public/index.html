@@ -1821,7 +1821,7 @@ body.lightTheme .globalUndoBtn{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v52</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v61</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="shareSongbookIndex" class="newSongBtn" type="button">↗ Compartir</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -4876,6 +4876,21 @@ if('serviceWorker' in navigator){
           added+=splitSeq(entry[1]).length||1;
         }
       });
+
+      // Si el documento fuente declara expresamente un patrón para toda la canción,
+      // completar sólo las líneas que aún no tienen ningún acorde. Nunca sobrescribir.
+      if(seed.pattern&&seed.pattern.scope==='song'&&seed.pattern.sequence&&seed.pattern.sequence.length){
+        var patternSeq=seed.pattern.sequence.join(' · ');
+        lines.forEach(function(line,pli){
+          if(!String(line||'').trim())return;
+          if(d.lines[pli]){preserved++;return}
+          var hasWordChord=false,prefix=pli+':';
+          Object.keys(d.words||{}).some(function(k){if(k.indexOf(prefix)===0&&d.words[k]){hasWordChord=true;return true}return false});
+          if(hasWordChord){preserved++;return}
+          d.lines[pli]=patternSeq;
+          added+=seed.pattern.sequence.length;
+        });
+      }
 
       if(added>0){
         saveChordData(songIndex,d);
