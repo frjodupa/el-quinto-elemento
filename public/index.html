@@ -2998,8 +2998,9 @@ buildPicker();render('');bindGlobalUndoButtons();
       if(current<0){alert('Abre una canción.');return}
       var stored=readBase(current);
       if(stored===null){
-        alert('Selecciona y guarda primero la tonalidad de referencia real de esta canción.');
-        return;
+        if(!confirm('¿Confirmas que '+KEY_NAMES[Number(base.value)]+' es la tonalidad de referencia original de esta canción?'))return;
+        stored=Number(base.value);
+        localStorage.setItem(keyMeta(current),String(stored));
       }
       var wanted=Number(target.value);
       var actual=(stored+getOffset(current)+12)%12;
