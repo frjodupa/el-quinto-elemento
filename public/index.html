@@ -1593,6 +1593,16 @@ body.lightTheme .globalUndoBtn{
             <span>Transposición</span>
             <strong id="transposeValue">ORIGINAL</strong>
           </div>
+          <div class="transposeDirect" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px">
+            <label style="font-size:.82rem;color:#ddd">Tonalidad de referencia
+              <select id="transposeBaseKey" style="width:100%;min-height:46px;margin-top:5px;background:#202126;color:#fff;border:1px solid #555;border-radius:9px;padding:8px"></select>
+            </label>
+            <label style="font-size:.82rem;color:#ddd">Tonalidad deseada
+              <select id="transposeTargetKey" style="width:100%;min-height:46px;margin-top:5px;background:#202126;color:#fff;border:1px solid #555;border-radius:9px;padding:8px"></select>
+            </label>
+          </div>
+          <button id="transposeApplyKey" type="button" style="width:100%;min-height:46px;margin-bottom:10px;border-radius:10px;border:1px solid #e6c36a;background:#e6c36a;color:#111;font-weight:900">Aplicar y guardar tonalidad</button>
+          <div id="transposeKeyHelp" style="font-size:.8rem;color:#aaa;margin-bottom:10px">Indica la tonalidad original de esta canción. La elección queda guardada por canción.</div>
           <div class="transposeControls">
             <button id="transposeDown" type="button">♭ −1</button>
             <button id="transposeReset" type="button">↺ Original</button>
@@ -2948,6 +2958,62 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(value)value.textContent=valid?offsetLabel(n):'ABRE UNA CANCIÓN';
     if(badge){if(valid&&n){badge.style.display='block';badge.textContent='TONALIDAD · '+offsetLabel(n)}else{badge.style.display='none';badge.textContent=''}}
   }
+  // v55: selector directo de tonalidad por canción, sin inferir tonalidades ambiguas.
+  var KEY_NAMES=['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
+  function keyMeta(i){return 'quintoElemento.tonalidadReferencia.song.'+i}
+  function readBase(i){
+    try{var x=localStorage.getItem(keyMeta(i));return x===null?null:((Number(x)%12+12)%12)}catch(e){return null}
+  }
+  function keyUI(){
+    var base=document.getElementById('transposeBaseKey'),target=document.getElementById('transposeTargetKey'),help=document.getElementById('transposeKeyHelp');
+    if(!base||!target)return;
+    var valid=typeof current!=='undefined'&&current>=0;
+    var stored=valid?readBase(current):null;
+    var offset=valid?getOffset(current):0;
+    var initial=stored===null?0:stored;
+    base.value=String(initial);
+    target.value=String((initial+offset+12)%12);
+    if(help)help.textContent=stored===null?
+      'Selecciona primero la tonalidad de referencia real. No se presupone que la canción esté en DO.':
+      'Referencia guardada: '+KEY_NAMES[stored]+'. Tonalidad actual: '+KEY_NAMES[(stored+offset+12)%12]+'.';
+    base.disabled=target.disabled=!valid;
+  }
+  window.updateTransposeKeyUI=keyUI;
+  window.addEventListener('load',function(){
+    var base=document.getElementById('transposeBaseKey'),target=document.getElementById('transposeTargetKey'),apply=document.getElementById('transposeApplyKey');
+    if(!base||!target||!apply)return;
+    KEY_NAMES.forEach(function(name,i){
+      var a=document.createElement('option');a.value=String(i);a.textContent=name;base.appendChild(a);
+      var b=document.createElement('option');b.value=String(i);b.textContent=name;target.appendChild(b);
+    });
+    base.addEventListener('change',function(){
+      if(current<0)return;
+      var old=readBase(current),chosen=Number(base.value);
+      if(old!==null && old!==chosen && !confirm('Cambiar la tonalidad de referencia no transpone los acordes. ¿Confirmas que esta es la referencia correcta?')){keyUI();return}
+      localStorage.setItem(keyMeta(current),String(chosen));
+      target.value=String((chosen+getOffset(current)+12)%12);
+      keyUI();
+    });
+    apply.addEventListener('click',function(){
+      if(current<0){alert('Abre una canción.');return}
+      var stored=readBase(current);
+      if(stored===null){
+        alert('Selecciona y guarda primero la tonalidad de referencia real de esta canción.');
+        return;
+      }
+      var wanted=Number(target.value);
+      var actual=(stored+getOffset(current)+12)%12;
+      var delta=(wanted-actual+12)%12;
+      if(delta>6)delta-=12;
+      if(delta!==0)transposeCurrent(delta);
+      keyUI();
+    });
+    var down=document.getElementById('transposeDown'),up=document.getElementById('transposeUp'),reset=document.getElementById('transposeReset');
+    [down,up,reset].forEach(function(btn){if(btn)btn.addEventListener('click',function(){setTimeout(keyUI,0)})});
+    var sb=document.getElementById('settingsBtn'),ib=document.getElementById('settingsIndexBtn');
+    [sb,ib].forEach(function(btn){if(btn)btn.addEventListener('click',function(){setTimeout(keyUI,0)})});
+    keyUI();
+  });
   window.updateTransposeUI=updateTransposeUI;
   window.addEventListener('load',function(){
     var down=document.getElementById('transposeDown'),up=document.getElementById('transposeUp'),reset=document.getElementById('transposeReset');
@@ -3982,7 +4048,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=54;
+const APP_VERSION=55;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
