@@ -3650,7 +3650,14 @@ buildPicker();render('');bindGlobalUndoButtons();
       var row=document.createElement('div');row.className='passSongRow';
 
       var n=document.createElement('div');n.className='passOrder';n.textContent=String(pos+1);
-      var title=document.createElement('div');title.className='passSongTitle';title.textContent=getSongTitle(songIndex);
+      var title=document.createElement('button');title.type='button';title.className='passSongTitle passSongOpen';title.textContent=getSongTitle(songIndex);
+      title.style.cssText='text-align:left;background:transparent;border:0;color:inherit;font:inherit;font-weight:800;padding:8px 4px;cursor:pointer';
+      title.setAttribute('aria-label','Abrir '+getSongTitle(songIndex));
+      title.onclick=function(){
+        detailModal.classList.remove('on');
+        window.activePass=null;
+        openSong(songIndex);
+      };
 
       var up=document.createElement('button');up.type='button';up.textContent='↑';
       up.disabled=pos===0;
@@ -4120,7 +4127,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=58;
+const APP_VERSION=59;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
