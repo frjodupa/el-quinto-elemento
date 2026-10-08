@@ -1608,6 +1608,7 @@ body.lightTheme .globalUndoBtn{
             </label>
           </div>
           <button id="transposeApplyKey" type="button" style="width:100%;min-height:46px;margin-bottom:10px;border-radius:10px;border:1px solid #e6c36a;background:#e6c36a;color:#111;font-weight:900">Aplicar y guardar tonalidad</button>
+          <button id="qeSaveLiveTone" type="button" style="width:100%;min-height:44px;margin-bottom:10px;border-radius:10px">★ Guardar tonalidad para directo</button>
           <div id="transposeKeyHelp" style="font-size:.8rem;color:#aaa;margin-bottom:10px">Indica la tonalidad original de esta canción. La elección queda guardada por canción.</div>
           <div class="transposeControls">
             <button id="transposeDown" type="button">♭ −1</button>
@@ -3631,6 +3632,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 
   function openPassDetail(id){
     currentPassId=id;
+    window.qeCurrentPassId=id;
     passesModal.classList.remove('on');
     if(addSearch)addSearch.value='';
     renderPassDetail();
@@ -4946,7 +4948,12 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     if(direct)direct.addEventListener('click',function(){document.body.classList.toggle('qeDirect');direct.textContent=document.body.classList.contains('qeDirect')?'✕ Salir de modo directo':'🎤 Activar modo directo'});
     var count=document.getElementById('qeCountIn'),overlay=document.getElementById('qeCountOverlay');
     if(count)count.addEventListener('click',function(){var n=1;overlay.style.display='flex';overlay.textContent=n;var t=setInterval(function(){n++;if(n>4){clearInterval(t);overlay.style.display='none';return}overlay.textContent=n},650)});
-    var install=document.getElementById('qeInstall'),deferred=null;
+    var tone=document.getElementById('qeSaveLiveTone');
+    if(tone)tone.addEventListener('click',function(){
+      if(current<0){alert('Abre una canción.');return}
+      try{var off=getOffset(current);localStorage.setItem('quintoElemento.liveTranspose.v1.'+current,String(off));tone.textContent='★ Tonalidad de directo guardada · '+(off?offsetLabel(off):'ORIGINAL');alert('Tonalidad de directo guardada para esta canción.')}catch(e){}
+    });
+        var install=document.getElementById('qeInstall'),deferred=null;
     window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
     if(install)install.addEventListener('click',function(){if(deferred){deferred.prompt();return}alert('En iPad/iPhone: abre Compartir y pulsa “Añadir a pantalla de inicio”.')});
     updateHealth();
@@ -4968,9 +4975,9 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     var dup=document.getElementById('duplicatePassBtn');if(!dup)return;
     dup.addEventListener('click',function(){
       try{
-        var key='quintoElemento.passes.v1',arr=JSON.parse(localStorage.getItem(key)||'[]'),p=arr.find(function(x){return x.id===currentPassId});if(!p)return;
+        var key='quintoElemento.passes.v1',arr=JSON.parse(localStorage.getItem(key)||'[]'),pid=window.qeCurrentPassId,p=arr.find(function(x){return x.id===pid});if(!p)return;
         var copy={id:'p'+Date.now().toString(36),name:p.name+' · COPIA',songs:(p.songs||[]).slice(),createdAt:new Date().toISOString()};
-        arr.push(copy);localStorage.setItem(key,JSON.stringify(arr));currentPassId=copy.id;renderPassDetail();alert('Pase duplicado.');
+        arr.push(copy);localStorage.setItem(key,JSON.stringify(arr));alert('Pase duplicado como “'+copy.name+'”.');
       }catch(e){alert('No se pudo duplicar el pase.')}
     });
   });
