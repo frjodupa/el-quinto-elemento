@@ -1841,6 +1841,7 @@ body.lightTheme .globalUndoBtn{
     <button id="prev">‹</button>
     <button id="next">›</button>
     <button id="settingsBtn" class="sectionTool">⚙ Ajustes</button>
+    <button id="shareSongbook" class="sectionTool" type="button">↗ Compartir</button>
     <button id="chordMode" class="chordBtn" style="display:none">♫ Acordes</button>
     <button id="saveChordEdit" class="saveChordEditBtn" type="button">✓ Guardar acordes</button>
     <button id="undoChordBtn" class="undoChordBtn" type="button" disabled>↶ Deshacer</button>
@@ -2831,6 +2832,11 @@ function saveSongFontSize(){
 function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
 function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null}
 q.oninput=function(){render(q.value)};
+var shareSongbook=document.getElementById('shareSongbook');
+if(shareSongbook)shareSongbook.onclick=async function(){
+  var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:location.href};
+  try{if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);alert('Enlace del cancionero copiado.')}else{prompt('Copia este enlace:',location.href)}}catch(e){}
+};
 document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
 document.getElementById('prev').onclick=function(){
   if(window.passPrevSong && window.passPrevSong())return;
@@ -4837,6 +4843,22 @@ if('serviceWorker' in navigator){
           d.words[key]=chord;
           added++;
         });
+      });
+
+      // Completa de forma conservadora las repeticiones exactas de líneas ya documentadas
+      // en el paquete de acordes. Nunca sobrescribe acordes del usuario.
+      (seed.entries||[]).forEach(function(entry){
+        var source=entry[0],assignments=entry[1]||[],target=pdfNorm(source);
+        if(!target)return;
+        for(var rli=0;rli<lines.length;rli++){
+          if(pdfNorm(lines[rli])!==target)continue;
+          var rwords=normalizeWords(lines[rli]||'');
+          assignments.forEach(function(a){
+            var rwi=Math.max(0,Math.min(Number(a[0])||0,rwords.length-1));
+            var chord=String(a[1]||'').trim(),rkey=rli+':'+rwi;
+            if(chord&&!d.words[rkey]){d.words[rkey]=chord;added++}
+          });
+        }
       });
 
       (seed.lineSeq||[]).forEach(function(entry){
