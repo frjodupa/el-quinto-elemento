@@ -1706,6 +1706,7 @@ body.lightTheme .globalUndoBtn{
         <h3>App</h3>
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
+          <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
           <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
           <input id="laPasmaImportInput" type="file" accept="application/json,.json" style="display:none">
@@ -4138,7 +4139,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=60;
+const APP_VERSION=61;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4970,6 +4971,13 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     if(tone)tone.addEventListener('click',function(){
       if(current<0){alert('Abre una canción.');return}
       try{var off=getOffset(current);localStorage.setItem('quintoElemento.liveTranspose.v1.'+current,String(off));tone.textContent='★ Tonalidad de directo guardada · '+(off?offsetLabel(off):'ORIGINAL');alert('Tonalidad de directo guardada para esta canción.')}catch(e){}
+    });
+        var share=document.getElementById('qeShareApp');
+    if(share)share.addEventListener('click',function(){
+      var data={title:'El Quinto Elemento',text:'El Quinto Elemento · Cancionero Interactivo',url:window.location.origin+window.location.pathname};
+      if(navigator.share){navigator.share(data).catch(function(){})}
+      else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(data.url).then(function(){alert('Enlace del cancionero copiado.')})}
+      else{window.prompt('Copia este enlace:',data.url)}
     });
         var install=document.getElementById('qeInstall'),deferred=null;
     window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
