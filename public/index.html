@@ -1562,6 +1562,8 @@ body.lightTheme .globalUndoBtn{
       <button id="startPassBtn" type="button" class="primary">▶ Empezar pase</button>
       <button id="renamePassBtn" type="button">✎ Renombrar</button>
       <button id="duplicatePassBtn" type="button">⧉ Duplicar pase</button>
+      <button id="sharePassBtn" type="button">↗ Compartir pase</button>
+      <button id="printPassBtn" type="button">🖨 Imprimir / PDF</button>
       <button id="deletePassBtn" type="button" class="danger">Eliminar pase</button>
     </div>
     <div style="padding:10px;border:1px solid #494949;border-radius:10px;margin:10px 0">
@@ -1706,6 +1708,7 @@ body.lightTheme .globalUndoBtn{
         <h3>App</h3>
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
+          <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
           <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
           <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
@@ -3697,6 +3700,34 @@ buildPicker();render('');bindGlobalUndoButtons();
     });
   }
 
+  function passPlainText(p){
+    var out=[p.name,''];
+    (p.songs||[]).forEach(function(songIndex,pos){if(songs[songIndex])out.push((pos+1)+'. '+getSongTitle(songIndex))});
+    out.push('','El Quinto Elemento · Cancionero');
+    return out.join('\n');
+  }
+  function passPrintHtml(p){
+    var items=(p.songs||[]).map(function(songIndex,pos){
+      if(!songs[songIndex])return '';
+      var m=(window.qeSongMeta&&window.qeSongMeta(songIndex))||{};
+      var meta=[];if(m.bpm)meta.push(m.bpm+' BPM');if(m.meter)meta.push(m.meter);if(m.tags)meta.push(m.tags);
+      return '<li><strong>'+escapeHtml(getSongTitle(songIndex))+'</strong>'+(meta.length?'<span>'+escapeHtml(meta.join(' · '))+'</span>':'')+'</li>';
+    }).join('');
+    return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}li span{display:block;color:#666;font-size:12px;margin-top:3px}@media print{body{margin:18mm}}</style></head><body><h1>'+escapeHtml(p.name)+'</h1><p>'+(p.songs||[]).length+' canciones · El Quinto Elemento</p><ol>'+items+'</ol><script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>';
+  }
+  function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+  var sharePassBtn=document.getElementById('sharePassBtn');
+  if(sharePassBtn)sharePassBtn.addEventListener('click',function(){
+    var p=getPass(currentPassId);if(!p)return;var data={title:p.name,text:passPlainText(p)};
+    if(navigator.share){navigator.share(data).catch(function(){})}
+    else if(navigator.clipboard){navigator.clipboard.writeText(data.text).then(function(){alert('Pase copiado. Ya puedes pegarlo en WhatsApp, Mail o Mensajes.')})}
+    else{prompt('Copia el pase:',data.text)}
+  });
+  var printPassBtn=document.getElementById('printPassBtn');
+  if(printPassBtn)printPassBtn.addEventListener('click',function(){
+    var p=getPass(currentPassId);if(!p)return;var w=window.open('','_blank');if(!w){alert('Safari ha bloqueado la ventana de impresión. Permite ventanas emergentes para esta página.');return}w.document.open();w.document.write(passPrintHtml(p));w.document.close();
+  });
+
   // v56 · Añadir canciones a pases existentes, sin crear duplicados.
   var addSearch=document.getElementById('passAddSongSearch');
   var addResults=document.getElementById('passAddSongResults');
@@ -5008,7 +5039,14 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     if(direct)direct.addEventListener('click',function(){document.body.classList.toggle('qeDirect');direct.textContent=document.body.classList.contains('qeDirect')?'✕ Salir de modo directo':'🎤 Activar modo directo'});
     var count=document.getElementById('qeCountIn'),overlay=document.getElementById('qeCountOverlay');
     if(count)count.addEventListener('click',function(){var n=1;overlay.style.display='flex';overlay.textContent=n;var t=setInterval(function(){n++;if(n>4){clearInterval(t);overlay.style.display='none';return}overlay.textContent=n},650)});
-    var tone=document.getElementById('qeSaveLiveTone');
+    var shareApp=document.getElementById('qeShareApp');
+    if(shareApp)shareApp.addEventListener('click',function(){
+      var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:location.href};
+      if(navigator.share){navigator.share(data).catch(function(){})}
+      else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){alert('Enlace del cancionero copiado.')})}
+      else{prompt('Copia este enlace:',location.href)}
+    });
+        var tone=document.getElementById('qeSaveLiveTone');
     if(tone)tone.addEventListener('click',function(){
       if(current<0){alert('Abre una canción.');return}
       try{var off=getOffset(current);localStorage.setItem('quintoElemento.liveTranspose.v1.'+current,String(off));tone.textContent='★ Tonalidad de directo guardada · '+(off?offsetLabel(off):'ORIGINAL');alert('Tonalidad de directo guardada para esta canción.')}catch(e){}
