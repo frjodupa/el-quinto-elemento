@@ -1521,7 +1521,14 @@ body.lightTheme .globalUndoBtn{
 
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-</head><body>
+<style>
+/* v60 · Vista original estructurada por defecto */
+#ly.qeOriginalView .lyricLine{margin:.12em 0}
+#ly.qeOriginalView .lyricLine.qeBlank{min-height:.85em;margin:.28em 0}
+#ly.qeOriginalView .lyricLine.qeHeading .lineBody{font-weight:900;letter-spacing:.035em;margin-top:.7em}
+#ly.qeOriginalView .lyricLine.qeHeading .wordChord{font-weight:700}
+#ly.qeOriginalView .lineBody{white-space:normal}
+</style></head><body>
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
   <div class="passPanel small">
@@ -2639,7 +2646,7 @@ function clearReferences(){
 }
 
 function renderLyrics(){
-  if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';
+  if(current<0)return;var song=songs[current],d=getChordData(current);ly.innerHTML='';ly.classList.add('qeOriginalView');
   ly.classList.toggle('editingLyrics',editingChords);view.classList.toggle('editing',editingChords);view.classList.toggle('placingInstrumental',placingInstrumental);
   chordMode.classList.toggle('active',editingChords);chordMode.textContent=editingChords?'✓ Acordes':'♫ Acordes';
   introTool.textContent=(d.intro||d.introText)?'Editar Intro':'＋ Intro';
@@ -2658,6 +2665,10 @@ function renderLyrics(){
     var existingInstText=(d.instrumentalsText&&d.instrumentalsText[String(li)])||'';
     if((existingInst||existingInstText) && li!==0){ly.appendChild(makeSection('INSTRUMENTAL',existingInst,function(){openPicker({mode:'instrumental',boundary:li,existing:existingInst,text:existingInstText,label:'INSTRUMENTAL'})},{boundary:li,text:existingInstText}))}
     var row=document.createElement('div');row.className='lyricLine';
+    // Mantener por defecto la estructura del texto fuente: líneas, blancos y cabeceras.
+    row.classList.add('qeSourceLine');
+    if(line==='')row.classList.add('qeBlank');
+    else if(/^(INTRO|ESTROFA|ESTRIBILLO|PUENTE|SOLO|INSTRUMENTAL|FINAL|CODA|PRE[- ]?ESTRIBILLO)\b/i.test(String(line).trim()))row.classList.add('qeHeading');
     if(blockDuplicateMode&&li===blockDuplicateStart)row.classList.add('duplicateSourceStart');
     if(blockDuplicateMode&&li===blockDuplicateEnd)row.classList.add('duplicateSourceEnd');
     var lineEdit=document.createElement('button');lineEdit.className='lineEditBtn';lineEdit.textContent='♫';lineEdit.title='Editar acordes de esta línea';
@@ -4127,7 +4138,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=59;
+const APP_VERSION=60;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
