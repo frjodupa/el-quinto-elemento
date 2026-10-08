@@ -1556,6 +1556,11 @@ body.lightTheme .globalUndoBtn{
       <button id="renamePassBtn" type="button">✎ Renombrar</button>
       <button id="deletePassBtn" type="button" class="danger">Eliminar pase</button>
     </div>
+    <div style="padding:10px;border:1px solid #494949;border-radius:10px;margin:10px 0">
+      <label for="passAddSongSearch" style="display:block;margin-bottom:6px;font-weight:700">Añadir canciones al pase</label>
+      <input id="passAddSongSearch" type="search" placeholder="Buscar canción…" autocomplete="off" style="box-sizing:border-box;width:100%;min-height:44px;padding:9px;background:#222;color:white;border:1px solid #666;border-radius:8px">
+      <div id="passAddSongResults" style="max-height:210px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:8px"></div>
+    </div>
     <div id="passDetailSongs" class="passDetailSongs"></div>
   </div>
 </div>
@@ -3596,6 +3601,7 @@ buildPicker();render('');bindGlobalUndoButtons();
   function openPassDetail(id){
     currentPassId=id;
     passesModal.classList.remove('on');
+    if(addSearch)addSearch.value='';
     renderPassDetail();
     detailModal.classList.add('on');
   }
@@ -3605,6 +3611,7 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(!p){detailModal.classList.remove('on');return}
     detailTitle.textContent=p.name;
     detailSongs.innerHTML='';
+    renderPassAddResults();
     (p.songs||[]).forEach(function(songIndex,pos){
       if(!songs[songIndex])return;
       var row=document.createElement('div');row.className='passSongRow';
@@ -3628,6 +3635,37 @@ buildPicker();render('');bindGlobalUndoButtons();
     });
   }
 
+  // v56 · Añadir canciones a pases existentes, sin crear duplicados.
+  var addSearch=document.getElementById('passAddSongSearch');
+  var addResults=document.getElementById('passAddSongResults');
+  function renderPassAddResults(){
+    if(!addSearch||!addResults)return;
+    var p=getPass(currentPassId);
+    addResults.innerHTML='';
+    if(!p)return;
+    var query=(addSearch.value||'').trim().toLocaleLowerCase();
+    var available=[];
+    songs.forEach(function(song,i){
+      if((p.songs||[]).indexOf(i)!==-1)return;
+      var title=getSongTitle(i);
+      if(query && title.toLocaleLowerCase().indexOf(query)<0)return;
+      available.push({index:i,title:title});
+    });
+    if(!available.length){addResults.textContent='No hay canciones disponibles con esa búsqueda.';return}
+    available.slice(0,80).forEach(function(item){
+      var button=document.createElement('button');button.type='button';
+      button.textContent='＋ '+item.title;
+      button.style.cssText='display:block;width:100%;text-align:left;min-height:42px;margin:3px 0;padding:8px;border-radius:8px;border:1px solid #555;background:#252525;color:#fff';
+      button.addEventListener('click',function(){
+        updateCurrentPass(function(pass){
+          if(pass.songs.indexOf(item.index)===-1)pass.songs.push(item.index);
+        });
+        renderPassAddResults();
+      });
+      addResults.appendChild(button);
+    });
+  }
+  if(addSearch)addSearch.addEventListener('input',renderPassAddResults);
   function updateCurrentPass(mutator){
     var arr=loadPasses();
     var idx=arr.findIndex(function(p){return p.id===currentPassId});
@@ -4049,7 +4087,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=55;
+const APP_VERSION=56;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
