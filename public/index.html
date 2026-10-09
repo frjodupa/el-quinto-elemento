@@ -1709,7 +1709,6 @@ body.lightTheme .globalUndoBtn{
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
           <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
-          <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
           <button id="qeGuideBtn" type="button">? Guía de uso</button>
           <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
@@ -5065,24 +5064,10 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     if(guideBtn&&guideModal)guideBtn.addEventListener('click',function(){guideModal.classList.add('on')});
     if(guideClose&&guideModal)guideClose.addEventListener('click',function(){guideModal.classList.remove('on')});
     if(guideModal)guideModal.addEventListener('click',function(e){if(e.target===guideModal)guideModal.classList.remove('on')});
-        var shareApp=document.getElementById('qeShareApp');
-    if(shareApp)shareApp.addEventListener('click',function(){
-      var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:location.href};
-      if(navigator.share){navigator.share(data).catch(function(){})}
-      else if(navigator.clipboard){navigator.clipboard.writeText(location.href).then(function(){alert('Enlace del cancionero copiado.')})}
-      else{prompt('Copia este enlace:',location.href)}
-    });
         var tone=document.getElementById('qeSaveLiveTone');
     if(tone)tone.addEventListener('click',function(){
       if(current<0){alert('Abre una canción.');return}
       try{var off=getOffset(current);localStorage.setItem('quintoElemento.liveTranspose.v1.'+current,String(off));tone.textContent='★ Tonalidad de directo guardada · '+(off?offsetLabel(off):'ORIGINAL');alert('Tonalidad de directo guardada para esta canción.')}catch(e){}
-    });
-        var share=document.getElementById('qeShareApp');
-    if(share)share.addEventListener('click',function(){
-      var data={title:'El Quinto Elemento',text:'El Quinto Elemento · Cancionero Interactivo',url:window.location.origin+window.location.pathname};
-      if(navigator.share){navigator.share(data).catch(function(){})}
-      else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(data.url).then(function(){alert('Enlace del cancionero copiado.')})}
-      else{window.prompt('Copia este enlace:',data.url)}
     });
         var share=document.getElementById('qeShareApp');
     if(share)share.addEventListener('click',function(){
