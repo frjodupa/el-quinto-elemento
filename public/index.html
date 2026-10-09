@@ -1673,7 +1673,7 @@ body.lightTheme .globalUndoBtn{
 
       <section class="settingsGroup">
         <h3>Instalación</h3>
-        <div class="settingsGrid"><button id="qeInstall" type="button">＋ Instalar El Quinto Elemento</button></div>
+        <div class="settingsGrid"><button id="qeInstall" type="button">＋ Instalar El Quinto Elemento</button><button id="qeShare" type="button">↗ Compartir cancionero</button></div>
         <div id="qeInstallHelp" class="cloudSyncDetail">En iPad/iPhone: Compartir → Añadir a pantalla de inicio.</div>
       </section>
 
@@ -4201,7 +4201,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=63;
+const APP_VERSION=64;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5075,6 +5075,13 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
       if(navigator.share){navigator.share(data).catch(function(){})}
       else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(data.url).then(function(){alert('Enlace del cancionero copiado.')})}
       else{prompt('Copia este enlace:',data.url)}
+    });
+        var share=document.getElementById('qeShare');
+    if(share)share.addEventListener('click',function(){
+      var url=location.origin+location.pathname;
+      if(navigator.share){navigator.share({title:'El Quinto Elemento · Cancionero Interactivo',text:'Accede al cancionero El Quinto Elemento',url:url}).catch(function(){})}
+      else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){alert('Enlace del cancionero copiado.')},function(){prompt('Copia el enlace:',url)})}
+      else prompt('Copia el enlace:',url);
     });
         var install=document.getElementById('qeInstall'),deferred=null;
     window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
