@@ -73,7 +73,8 @@
       "extraction_error": false,
       "priority": "URGENTE",
       "lyric_verified": false,
-      "chords_verified": false
+      "chords_verified": false,
+      "ocr_line_ratio": 0.947
     },
     {
       "number": 8,
@@ -173,7 +174,9 @@
       "extraction_error": false,
       "priority": "URGENTE",
       "lyric_verified": false,
-      "chords_verified": false
+      "chords_verified": false,
+      "ocr_line_ratio": 0.94,
+      "transcriber_comment": true
     },
     {
       "number": 18,
@@ -715,5 +718,12 @@
       "lyric_verified": false,
       "chords_verified": false
     }
-  ]
+  ],
+  "audit_run": {
+    "total": 71,
+    "unique_titles": 71,
+    "duplicate_titles": 0,
+    "detected_problems": 6,
+    "notes": "Comprobaciones ejecutadas sobre el catálogo de la rama. No equivale a ejecutar el archivo .cjs con Node."
+  }
 }
