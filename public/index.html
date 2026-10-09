@@ -1528,6 +1528,14 @@ body.lightTheme .globalUndoBtn{
 #ly.qeOriginalView .lyricLine.qeHeading .lineBody{font-weight:900;letter-spacing:.035em;margin-top:.7em}
 #ly.qeOriginalView .lyricLine.qeHeading .wordChord{font-weight:700}
 #ly.qeOriginalView .lineBody{white-space:normal}
+</style><style>
+/* Ajustes compactos, especialmente en iPad y móvil */
+.settingsBody .settingsGrid{gap:6px!important}
+.settingsBody .settingsGrid button,.settingsBody .transposeControls button,.settingsBody .settingsScrollRow button{min-height:34px!important;padding:6px 9px!important;font-size:.78rem!important;line-height:1.2!important;border-radius:7px!important}
+.settingsBody .settingsGroup{margin-bottom:12px!important;padding-top:8px!important;padding-bottom:8px!important}
+.settingsBody .settingsGroup h3{margin:0 0 7px!important;font-size:.94rem!important}
+.settingsBody #transposeApplyKey,.settingsBody #qeSaveLiveTone,.settingsBody #qeSaveMeta{min-height:36px!important;padding:7px 10px!important;font-size:.82rem!important}
+@media(max-width:600px){.settingsBody .settingsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.settingsBody .settingsGrid button{white-space:normal!important;overflow-wrap:anywhere!important}}
 </style></head><body>
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
@@ -4201,7 +4209,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=64;
+const APP_VERSION=61;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
