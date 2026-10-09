@@ -1,0 +1,719 @@
+{
+  "source": "public/index.html",
+  "branch": "revision-cancionero-71",
+  "description": "Diagnóstico de integridad, no validación de letras originales ni de armonía.",
+  "total": 71,
+  "urgent": 3,
+  "entries": [
+    {
+      "number": 1,
+      "title": "20 DE ABRIL",
+      "lines": 32,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 2,
+      "title": "A LA LUZ DEL LORENZO",
+      "lines": 45,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 3,
+      "title": "AFRICANOS EN MADRID",
+      "lines": 33,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 4,
+      "title": "AMA, AMA Y ENSANCHA EL ALMA",
+      "lines": 21,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 5,
+      "title": "ÁNGEL PARA UN FINAL",
+      "lines": 40,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 6,
+      "title": "AQUÍ NO HAY PLAYA",
+      "lines": 78,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 7,
+      "title": "AUNQUE TU NO LO SEPAS",
+      "lines": 151,
+      "isolated_letter_lines": 143,
+      "extraction_error": false,
+      "priority": "URGENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 8,
+      "title": "BOLILLÓN",
+      "lines": 35,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 9,
+      "title": "BUEN ROLLITO",
+      "lines": 17,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 10,
+      "title": "CADILLAC SOLITARIO",
+      "lines": 29,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 11,
+      "title": "CARA LUNA",
+      "lines": 34,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 12,
+      "title": "CARBÓN Y RAMAS SECAS",
+      "lines": 15,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 13,
+      "title": "CHIQUILLA",
+      "lines": 38,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 14,
+      "title": "CLAVADO EN UN BAR",
+      "lines": 51,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 15,
+      "title": "COMO CAMARÓN",
+      "lines": 54,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 16,
+      "title": "COMO UN BURRO AMARRADO",
+      "lines": 45,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 17,
+      "title": "CORAZÓN DE NEÓN",
+      "lines": 84,
+      "isolated_letter_lines": 79,
+      "extraction_error": false,
+      "priority": "URGENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 18,
+      "title": "CORAZÓN DE TIZA",
+      "lines": 30,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 19,
+      "title": "DÉJAME",
+      "lines": 19,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 20,
+      "title": "DEPENDE",
+      "lines": 30,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 21,
+      "title": "DÍAS DE ESCUELA",
+      "lines": 29,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 22,
+      "title": "ECHO DE MENOS",
+      "lines": 37,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 23,
+      "title": "EL BLUES DEL AUTOBÚS",
+      "lines": 1,
+      "isolated_letter_lines": 0,
+      "extraction_error": true,
+      "priority": "URGENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 24,
+      "title": "EL VALS DEL OBRERO",
+      "lines": 54,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 25,
+      "title": "EN ALGÚN LUGAR",
+      "lines": 31,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 26,
+      "title": "ESO QUE TÚ ME DAS",
+      "lines": 42,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 27,
+      "title": "ESPALDAS MOJADAS",
+      "lines": 22,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 28,
+      "title": "FLACA",
+      "lines": 20,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 29,
+      "title": "FRÍO",
+      "lines": 42,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 30,
+      "title": "GRITA",
+      "lines": 18,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 31,
+      "title": "INSURRECCIÓN",
+      "lines": 22,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 32,
+      "title": "LA CASA POR EL TEJADO",
+      "lines": 30,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 33,
+      "title": "LA FIESTA",
+      "lines": 53,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 34,
+      "title": "LA FLACA",
+      "lines": 34,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 35,
+      "title": "LA LISTA DE LA COMPRA",
+      "lines": 31,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 36,
+      "title": "LA NEGRA FLOR",
+      "lines": 95,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 37,
+      "title": "LA RAJA DE TU FALDA",
+      "lines": 28,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 38,
+      "title": "LA SENDA DEL TIEMPO",
+      "lines": 25,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 39,
+      "title": "LLANTO DE PASIÓN",
+      "lines": 41,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 40,
+      "title": "LOS OLVIDADOS",
+      "lines": 46,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 41,
+      "title": "MACETAS DE COLORES",
+      "lines": 37,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 42,
+      "title": "MALDITA DULZURA",
+      "lines": 32,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 43,
+      "title": "ME OLVIDÉ DE VIVIR",
+      "lines": 25,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 44,
+      "title": "MI AGÜITA AMARILLA",
+      "lines": 63,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 45,
+      "title": "MI GRAN NOCHE",
+      "lines": 18,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 46,
+      "title": "MORIRÍA POR VOS",
+      "lines": 35,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 47,
+      "title": "NO ESTAMOS LOKOS ( KALIKEÑO)",
+      "lines": 45,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 48,
+      "title": "NO PUEDO VIVIR SIN TI",
+      "lines": 40,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 49,
+      "title": "PÁJAROS DE BARRO",
+      "lines": 35,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 50,
+      "title": "PARA NO OLVIDAR",
+      "lines": 41,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 51,
+      "title": "POR LA BOCA VIVE EL PEZ",
+      "lines": 47,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 52,
+      "title": "QUÉ NAVIDAD TAN ESPECIAL",
+      "lines": 30,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 53,
+      "title": "QUERIDA MILAGROS",
+      "lines": 32,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 54,
+      "title": "RAYANDO EL SOL",
+      "lines": 26,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 55,
+      "title": "SALTA",
+      "lines": 25,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 56,
+      "title": "SEMILLA NEGRA",
+      "lines": 41,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 57,
+      "title": "SI ME DAS A ELEGIR",
+      "lines": 76,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 58,
+      "title": "SIN ALIENTO",
+      "lines": 45,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 59,
+      "title": "SO PAYASO",
+      "lines": 56,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 60,
+      "title": "SUCEDE",
+      "lines": 33,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 61,
+      "title": "SUFRE MAMON",
+      "lines": 29,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 62,
+      "title": "TE QUIERO IGUAL",
+      "lines": 29,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 63,
+      "title": "TE SIGO SOÑANDO",
+      "lines": 11,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 64,
+      "title": "TIEMPOS NUEVOS",
+      "lines": 8,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 65,
+      "title": "TODOS LOS DIAS SALE EL SOL",
+      "lines": 34,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 66,
+      "title": "UN BESO Y UNA FLOR",
+      "lines": 43,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 67,
+      "title": "VIVIR ASI ES MORIR DE AMOR",
+      "lines": 35,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 68,
+      "title": "VOLANDO VOY",
+      "lines": 32,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 69,
+      "title": "VOY A PASARMELO BIEN",
+      "lines": 48,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 70,
+      "title": "YO NO ME LLAMO JAVIER",
+      "lines": 33,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    },
+    {
+      "number": 71,
+      "title": "YO SOY QUIEN ESPIA LOS JUEGOS DE LOS NIÑOS",
+      "lines": 30,
+      "isolated_letter_lines": 0,
+      "extraction_error": false,
+      "priority": "PENDIENTE",
+      "lyric_verified": false,
+      "chords_verified": false
+    }
+  ]
+}
