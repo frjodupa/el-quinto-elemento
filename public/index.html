@@ -1709,6 +1709,7 @@ body.lightTheme .globalUndoBtn{
         <div class="settingsGrid">
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
           <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
+          <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
           <button id="qeGuideBtn" type="button">? Guía de uso</button>
           <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
@@ -5082,6 +5083,13 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
       if(navigator.share){navigator.share(data).catch(function(){})}
       else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(data.url).then(function(){alert('Enlace del cancionero copiado.')})}
       else{window.prompt('Copia este enlace:',data.url)}
+    });
+        var share=document.getElementById('qeShareApp');
+    if(share)share.addEventListener('click',function(){
+      var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:location.origin+location.pathname};
+      if(navigator.share){navigator.share(data).catch(function(){})}
+      else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(data.url).then(function(){alert('Enlace del cancionero copiado.')})}
+      else{prompt('Copia este enlace:',data.url)}
     });
         var install=document.getElementById('qeInstall'),deferred=null;
     window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e});
