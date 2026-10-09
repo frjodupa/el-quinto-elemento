@@ -1,0 +1,586 @@
+{
+  "project": "El Quinto Elemento",
+  "source": "public/index.html",
+  "total": 71,
+  "generated": "2026-10-09",
+  "songs": [
+    {
+      "number": 1,
+      "title": "20 DE ABRIL",
+      "characters": 1047,
+      "lines": 35,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 2,
+      "title": "A LA LUZ DEL LORENZO",
+      "characters": 1458,
+      "lines": 45,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 3,
+      "title": "AFRICANOS EN MADRID",
+      "characters": 1438,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 4,
+      "title": "AMA, AMA Y ENSANCHA EL ALMA",
+      "characters": 900,
+      "lines": 21,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 5,
+      "title": "ÁNGEL PARA UN FINAL",
+      "characters": 1025,
+      "lines": 40,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 6,
+      "title": "AQUÍ NO HAY PLAYA",
+      "characters": 2201,
+      "lines": 78,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 7,
+      "title": "AUNQUE TU NO LO SEPAS",
+      "characters": 582,
+      "lines": 151,
+      "isolated_character_lines": 143,
+      "flags": [
+        "texto_corrupto"
+      ]
+    },
+    {
+      "number": 8,
+      "title": "BOLILLÓN",
+      "characters": 1120,
+      "lines": 35,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 9,
+      "title": "BUEN ROLLITO",
+      "characters": 443,
+      "lines": 17,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 10,
+      "title": "CADILLAC SOLITARIO",
+      "characters": 1079,
+      "lines": 31,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 11,
+      "title": "CARA LUNA",
+      "characters": 1526,
+      "lines": 34,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 12,
+      "title": "CARBÓN Y RAMAS SECAS",
+      "characters": 966,
+      "lines": 18,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 13,
+      "title": "CHIQUILLA",
+      "characters": 1144,
+      "lines": 39,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 14,
+      "title": "CLAVADO EN UN BAR",
+      "characters": 1182,
+      "lines": 54,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 15,
+      "title": "COMO CAMARÓN",
+      "characters": 2380,
+      "lines": 54,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 16,
+      "title": "COMO UN BURRO AMARRADO",
+      "characters": 1476,
+      "lines": 48,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 17,
+      "title": "CORAZÓN DE NEÓN",
+      "characters": 766,
+      "lines": 84,
+      "isolated_character_lines": 79,
+      "flags": [
+        "texto_corrupto"
+      ]
+    },
+    {
+      "number": 18,
+      "title": "CORAZÓN DE TIZA",
+      "characters": 1095,
+      "lines": 30,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 19,
+      "title": "DÉJAME",
+      "characters": 533,
+      "lines": 19,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 20,
+      "title": "DEPENDE",
+      "characters": 927,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 21,
+      "title": "DÍAS DE ESCUELA",
+      "characters": 1062,
+      "lines": 32,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 22,
+      "title": "ECHO DE MENOS",
+      "characters": 787,
+      "lines": 37,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 23,
+      "title": "EL BLUES DEL AUTOBÚS",
+      "characters": 114,
+      "lines": 1,
+      "isolated_character_lines": 0,
+      "flags": [
+        "error_extraccion_pdf"
+      ]
+    },
+    {
+      "number": 24,
+      "title": "EL VALS DEL OBRERO",
+      "characters": 1632,
+      "lines": 54,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 25,
+      "title": "EN ALGÚN LUGAR",
+      "characters": 810,
+      "lines": 31,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 26,
+      "title": "ESO QUE TÚ ME DAS",
+      "characters": 997,
+      "lines": 42,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 27,
+      "title": "ESPALDAS MOJADAS",
+      "characters": 1170,
+      "lines": 23,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 28,
+      "title": "FLACA",
+      "characters": 647,
+      "lines": 22,
+      "isolated_character_lines": 0,
+      "flags": [
+        "anotacion_bajando"
+      ]
+    },
+    {
+      "number": 29,
+      "title": "FRÍO",
+      "characters": 1029,
+      "lines": 43,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 30,
+      "title": "GRITA",
+      "characters": 848,
+      "lines": 18,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 31,
+      "title": "INSURRECCIÓN",
+      "characters": 630,
+      "lines": 25,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 32,
+      "title": "LA CASA POR EL TEJADO",
+      "characters": 922,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 33,
+      "title": "LA FIESTA",
+      "characters": 1700,
+      "lines": 53,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 34,
+      "title": "LA FLACA",
+      "characters": 1316,
+      "lines": 38,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 35,
+      "title": "LA LISTA DE LA COMPRA",
+      "characters": 1277,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 36,
+      "title": "LA NEGRA FLOR",
+      "characters": 2601,
+      "lines": 95,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 37,
+      "title": "LA RAJA DE TU FALDA",
+      "characters": 1667,
+      "lines": 30,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 38,
+      "title": "LA SENDA DEL TIEMPO",
+      "characters": 715,
+      "lines": 28,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 39,
+      "title": "LLANTO DE PASIÓN",
+      "characters": 1256,
+      "lines": 41,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 40,
+      "title": "LOS OLVIDADOS",
+      "characters": 1147,
+      "lines": 49,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 41,
+      "title": "MACETAS DE COLORES",
+      "characters": 1120,
+      "lines": 37,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 42,
+      "title": "MALDITA DULZURA",
+      "characters": 878,
+      "lines": 35,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 43,
+      "title": "ME OLVIDÉ DE VIVIR",
+      "characters": 966,
+      "lines": 25,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 44,
+      "title": "MI AGÜITA AMARILLA",
+      "characters": 1583,
+      "lines": 63,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 45,
+      "title": "MI GRAN NOCHE",
+      "characters": 1033,
+      "lines": 22,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 46,
+      "title": "MORIRÍA POR VOS",
+      "characters": 1338,
+      "lines": 40,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 47,
+      "title": "NO ESTAMOS LOKOS ( KALIKEÑO)",
+      "characters": 1015,
+      "lines": 48,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 48,
+      "title": "NO PUEDO VIVIR SIN TI",
+      "characters": 1156,
+      "lines": 44,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 49,
+      "title": "PÁJAROS DE BARRO",
+      "characters": 970,
+      "lines": 35,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 50,
+      "title": "PARA NO OLVIDAR",
+      "characters": 1525,
+      "lines": 43,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 51,
+      "title": "POR LA BOCA VIVE EL PEZ",
+      "characters": 1427,
+      "lines": 47,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 52,
+      "title": "QUÉ NAVIDAD TAN ESPECIAL",
+      "characters": 682,
+      "lines": 30,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 53,
+      "title": "QUERIDA MILAGROS",
+      "characters": 1232,
+      "lines": 32,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 54,
+      "title": "RAYANDO EL SOL",
+      "characters": 568,
+      "lines": 29,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 55,
+      "title": "SALTA",
+      "characters": 859,
+      "lines": 25,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 56,
+      "title": "SEMILLA NEGRA",
+      "characters": 1044,
+      "lines": 41,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 57,
+      "title": "SI ME DAS A ELEGIR",
+      "characters": 1444,
+      "lines": 78,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 58,
+      "title": "SIN ALIENTO",
+      "characters": 1158,
+      "lines": 45,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 59,
+      "title": "SO PAYASO",
+      "characters": 1447,
+      "lines": 56,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 60,
+      "title": "SUCEDE",
+      "characters": 1186,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 61,
+      "title": "SUFRE MAMON",
+      "characters": 679,
+      "lines": 29,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 62,
+      "title": "TE QUIERO IGUAL",
+      "characters": 1335,
+      "lines": 32,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 63,
+      "title": "TE SIGO SOÑANDO",
+      "characters": 428,
+      "lines": 14,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 64,
+      "title": "TIEMPOS NUEVOS",
+      "characters": 363,
+      "lines": 12,
+      "isolated_character_lines": 0,
+      "flags": [
+        "anotacion_repeticion"
+      ]
+    },
+    {
+      "number": 65,
+      "title": "TODOS LOS DIAS SALE EL SOL",
+      "characters": 1055,
+      "lines": 34,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 66,
+      "title": "UN BESO Y UNA FLOR",
+      "characters": 1562,
+      "lines": 43,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 67,
+      "title": "VIVIR ASI ES MORIR DE AMOR",
+      "characters": 1006,
+      "lines": 35,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 68,
+      "title": "VOLANDO VOY",
+      "characters": 1066,
+      "lines": 34,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 69,
+      "title": "VOY A PASARMELO BIEN",
+      "characters": 1203,
+      "lines": 48,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 70,
+      "title": "YO NO ME LLAMO JAVIER",
+      "characters": 815,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    },
+    {
+      "number": 71,
+      "title": "YO SOY QUIEN ESPIA LOS JUEGOS DE LOS NIÑOS",
+      "characters": 798,
+      "lines": 33,
+      "isolated_character_lines": 0,
+      "flags": []
+    }
+  ]
+}
