@@ -18,6 +18,9 @@ for (const [i, song] of songs.entries()) {
   const lines = String(song.text || '').split(/\r?\n/);
   const isolated = lines.filter(line => /^[A-ZÁÉÍÓÚÑ]$/.test(line.trim())).length;
   if (isolated > 10) problems.push({number:i+1,title:song.title,type:'probable_ocr_corruption',count:isolated});
+  const letterRatio = lines.length ? isolated / lines.length : 0;
+  if (letterRatio >= 0.5 && isolated > 10) problems.push({number:i+1,title:song.title,type:'severe_ocr_corruption',isolated_lines:isolated,total_lines:lines.length,ratio:Number(letterRatio.toFixed(3))});
+  if (/ESTA ES LA PRIMERA CANCI[ÓO]N QUE SUBO|ESPERO QUE OS GUSTE|HOLA!! QUE TAL/i.test(song.text)) problems.push({number:i+1,title:song.title,type:'transcriber_comment'});
   if (/NO TEXT COULD BE PARSED FROM DOCUMENT/i.test(song.text)) problems.push({number:i+1,title:song.title,type:'pdf_extraction_error'});
   if (/BAJANDO\.{4,}/.test(song.text)) problems.push({number:i+1,title:song.title,type:'extraneous_annotation'});
   if (/<VARIAS VECES>/i.test(song.text)) problems.push({number:i+1,title:song.title,type:'repeat_annotation'});
