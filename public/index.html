@@ -2861,7 +2861,30 @@ function saveSongFontSize(){
   try{localStorage.setItem(songFontSizeKey(current),String(size))}catch(e){}
 }
 
-function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
+function ensureAunqueTuNoLoSepasChords(i){
+  try{
+    if(i<0 || pdfNorm(getSongTitle(i))!=='AUNQUE TU NO LO SEPAS')return;
+    var lines=getSongText(i).split('\n'),d=getChordData(i),changed=false;
+    lines.forEach(function(line,li){
+      var clean=String(line||'').trim();
+      if(!clean)return;
+      if(/^(INTRO|ESTROFA|ESTRIBILLO|PUENTE|SOLO|INSTRUMENTAL|FINAL|CODA|PRE[- ]?ESTRIBILLO)\b/i.test(clean))return;
+      var prefix=li+':',hasAny=false;
+      if(d.lines&&d.lines[li])hasAny=true;
+      Object.keys(d.words||{}).some(function(k){if(k.indexOf(prefix)===0&&d.words[k]){hasAny=true;return true}return false});
+      if(hasAny)return;
+      var words=normalizeWords(line);
+      if(!words.length)return;
+      d.words[li+':0']='DO';
+      var second=Math.min(4,words.length-1);
+      if(second>0)d.words[li+':'+second]='RE';
+      changed=true;
+    });
+    if(changed)saveChordData(i,d);
+  }catch(e){}
+}
+
+function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;ensureAunqueTuNoLoSepasChords(i);if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
 function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null}
 q.oninput=function(){render(q.value)};
 async function shareWholeSongbook(){
@@ -4215,7 +4238,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=62;
+const APP_VERSION=63;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
