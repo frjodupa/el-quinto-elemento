@@ -410,82 +410,98 @@ def ug_to_model(content):
 
     return {"lyrics":"\n".join(lyric_lines), "lines":lyric_lines, "placements":placements, "intro":[]}
 
-def try_source(song):
+def try_cifra_direct(song, artist_hint, errors):
     title = song["titulo"]
-    artist = song.get("artista","")
-    errors = []
-    # 1) Direct CifraClub slug when artist is known.
-    candidates = []
-    if artist:
-        candidates.append(f"https://www.cifraclub.com/{slugify(artist)}/{slugify(title)}/")
-    # 2) Search per Capo design spec.
-    try:
-        found = search_cifraclub(title, artist)
-        if found and found not in candidates:
-            candidates.append(found)
-    except Exception as e:
-        errors.append("Cifra search: " + str(e))
-    for base_url in candidates:
+    if not artist_hint:
+        return None
+    for host in ("www.cifraclub.com", "www.cifraclub.com.br"):
+        base_url = f"https://{host}/{slugify(artist_hint)}/{slugify(title)}/"
         try:
             print_url = base_url.rstrip("/") + "/imprimir.html"
             raw = clean_source_content(cifra_fetch_text(print_url))
             if not raw.strip():
                 raw = clean_source_content(cifra_fetch_text(base_url))
-            if raw.strip():
-                parts = [x for x in base_url.strip("/").split("/") if x]
-                src_artist = artist or (parts[-2].replace("-"," ").title() if len(parts)>=2 else "")
-                chordpro = convert_to_chordpro(raw, title, src_artist)
-                model = chordpro_to_model(chordpro)
-                if model["lyrics"]:
-                    return {
-                        "provider":"CifraClub",
-                        "url":base_url,
-                        "key":"",
-                        "title":title,
-                        "artist":src_artist,
-                        "model":model,
-                        "content_hash":hashlib.sha256(raw.encode("utf-8")).hexdigest(),
-                        "content_chars":len(raw),
-                        "errors":errors,
-                    }
+            if not raw.strip():
+                continue
+            chordpro = convert_to_chordpro(raw, title, artist_hint)
+            model = chordpro_to_model(chordpro)
+            if model["lyrics"]:
+                return {
+                    "provider":"CifraClub",
+                    "url":base_url,
+                    "key":"",
+                    "title":title,
+                    "artist":artist_hint,
+                    "model":model,
+                    "content_hash":hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+                    "content_chars":len(raw),
+                    "errors":errors,
+                }
         except Exception as e:
-            errors.append("Cifra fetch: " + str(e))
-    # 3) Ultimate Guitar fallback using Pilfer package.
-    # If the export has no artist, UG can identify a likely artist; we then
-    # retry a direct CifraClub slug (not the blocked search endpoint) and keep
-    # Cifra only when its lyrics strongly agree with the current song.
+            errors.append(f"Cifra direct {host}: " + str(e))
+    return None
+
+def try_source(song):
+    title = song["titulo"]
+    artist = song.get("artista","")
+    errors = []
+
+    # 1) Mandatory direct CifraClub slug first whenever an artist is known.
+    if artist:
+        direct = try_cifra_direct(song, artist, errors)
+        if direct:
+            return direct
+
+    # 2) Capo search architecture when we cannot form a reliable slug.
+    if not artist:
+        try:
+            found = search_cifraclub(title, "")
+            if found:
+                try:
+                    print_url = found.rstrip("/") + "/imprimir.html"
+                    raw = clean_source_content(cifra_fetch_text(print_url))
+                    if not raw.strip():
+                        raw = clean_source_content(cifra_fetch_text(found))
+                    if raw.strip():
+                        parts = [x for x in found.strip("/").split("/") if x]
+                        src_artist = parts[-2].replace("-"," ").title() if len(parts)>=2 else ""
+                        chordpro = convert_to_chordpro(raw, title, src_artist)
+                        model = chordpro_to_model(chordpro)
+                        if model["lyrics"]:
+                            return {
+                                "provider":"CifraClub",
+                                "url":found,
+                                "key":"",
+                                "title":title,
+                                "artist":src_artist,
+                                "model":model,
+                                "content_hash":hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+                                "content_chars":len(raw),
+                                "errors":errors,
+                            }
+                except Exception as e:
+                    errors.append("Cifra result fetch: " + str(e))
+        except Exception as e:
+            errors.append("Cifra search: " + str(e))
+
+    # 3) Ultimate Guitar fallback using Pilfer's real API package.
+    # For missing artists, UG metadata is used only to build a Cifra direct slug;
+    # Cifra is accepted only when its lyrics agree strongly with the current song.
     try:
         ug = ug_fetch(title, artist)
         if ug:
             ug_model = ug_to_model(ug["content"])
+            inferred_artist = artist or ug.get("artist","")
 
-            if not artist and ug.get("artist"):
-                inferred_artist = ug["artist"]
-                direct_url = f"https://www.cifraclub.com/{slugify(inferred_artist)}/{slugify(title)}/"
-                try:
-                    print_url = direct_url.rstrip("/") + "/imprimir.html"
-                    raw = clean_source_content(cifra_fetch_text(print_url))
-                    if not raw.strip():
-                        raw = clean_source_content(cifra_fetch_text(direct_url))
-                    if raw.strip():
-                        chordpro = convert_to_chordpro(raw, title, inferred_artist)
-                        cifra_model = chordpro_to_model(chordpro)
-                        cifra_sim = similarity(song["texto"], cifra_model["lyrics"]) if cifra_model["lyrics"] else 0.0
-                        ug_sim = similarity(song["texto"], ug_model["lyrics"]) if ug_model["lyrics"] else 0.0
-                        if cifra_model["lyrics"] and cifra_sim >= 0.85 and cifra_sim >= ug_sim - 0.03:
-                            return {
-                                "provider":"CifraClub",
-                                "url":direct_url,
-                                "key":ug["key"],
-                                "title":title,
-                                "artist":inferred_artist,
-                                "model":cifra_model,
-                                "content_hash":hashlib.sha256(raw.encode("utf-8")).hexdigest(),
-                                "content_chars":len(raw),
-                                "errors":errors + ["Artist inferred from UG search; Cifra direct source independently lyric-validated."],
-                            }
-                except Exception as e:
-                    errors.append("Cifra direct after UG artist inference: " + str(e))
+            if not artist and inferred_artist:
+                direct = try_cifra_direct(song, inferred_artist, errors)
+                if direct:
+                    cifra_sim = similarity(song["texto"], direct["model"]["lyrics"])
+                    ug_sim = similarity(song["texto"], ug_model["lyrics"]) if ug_model["lyrics"] else 0.0
+                    if cifra_sim >= 0.85 and cifra_sim >= ug_sim - 0.03:
+                        direct["key"] = ug.get("key","")
+                        direct["errors"] = errors + ["Artist inferred from UG metadata; Cifra direct source independently lyric-validated."]
+                        return direct
 
             if ug_model["lyrics"]:
                 return {
@@ -501,6 +517,7 @@ def try_source(song):
                 }
     except Exception as e:
         errors.append("UG: " + str(e))
+
     return {"provider":"", "url":"", "key":"", "title":title, "artist":artist, "model":None, "content_hash":"", "content_chars":0, "errors":errors}
 
 def align_lines(source_lines, current_text):
