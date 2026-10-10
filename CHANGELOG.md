@@ -40,3 +40,11 @@
 - Cualquier canción se abre automáticamente en Modo directo.
 - Herramientas de edición y mantenimiento siguen disponibles desde Ajustes.
 - Interfaz v66 / build técnico PWA 70.
+
+## v67 — 2026-10-10
+
+- Ajustes contextuales para directo.
+- Desde una canción se muestran solo Tonalidad, Visualización, Scroll y Directo/Ficha.
+- Desde el índice se muestran Estado, Sincronización, Copias y Mantenimiento.
+- “Más herramientas” permite recuperar todas las opciones avanzadas sin eliminar funcionalidad.
+- Interfaz v67 / build técnico PWA 71.
