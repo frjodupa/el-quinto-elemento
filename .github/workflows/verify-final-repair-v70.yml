@@ -1,0 +1,53 @@
+name: Verify final repaired state
+
+on:
+  push:
+    branches:
+      - audit-v70-repair-20261010
+    paths:
+      - ".github/workflows/verify-final-repair-v70.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify live D1 and runtime
+        run: |
+          set -e
+          BASE="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          curl -fsSL "$BASE/api/sync?ts=$(date +%s)" -o /tmp/sync.json
+          curl -fsSL "$BASE/version.json?ts=$(date +%s)" -o /tmp/version.json
+          curl -fsSL "$BASE/?ts=$(date +%s)" -o /tmp/index.html
+          python - <<'PY'
+          import json,re
+          d=json.load(open('/tmp/sync.json',encoding='utf-8'))
+          s=d.get('data') or {}
+          def chords(i):
+              try:x=json.loads(s.get(f'quintoElemento.chords.v2.{i}','{}'))
+              except:x={}
+              n=sum(1 for v in (x.get('words') or {}).values() if v)
+              for v in (x.get('lines') or {}).values():
+                  if v:n+=max(1,len([a for a in re.split(r'\s*·\s*|\s*,\s*',str(v)) if a]))
+              if x.get('intro'):n+=max(1,len([a for a in str(x['intro']).split('·') if a.strip()]))
+              for v in (x.get('instrumentals') or {}).values():
+                  if v:n+=max(1,len([a for a in str(v).split('·') if a.strip()]))
+              return n
+          def lines(i):
+              text=s.get(f'quintoElemento.lyrics.v1.{i}')
+              if not text:return None
+              return len([x for x in str(text).splitlines() if x.strip()])
+          for i,name in [(16,'CORAZON_DE_NEON'),(19,'DEPENDE'),(21,'ECHO_DE_MENOS'),(22,'BLUES_AUTOBUS'),(35,'LA_NEGRA_FLOR')]:
+              print(f'{name}_CHORDS={chords(i)}')
+              print(f'{name}_LINES_OVERRIDE={lines(i)}')
+              print(f'{name}_ARTIST={s.get(f"quintoElemento.artist.v1.{i}","")}')
+          print('UPDATED_AT='+str(d.get('updatedAt')))
+          v=json.load(open('/tmp/version.json',encoding='utf-8'))
+          print('TECHNICAL_VERSION='+str(v.get('version')))
+          html=open('/tmp/index.html',encoding='utf-8').read()
+          print('UI_V70=' + ('YES' if 'class="uiVersion">v70' in html else 'NO'))
+          print('INTERNET_SEARCH_UI=' + ('YES' if 'Buscar en Internet' in html else 'NO'))
+          PY
