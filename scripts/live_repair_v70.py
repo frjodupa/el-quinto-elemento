@@ -161,10 +161,11 @@ def chord_data(i):
     except Exception:return empty_data()
 
 wanted={norm(x) for x in TARGETS}
+audit_all=("*" in TARGETS) or not TARGETS
 rows=[]; changed=[]
 for i,s in enumerate(songs):
     title=song_title(i,s)
-    if norm(title) not in wanted: continue
+    if not audit_all and norm(title) not in wanted: continue
     current_text=song_text(i,s); current_data=chord_data(i)
     before_lines=count_lines(current_text); before_chords=count_chords(current_data)
     q=(song_artist(i,s)+" "+title).strip()
@@ -173,7 +174,7 @@ for i,s in enumerate(songs):
     results=search.get("results") or []
     scored=sorted(results,key=lambda r:(title_sim(title,r.get("title","")),float(r.get("rating") or 0),int(r.get("votes") or 0)),reverse=True)
     best=None
-    for cand in scored[:4]:
+    for cand in scored[:3]:
         if title_sim(title,cand.get("title",""))<0.60: continue
         time.sleep(DELAY)
         try:
