@@ -1,0 +1,34 @@
+name: EQE - añadir 9 acordes validados con respaldo y sin tocar letras
+on:
+  push:
+    branches: [apply-pedro-pastor-nine-20261010]
+    paths: [.github/workflows/apply-pedro-pastor-nine.yml]
+permissions:
+  contents: read
+jobs:
+  guarded-chord-only-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Dependencies
+        run: pip install requests beautifulsoup4
+      - name: Check pinned source twice and apply only to ID39 after D1 backup
+        env:
+          APPLY_VERIFIED_LOS_OLVIDADOS: '1'
+          LIVE_BASE: https://crimson-rice-1fe1.joseduqueparedes.workers.dev
+          REQUEST_DELAY: '2'
+        run: |
+          python -m py_compile scripts/patch_los_olvidados_verified.py
+          python scripts/patch_los_olvidados_verified.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-pedro-pastor-nine-applied-verified
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            eqe-los-olvidados-guarded/PREVIEW.json
+            eqe-los-olvidados-guarded/APPLIED.json
