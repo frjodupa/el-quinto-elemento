@@ -102,8 +102,8 @@ export default {
 
       const payload = {
         format: "quinto-elemento-cloud-export",
-        version: 63,
-        buildVersion: 66,
+        version: 65,
+        buildVersion: 69,
         createdAt: new Date().toISOString(),
         updatedAt: Number(row.updated_at || 0),
         storage
