@@ -29,10 +29,10 @@ const indented=parse("    C       G\n    HOLA    MUNDO","cifraclub");
 assert.equal(indented.chordData.words["0:0"],"DO","Los espacios originales deben alinear el primer acorde");
 assert.equal(indented.chordData.words["0:1"],"SOL","Los espacios originales deben alinear el segundo acorde");
 
-const standalone=parse("HOLA MUNDO\\nC G\\n\\nSIGUIENTE LINEA","cifraclub");
-assert.equal(standalone.text,"HOLA MUNDO\\nSIGUIENTE LINEA");
+const standalone=parse("HOLA MUNDO\nC G\n\nSIGUIENTE LINEA","cifraclub");
+assert.equal(standalone.text,"HOLA MUNDO\nSIGUIENTE LINEA");
 assert.equal(standalone.chordData.lines["0"],"DO · SOL","La fila aislada de acordes debe conservarse como acorde de línea");
-const trailing=parse("HOLA MUNDO\\nC G","cifraclub");
+const trailing=parse("HOLA MUNDO\nC G","cifraclub");
 assert.equal(trailing.chordData.lines["0"],"DO · SOL","La fila final de acordes no puede perderse");
 
 const findings=[];
