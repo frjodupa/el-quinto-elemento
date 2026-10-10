@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=69">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=69">
+<link rel="manifest" href="manifest.webmanifest?v=70">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=70">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -2081,7 +2081,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v65</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v66</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -2117,26 +2117,43 @@ body.concertMode #quickExportV63{display:none!important}
 </section>
 
 <section id="view" class="view">
-  <div class="bar">
-    <button id="back">← Índice</button>
-    <button id="prev">‹</button>
-    <button id="next">›</button>
-    <button id="settingsBtn" class="sectionTool">⚙ Ajustes</button>
-    <button id="shareSongbook" class="sectionTool" type="button">↗ Compartir</button>
-    <button id="chordMode" class="chordBtn" style="display:none">♫ Acordes</button>
-    <button id="saveChordEdit" class="saveChordEditBtn" type="button">✓ Guardar acordes</button>
-    <button id="undoChordBtn" class="undoChordBtn" type="button" disabled>↶ Deshacer</button>
-    <button id="introTool" class="sectionTool" style="display:none">＋ Intro</button>
-    <button id="instrumentTool" class="sectionTool" style="display:none">＋ Instrumental</button>
-    <button id="clearChords" class="clearChordBtn" style="display:none">Borrar acordes</button><button id="editLyrics" class="lyricEditBtn" style="display:none">✎ Editar letra</button>
-    <button id="autoScrollBtn" class="sectionTool">▶ Scroll</button>
-    <label id="autoScrollSpeedWrap" class="autoScrollSpeedWrap" for="autoScrollSpeed">
-      Velocidad
-      <input id="autoScrollSpeed" type="range" min="1" max="10" step="1" value="4" aria-label="Velocidad de scroll automático">
-      <span id="autoScrollSpeedValue">4</span>
-    </label><button id="appUpdateBtn" class="sectionTool" style="display:none">⟳ Actualizar app</button><button id="themeToggleView" class="sectionTool" style="display:none">☀ Tema claro</button>
-    <span class="spacer"></span>
-    <button id="minus">A−</button><button id="plus">A+</button>
+  <div class="bar directSongBar">
+    <div class="directSongNav">
+      <button id="back" type="button">← Índice</button>
+      <button id="prev" type="button" aria-label="Canción anterior">‹</button>
+      <button id="next" type="button" aria-label="Canción siguiente">›</button>
+    </div>
+
+    <button id="settingsBtn" class="directSongSettings" type="button" aria-label="Ajustes">⚙</button>
+
+    <div class="directSongScroll">
+      <button id="autoScrollBtn" class="sectionTool" type="button">▶ Scroll</button>
+      <label id="autoScrollSpeedWrap" class="autoScrollSpeedWrap directSpeed" for="autoScrollSpeed">
+        <span class="srOnly">Velocidad</span>
+        <input id="autoScrollSpeed" type="range" min="1" max="10" step="1" value="4" aria-label="Velocidad de scroll automático">
+        <span id="autoScrollSpeedValue">4</span>
+      </label>
+    </div>
+
+    <div class="directSongTune" aria-label="Tonalidad y tamaño">
+      <button id="directTransposeDown" type="button" aria-label="Bajar tonalidad un semitono">♭</button>
+      <button id="directTransposeUp" type="button" aria-label="Subir tonalidad un semitono">♯</button>
+      <button id="minus" type="button" aria-label="Reducir letra">A−</button>
+      <button id="plus" type="button" aria-label="Aumentar letra">A+</button>
+    </div>
+
+    <div class="songAdvancedTools" aria-hidden="true">
+      <button id="shareSongbook" class="sectionTool" type="button">↗ Compartir</button>
+      <button id="chordMode" class="chordBtn" type="button">♫ Acordes</button>
+      <button id="saveChordEdit" class="saveChordEditBtn" type="button">✓ Guardar acordes</button>
+      <button id="undoChordBtn" class="undoChordBtn" type="button" disabled>↶ Deshacer</button>
+      <button id="introTool" class="sectionTool" type="button">＋ Intro</button>
+      <button id="instrumentTool" class="sectionTool" type="button">＋ Instrumental</button>
+      <button id="clearChords" class="clearChordBtn" type="button">Borrar acordes</button>
+      <button id="editLyrics" class="lyricEditBtn" type="button">✎ Editar letra</button>
+      <button id="appUpdateBtn" class="sectionTool" type="button">⟳ Actualizar app</button>
+      <button id="themeToggleView" class="sectionTool" type="button">☀ Tema claro</button>
+    </div>
   </div>
   <h1 id="st" class="title"></h1>
   <div id="transposeBadge" class="transposeBadge" style="display:none"></div>
@@ -3147,7 +3164,7 @@ function ensureAunqueTuNoLoSepasChords(i,repair){
   return {added:added,corrected:corrected};
 }
 
-function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;ensureAunqueTuNoLoSepasChords(i);if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
+function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;ensureAunqueTuNoLoSepasChords(i);if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);document.body.classList.add('qeDirect');var directBtn=document.getElementById('qeDirectMode');if(directBtn)directBtn.textContent='✕ Salir de modo directo';view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
 function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null}
 q.oninput=function(){render(q.value)};
 function confirmPublicShare(){
@@ -4524,7 +4541,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=69;
+const APP_VERSION=70;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5438,6 +5455,136 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
   });
 })();
 </script>
+<style id="v66-direct-song-ui">
+.srOnly{
+  position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important
+}
+.directSongBar{
+  position:sticky!important;
+  top:0!important;
+  z-index:120!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  grid-template-areas:
+    "nav settings"
+    "scroll tune"!important;
+  gap:7px 9px!important;
+  padding:calc(7px + env(safe-area-inset-top,0px)) 9px 8px!important;
+  background:rgba(8,8,9,.97)!important;
+  border-bottom:1px solid #28282d!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.26)!important;
+}
+.directSongNav{grid-area:nav;display:flex;gap:6px;min-width:0}
+.directSongSettings{grid-area:settings}
+.directSongScroll{grid-area:scroll;display:flex;align-items:center;gap:7px;min-width:0}
+.directSongTune{grid-area:tune;display:flex;align-items:center;gap:5px}
+.songAdvancedTools{display:none!important}
+
+.directSongBar button{
+  min-height:42px!important;
+  height:42px!important;
+  margin:0!important;
+  padding:7px 10px!important;
+  border-radius:10px!important;
+  border:1px solid #34343a!important;
+  background:#171719!important;
+  color:#f0eee8!important;
+  font-size:.86rem!important;
+  font-weight:850!important;
+  line-height:1!important;
+}
+.directSongBar #back{min-width:72px}
+.directSongBar #prev,.directSongBar #next{
+  width:43px!important;min-width:43px!important;padding:0!important;font-size:1.65rem!important
+}
+.directSongSettings{
+  width:43px!important;min-width:43px!important;padding:0!important;font-size:1.05rem!important
+}
+.directSongBar #autoScrollBtn{
+  min-width:82px!important;
+  border-color:#65572f!important;
+  background:#201d13!important;
+  color:#ebca6d!important;
+}
+.directSpeed{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  min-width:0!important;
+  flex:1!important;
+  margin:0!important;
+  padding:0 7px!important;
+  min-height:42px!important;
+  border:1px solid #2d2d32!important;
+  border-radius:10px!important;
+  background:#121214!important;
+}
+.directSpeed input{width:100%!important;min-width:62px!important;margin:0!important}
+.directSpeed #autoScrollSpeedValue{
+  width:18px!important;
+  text-align:center!important;
+  color:#d7bd70!important;
+  font-weight:900!important;
+  font-size:.78rem!important;
+}
+.directSongTune button{
+  width:42px!important;min-width:42px!important;padding:0!important;
+}
+.directSongTune #directTransposeDown,.directSongTune #directTransposeUp{
+  color:#e9c869!important;
+  border-color:#51472d!important;
+}
+body.qeDirect .directSongBar #minus,
+body.qeDirect .directSongBar #plus{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+body.qeDirect .directSongBar #autoScrollBtn,
+body.qeDirect .directSongBar #settingsBtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#view.on .title{
+  margin-top:12px!important;
+  margin-bottom:8px!important;
+}
+#view.on .lyrics{
+  padding-top:2px!important;
+}
+@media(max-width:380px){
+  .directSongBar{gap:6px!important;padding-left:6px!important;padding-right:6px!important}
+  .directSongBar #back{min-width:64px!important;padding-left:7px!important;padding-right:7px!important}
+  .directSongTune{gap:3px}
+  .directSongTune button{width:38px!important;min-width:38px!important}
+  .directSongBar #autoScrollBtn{min-width:74px!important;padding-left:7px!important;padding-right:7px!important}
+}
+@media(min-width:700px){
+  .directSongBar{
+    grid-template-columns:auto minmax(260px,1fr) auto auto!important;
+    grid-template-areas:"nav scroll tune settings"!important;
+    align-items:center!important;
+    padding-left:14px!important;padding-right:14px!important;
+  }
+  .directSongScroll{max-width:440px}
+}
+</style>
+<script id="v66-direct-song-script">
+(function(){
+  var down=document.getElementById('directTransposeDown');
+  var up=document.getElementById('directTransposeUp');
+  if(down)down.addEventListener('click',function(){
+    var target=document.getElementById('transposeDown');
+    if(target)target.click();
+  });
+  if(up)up.addEventListener('click',function(){
+    var target=document.getElementById('transposeUp');
+    if(target)target.click();
+  });
+})();
+</script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -5566,8 +5713,8 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:65,
-        buildVersion:69,
+        version:66,
+        buildVersion:70,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
