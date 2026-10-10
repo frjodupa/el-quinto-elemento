@@ -24,6 +24,7 @@ const current={
 "quintoElemento.passes.v1":JSON.stringify(passes),
 "quintoElemento.chords.v2.71":JSON.stringify({words:{"0:0":"MI"},lines:{},instrumentals:{},intro:"",references:[]}),
 "quintoElemento.lyrics.v1.71":"nueva canción añadida",
+"quintoElemento.title.v1.71":"PERO A TU LADO",
 // Orphan slots persisted from an older 99-song layout despite the now 72-song UI.
 "quintoElemento.lyrics.v1.72":"línea uno\nlínea dos\nlínea tres",
 "quintoElemento.chords.v2.75":JSON.stringify({words:{"0:2":"FA"},lines:{},intro:"",instrumentals:{},references:[]})

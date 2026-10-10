@@ -1,7 +1,7 @@
 name: EQE recovery safety tests
 on:
   push:
-    branches: [fix-recovery-orphan-collisions-20261010]
+    branches: [fix-pasma-current-id71-20261010]
     paths: [.github/workflows/test-pasma-recovery.yml, src/pasma_recovery.mjs, scripts/test_pasma_recovery.mjs]
 permissions:
   contents: read
