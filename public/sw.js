@@ -1,13 +1,16 @@
-const CACHE='quinto-elemento-v75';
+const CACHE='quinto-elemento-v76';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=75',
+  './manifest.webmanifest?v=76',
   './version.json',
   './pdf-chords-v44.json',
-  './icon-192.png?v=75',
-  './icon-512.png?v=75',
-  './apple-touch-icon.png?v=75'
+  './premium.css?v=76',
+  './premium-icons.js?v=76',
+  './premium-icon-192.png?v=76',
+  './premium-icon-512.png?v=76',
+  './premium-icon-maskable-512.png?v=76',
+  './premium-icon-180.png?v=76'
 ];
 
 self.addEventListener('install',event=>{
