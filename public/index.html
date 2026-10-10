@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=77">
-<link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=77">
+<link rel="manifest" href="manifest.webmanifest?v=78">
+<link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=78">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1519,8 +1519,8 @@ body.lightTheme .globalUndoBtn{
 
 </style>
 
-<link rel="icon" type="image/png" sizes="192x192" href="premium-icon-192.png?v=77">
-<link rel="icon" type="image/png" sizes="512x512" href="premium-icon-512.png?v=77">
+<link rel="icon" type="image/png" sizes="192x192" href="premium-icon-192.png?v=78">
+<link rel="icon" type="image/png" sizes="512x512" href="premium-icon-512.png?v=78">
 <style>
 /* v60 · Vista original estructurada por defecto */
 #ly.qeOriginalView .lyricLine{margin:.12em 0}
@@ -2139,7 +2139,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v73</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v74</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -2149,7 +2149,15 @@ body.concertMode #quickExportV63{display:none!important}
       <button id="settingsIndexBtn" class="directSettingsBtn" type="button" aria-label="Abrir ajustes" title="Ajustes">⚙</button>
     </div>
 
-    <input id="q" class="search directSearch" placeholder="Buscar canción…" autocomplete="off" inputmode="search">
+    <input id="q" class="search directSearch" placeholder="Buscar canción o artista…" autocomplete="off" inputmode="search">
+    <div class="internetSearchToolbar">
+      <button id="internetSearchBtn" class="internetSearchLaunch" type="button" aria-controls="internetSearchHost" aria-label="Buscar canciones y acordes en Internet">
+        <svg aria-hidden="true" class="internetGlobe" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+        <span>Buscar en Internet</span>
+      </button>
+      <span id="internetSearchHint" class="internetSearchHint">CifraClub y Ultimate Guitar · necesita conexión</span>
+    </div>
+    <div id="internetSearchHost" class="internetSearchHost" aria-live="polite" aria-atomic="false"></div>
 
     <div class="directActions" aria-label="Acciones de directo">
       <button id="managePassesBtn" class="directAction directActionPrimary" type="button">☷ Pases</button>
@@ -2172,7 +2180,6 @@ body.concertMode #quickExportV63{display:none!important}
   <button id="savePassSelection" type="button" class="primary">Guardar pase</button>
 </div>
 <div id="grid" class="grid"></div>
-<div id="internetSearchHost" class="internetSearchHost" aria-live="polite"></div>
 </section>
 
 <section id="view" class="view">
@@ -4600,7 +4607,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=77;
+const APP_VERSION=78;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4689,7 +4696,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=77',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=78',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -5906,10 +5913,46 @@ body.qeDirect .directSongBar #settingsBtn{
 })();
 </script>
 <style id="v69-internet-search-ui">
+.internetSearchToolbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 0 0;
+  flex-wrap:wrap;
+}
+.internetSearchLaunch{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  min-height:46px!important;
+  padding:9px 14px!important;
+  background:linear-gradient(130deg,#192637,#161d29)!important;
+  border:1px solid rgba(112,174,240,.46)!important;
+  color:#e0edff!important;
+  border-radius:12px!important;
+  font-size:.89rem!important;
+  font-weight:780!important;
+  cursor:pointer;
+}
+.internetSearchLaunch:focus-visible{outline:2px solid #dfbf72;outline-offset:2px}
+.internetSearchLaunch:active{background:#253c57!important}
+.internetGlobe{width:20px;height:20px;flex:none}
+.internetSearchHint{flex:1;min-width:120px;font-size:.75rem;color:#a5b3c8;line-height:1.3}
 .internetSearchHost{
-  padding:0 12px calc(18px + env(safe-area-inset-bottom,0px));
-  max-width:1100px;
-  margin:0 auto;
+  padding:6px 0 0;
+  max-width:100%;
+  margin:0;
+}
+.internetSearchHost:empty{display:none}
+@media(max-width:430px){
+  .internetSearchLaunch{width:100%}
+  .internetSearchHint{font-size:.72rem}
+}
+body.lightTheme .internetSearchLaunch{
+  color:#163350!important;
+  background:#e7f1fa!important;
+  border-color:#9db8d4!important
 }
 .internetSearchPrompt{
   display:flex;
@@ -6002,11 +6045,14 @@ body.qeDirect .directSongBar #settingsBtn{
 (function(){
   var host=document.getElementById('internetSearchHost');
   var input=document.getElementById('q');
-  if(!host||!input)return;
+  var launch=document.getElementById('internetSearchBtn');
+  var hint=document.getElementById('internetSearchHint');
+  if(!host||!input||!launch)return;
 
   var lastQuery='';
   var currentResults=[];
   var searching=false;
+  var requestSerial=0;
 
   function canon(v){
     var s=String(v||'').toUpperCase();
@@ -6256,43 +6302,67 @@ body.qeDirect .directSongBar #settingsBtn{
     host.appendChild(box);
   }
 
+  function showSearchMessage(message){
+    host.replaceChildren();
+    var notice=document.createElement('div');
+    notice.className='internetSearchState';
+    notice.textContent=message;
+    host.appendChild(notice);
+  }
+
   async function runSearch(){
     var query=String(input.value||'').trim();
-    if(query.length<2)return;
+    if(query.length<2){
+      showSearchMessage('Escribe al menos dos caracteres del título o del artista.');
+      input.focus();
+      return;
+    }
+    if(!navigator.onLine){
+      showSearchMessage('Sin conexión: las canciones guardadas siguen disponibles. Conéctate para buscar en Internet.');
+      return;
+    }
+    if(searching)return;
+    var serial=++requestSerial;
     searching=true;
-    host.innerHTML='<div class="internetSearchState">Buscando en CifraClub y Ultimate Guitar…</div>';
+    launch.disabled=true;
+    launch.setAttribute('aria-busy','true');
+    if(hint)hint.textContent='Buscando en CifraClub y Ultimate Guitar…';
+    showSearchMessage('Buscando coincidencias en Internet…');
     try{
       var r=await fetch('/api/song-search?q='+encodeURIComponent(query),{cache:'no-store'});
       var d=await r.json();
-      if(!r.ok)throw new Error(d.error||'Error de búsqueda');
+      if(serial!==requestSerial||query!==String(input.value||'').trim())return;
+      if(!r.ok||d.ok===false)throw new Error(d.error||'Error de búsqueda');
       currentResults=Array.isArray(d.results)?d.results:[];
       lastQuery=query;
       renderResults(query,currentResults,d.errors||[]);
     }catch(e){
-      host.innerHTML='<div class="internetSearchState">No se pudo buscar en Internet: '+String(e&&e.message||e)+'</div>';
+      if(serial===requestSerial)showSearchMessage('No se pudo buscar en Internet: '+String(e&&e.message||e));
     }finally{
       searching=false;
+      launch.disabled=false;
+      launch.removeAttribute('aria-busy');
+      if(hint)hint.textContent='CifraClub y Ultimate Guitar · necesita conexión';
     }
   }
 
   function renderPrompt(){
-    if(searching)return;
     var query=String(input.value||'').trim();
-    if(query.length<2){host.innerHTML='';return}
+    if(hint&&!searching)hint.textContent=query.length<2
+      ?'Escribe título o artista y pulsa Buscar en Internet'
+      :'Buscar «'+query+'» fuera del cancionero';
+    if(searching)return;
+    if(query.length<2){host.replaceChildren();return}
     if(query===lastQuery&&currentResults.length){renderResults(query,currentResults,[]);return}
-    host.innerHTML='';
-    var box=document.createElement('div');box.className='internetSearchPrompt';
-    var text=document.createElement('span');
-    text.textContent='La lista de arriba busca en tu cancionero. Para encontrar otra versión o una canción nueva:';
-    var btn=document.createElement('button');btn.type='button';btn.textContent='🌐 Buscar en Internet';
-    btn.addEventListener('click',runSearch);
-    box.appendChild(text);box.appendChild(btn);host.appendChild(box);
+    host.replaceChildren();
   }
 
+  launch.addEventListener('click',runSearch);
   input.addEventListener('input',function(){
+    requestSerial++;
     lastQuery='';
     currentResults=[];
-    setTimeout(renderPrompt,0);
+    renderPrompt();
   });
   input.addEventListener('keydown',function(e){
     if(e.key==='Enter'&&String(input.value||'').trim().length>=2){
@@ -6306,9 +6376,9 @@ body.qeDirect .directSongBar #settingsBtn{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=77");
+@import url("./premium.css?v=78");
 </style>
-<script defer src="./premium-icons.js?v=77"></script>
+<script defer src="./premium-icons.js?v=78"></script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -6437,8 +6507,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:73,
-        buildVersion:77,
+        version:74,
+        buildVersion:78,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
