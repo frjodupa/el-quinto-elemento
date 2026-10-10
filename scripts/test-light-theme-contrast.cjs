@@ -87,7 +87,7 @@ async function check(page,label,selector,bg,minimum=4.5){
    await page.screenshot({path:'ui-review/'+s.name+'-song-light.png',fullPage:false});
    await page.evaluate(()=>document.body.classList.remove('lightTheme'));
    await page.waitForTimeout(120);
-   const darkChord=await page.locator('[data-light-contrast-fixture] .wordChord').evaluate(e=>getComputedStyle(e).color);
+   const darkChord=await page.locator('[data-light-contrast-fixture] .wordChord').first().evaluate(e=>getComputedStyle(e).color);
    const lightChord=songChecks.find(x=>x.name==='Word chord').color;
    if(darkChord===lightChord)throw Error(s.name+': dark chord unexpectedly has light color');
    if(errors.length)throw Error(s.name+': page JavaScript errors '+errors.join(' | '));
