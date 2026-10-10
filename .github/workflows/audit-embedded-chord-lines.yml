@@ -1,0 +1,29 @@
+name: EQE - detectar acordes ocultos dentro de las letras (todos)
+on:
+  push:
+    branches: [audit-alt-chord-sources-86-20261010]
+    paths: [.github/workflows/audit-embedded-chord-lines.yml]
+permissions:
+  contents: read
+jobs:
+  whole-songbook:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install requests beautifulsoup4
+      - name: Audit hidden chord-only lines across all songs read-only
+        env:
+          LIVE_BASE: https://crimson-rice-1fe1.joseduqueparedes.workers.dev
+        run: |
+          python -m py_compile scripts/audit_embedded_chord_scaffolds.py
+          python scripts/audit_embedded_chord_scaffolds.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-todas-las-canciones-acordes-embebidos
+          path: eqe-embedded-chord-lines/CHORD_SCAFFOLD_DIAGNOSTIC.json
+          retention-days: 30
+          if-no-files-found: warn
