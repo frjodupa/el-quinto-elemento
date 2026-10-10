@@ -1,4 +1,5 @@
 name: EQE v78 light-theme accessibility check
+# Re-run after adding alphabetical song assertions and fixing fixture selector.
 on:
   push:
     branches: [fix-v78-light-theme-chord-contrast-20261010]
