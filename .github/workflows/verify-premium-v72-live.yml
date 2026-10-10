@@ -1,4 +1,4 @@
-name: Verify Cloudflare premium v72 published
+name: Verify Cloudflare premium v73 published
 on:
   push:
     branches: [verify-live-v72-premium-20261010]
@@ -30,10 +30,10 @@ jobs:
               ex,_=get("/export")
               data=json.loads(ex)
               release=json.loads(v).get("version")
-              present=b'class="uiVersion">v72' in html and b'premium-icons.js?v=76' in html
-              build=release==76 and b"quinto-elemento-v76" in sw
-              export=data.get("version")==72 and data.get("buildVersion")==76
-              print(f"Attempt {attempt}: ui_v72={present}, build76={build}, export72_76={export}",flush=True)
+              present=b'class="uiVersion">v73' in html and b'premium-icons.js?v=77' in html
+              build=release==77 and b"quinto-elemento-v77" in sw
+              export=data.get("version")==73 and data.get("buildVersion")==77
+              print(f"Attempt {attempt}: ui_v73={present}, build77={build}, export73_77={export}",flush=True)
               if present and build and export:
                 final=data
                 break
@@ -41,10 +41,10 @@ jobs:
               print("Attempt",attempt,"public endpoint:",str(e)[:160],flush=True)
             time.sleep(12)
           if final is None:
-            raise SystemExit("FAIL: Cloudflare todavía no sirve v72 / build 76")
+            raise SystemExit("FAIL: Cloudflare todavía no sirve v73 / build 77")
           manifest,_=get("/manifest.webmanifest")
           m=json.loads(manifest)
-          expected={"premium-icon-192.png?v=76":192,"premium-icon-512.png?v=76":512,"premium-icon-maskable-512.png?v=76":512}
+          expected={"premium-icon-192.png?v=77":192,"premium-icon-512.png?v=77":512,"premium-icon-maskable-512.png?v=77":512}
           found={x["src"]:int(x["sizes"].split("x")[0]) for x in m.get("icons",[])}
           for name,size in expected.items():
             assert found.get(name)==size,(name,found)
@@ -58,8 +58,11 @@ jobs:
           js,jsct=get("/premium-icons.js")
           assert b"premium-ink" in css and b"settingsPanel" in css
           assert b"premium-svg" in js
-          assert "premium.css?v=76" in sw.decode()
-          assert "premium-icons.js?v=76" in sw.decode()
-          assert "premium-icon-180.png?v=76" in sw.decode()
-          print("LIVE_PREMIUM_V72_VERIFIED",json.dumps({"uiVersion":72,"technicalVersion":76,"manifestIcons":found,"cssBytes":len(css),"jsBytes":len(js),"exportFormat":final.get("format"),"storagePresent":isinstance(final.get("storage"),dict)},ensure_ascii=False),flush=True)
+          assert b"margin-right:.36em!important" in css
+          assert b'href="premium-icon-192.png?v=77"' in html
+          assert b'href="premium-icon-512.png?v=77"' in html
+          assert "premium.css?v=77" in sw.decode()
+          assert "premium-icons.js?v=77" in sw.decode()
+          assert "premium-icon-180.png?v=77" in sw.decode()
+          print("LIVE_PREMIUM_V73_VERIFIED",json.dumps({"uiVersion":73,"technicalVersion":77,"manifestIcons":found,"cssBytes":len(css),"jsBytes":len(js),"exportFormat":final.get("format"),"storagePresent":isinstance(final.get("storage"),dict)},ensure_ascii=False),flush=True)
           PY
