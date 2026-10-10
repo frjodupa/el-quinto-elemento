@@ -2,7 +2,7 @@ name: EQE PRIORIDAD - auditoria real de 86 canciones y Pase La Pasma
 on:
   push:
     branches: [audit-current-86-priority-20261010]
-    paths: ['.github/workflows/eqe-current-inventory.yml']
+    paths: ['.github/workflows/eqe-current-inventory.yml', 'scripts/audit_current_chord_coverage.py']
   workflow_dispatch:
 permissions:
   contents: read
