@@ -1,0 +1,35 @@
+/* v64 · Importador online + portada simplificada */
+#themeToggleIndex,#backupBtn,#shareSongbookIndex,#shareAccessBtn,#createPassBtn{display:none!important}
+.top .qePrimaryAction{margin-top:10px;min-height:44px;border-radius:11px;border:1px solid #4a432b;background:#17150f;color:#e6c36a;padding:8px 13px;font-weight:900}
+#onlineImportIndexBtn{border-color:#7b6429;background:#211b0d}
+#passesNewBtn{border-color:#e6c36a!important;color:#111!important;background:#e6c36a!important}
+.qeImportModal{position:fixed;inset:0;z-index:190000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.82);padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+.qeImportModal.on{display:flex}
+.qeImportPanel{width:min(940px,98vw);max-height:94vh;display:flex;flex-direction:column;background:#111214;border:1px solid #3d3d43;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.qeImportHead{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid #303036;background:#15161a}
+.qeImportHead strong{flex:1;color:#e6c36a;font-size:1.05rem;letter-spacing:.03em}
+.qeImportHead button,.qeImportActions button,.qeImportSearchRow button,.qeImportResult{min-height:44px;border-radius:10px;border:1px solid #3a3a40;background:#1a1b1f;color:#fff;padding:9px 12px;font-weight:800}
+.qeImportBody{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px;display:grid;gap:12px}
+.qeImportFields{display:grid;grid-template-columns:1.2fr 1fr;gap:9px}
+.qeImportFields label{font-size:.82rem;color:#cfcfcf;font-weight:800}
+.qeImportFields input{width:100%;box-sizing:border-box;min-height:46px;margin-top:5px;padding:10px 12px;border-radius:10px;border:1px solid #414147;background:#09090a;color:#fff;font-size:16px}
+.qeImportSearchRow{display:flex;gap:9px;align-items:center}
+.qeImportSearchRow button{background:#e6c36a;color:#111;border-color:#e6c36a;min-width:150px}
+#qeImportStatus{color:#c9c9c9;font-size:.88rem;line-height:1.35;flex:1}
+.qeImportResults{display:grid;gap:7px}
+.qeImportResult{text-align:left;display:grid;gap:3px}
+.qeImportResult strong{color:#fff}.qeImportResult span{color:#aaa;font-size:.84rem}.qeImportResult.selected{border-color:#e6c36a;background:#211d13}
+.qeImportPreview{display:none;border:1px solid #34343a;border-radius:12px;overflow:hidden;background:#09090a}
+.qeImportPreview.on{display:block}
+.qeImportPreviewHead{padding:10px 12px;border-bottom:1px solid #2f2f34;color:#e6c36a;font-weight:900}
+#qeImportPreviewText{margin:0;max-height:36vh;overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;white-space:pre-wrap;color:#e8e8e8;font:600 .95rem/1.38 ui-monospace,SFMono-Regular,Menlo,monospace}
+.qeImportNote{color:#9f9f9f;font-size:.82rem;line-height:1.35}
+.qeImportActions{display:flex;gap:9px;justify-content:flex-end;padding:12px 15px;border-top:1px solid #303036;background:#15161a}
+.qeImportActions .primary{background:#e6c36a;color:#111;border-color:#e6c36a}.qeImportActions .restore{margin-right:auto}
+.qeImportActions button:disabled,.qeImportSearchRow button:disabled{opacity:.45}
+body.lightTheme .qeImportPanel,body.lightTheme .qeImportHead,body.lightTheme .qeImportActions{background:#fff;color:#171717;border-color:#d0c8b6}
+body.lightTheme .qeImportFields input,body.lightTheme .qeImportPreview{background:#fff;color:#171717;border-color:#d0c8b6}
+body.lightTheme #qeImportPreviewText{color:#171717}
+body.lightTheme .qeImportResult{background:#fff;color:#171717;border-color:#d0c8b6}
+body.lightTheme .qeImportResult strong{color:#171717}
+@media(max-width:700px){.qeImportFields{grid-template-columns:1fr}.qeImportSearchRow{align-items:stretch;flex-direction:column}.qeImportSearchRow button{width:100%}.qeImportActions{flex-wrap:wrap}.qeImportActions button{flex:1 1 auto}.qeImportActions .restore{margin-right:0;flex-basis:100%}.qeImportPanel{height:96vh;max-height:96vh;border-radius:12px}#qeImportPreviewText{max-height:32vh}}
