@@ -8,7 +8,7 @@ import json
 import pathlib
 import re
 import unicodedata
-from scripts import audit_songbook as audit
+import audit_songbook as audit
 
 OUT=pathlib.Path("eqe-current-audit")
 OUT.mkdir(exist_ok=True)
