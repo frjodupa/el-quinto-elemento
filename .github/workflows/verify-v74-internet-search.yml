@@ -1,0 +1,33 @@
+name: EQE v74 - visible online search on mobile
+on:
+  push:
+    branches: [release-v74-visible-internet-search-20261010]
+    paths: ['.github/workflows/verify-v74-internet-search.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install browser for visual smoke test
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test iPhone, iPad, desktop navigation and API wiring
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory public >/tmp/eqe-v74-test.log 2>&1 &
+          sleep 2
+          node scripts/test-internet-search-ui.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eqe-v74-search-visibility-screenshots
+          path: ui-review/
+          retention-days: 14
+          if-no-files-found: warn
