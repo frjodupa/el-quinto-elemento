@@ -1,8 +1,8 @@
-const CACHE='quinto-elemento-v78';
+const CACHE='quinto-elemento-v79';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=78',
+  './manifest.webmanifest?v=79',
   './version.json',
   './pdf-chords-v44.json',
   './premium.css?v=77',

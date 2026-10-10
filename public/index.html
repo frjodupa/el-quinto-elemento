@@ -805,7 +805,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=78">
+<link rel="manifest" href="manifest.webmanifest?v=79">
 <link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=78">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -2139,7 +2139,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v74</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v75</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -4335,20 +4335,28 @@ buildPicker();render('');bindGlobalUndoButtons();
     return await r.json();
   }
 
-  async function apiPut(state){
+  async function apiPut(state,expectedUpdatedAt){
     var r=await fetch('/api/sync',{
       method:'PUT',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({data:state})
+      body:JSON.stringify({data:state,expectedUpdatedAt:Number(expectedUpdatedAt||0)})
     });
-    if(!r.ok)throw new Error('PUT '+r.status);
+    if(!r.ok){
+      var reason={};
+      try{reason=await r.json()}catch(e){}
+      var error=new Error(String(reason.error||'Error sincronizando '+r.status));
+      error.httpStatus=r.status;
+      error.cloudCode=reason.code||'';
+      throw error;
+    }
     return await r.json();
   }
 
   async function pushLocal(){
     if(!navigator.onLine)return false;
     setStatus('☁ Guardando en la nube…','Enviando cambios de este dispositivo.');
-    var res=await apiPut(collectState());
+    var expected=Number(localStorage.getItem(META_REMOTE_TS)||0);
+    var res=await apiPut(collectState(),expected);
     localStorage.setItem(META_DIRTY,'0');
     localStorage.setItem(META_REMOTE_TS,String(res.updatedAt||0));
     setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
@@ -4357,13 +4365,33 @@ buildPicker();render('');bindGlobalUndoButtons();
 
   function refreshAfterCloudPull(){
     try{
+      // D1 can add custom songs while this PWA tab remains open. Rebuild the
+      // catalogue instead of displaying an outdated 72-song in-memory list.
+      if(typeof songs!=='undefined' && Array.isArray(songs) &&
+         typeof baseSongCount==='number' && typeof loadCustomSongs==='function'){
+        var refreshed=loadCustomSongs();
+        var before=songs.length;
+        if(Array.isArray(refreshed)){
+          customSongs=refreshed;
+          songs.splice(baseSongCount);
+          refreshed.forEach(function(s){
+            if(s && s.title && s.text) songs.push({
+              title:normalizeMasterTitle(s.title),
+              text:normalizeMasterText(s.text)
+            });
+          });
+          var counter=document.getElementById('count');
+          if(counter)counter.textContent=songs.length+' canciones';
+          if(before!==songs.length)window.activePass=null;
+        }
+      }
       if(typeof render==='function')render();
-      if(typeof current!=='undefined' && current>=0){
+      if(typeof current!=='undefined' && current>=0 && songs[current]){
         if(typeof getSongTitle==='function' && typeof st!=='undefined' && st)st.textContent=getSongTitle(current);
         if(typeof renderLyrics==='function')renderLyrics();
       }
       if(window.updateTransposeUI)window.updateTransposeUI();
-    }catch(e){}
+    }catch(e){console.error('Refresh cloud songbook:',e)}
   }
 
   async function pullRemote(allowReload){
@@ -4415,7 +4443,11 @@ buildPicker();render('');bindGlobalUndoButtons();
         setStatus('☁ Sincronizado','Este dispositivo está al día.');
       }
     }catch(e){
-      setStatus('☁ Sincronización pendiente','No se pudo conectar con Cloudflare. Se reintentará automáticamente.');
+      if(e && e.httpStatus===409){
+        setStatus('⚠ Copias distintas','La nube contiene una versión más reciente. Tus cambios locales se conservan. Exporta una copia antes de sincronizar de nuevo.');
+      }else{
+        setStatus('☁ Sincronización pendiente','No se pudo conectar con Cloudflare. Se reintentará automáticamente.');
+      }
     }
   }
 
@@ -4607,7 +4639,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=78;
+const APP_VERSION=79;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4696,7 +4728,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=78',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=79',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6507,8 +6539,8 @@ body.lightTheme .internetSearchLaunch{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:74,
-        buildVersion:78,
+        version:75,
+        buildVersion:79,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,

@@ -107,3 +107,12 @@
 - El botón muestra ayuda cuando no hay título y avisa si no existe conexión.
 - Se mantienen búsqueda local offline, importación conservadora y el servicio actual CifraClub / Ultimate Guitar.
 - Interfaz v74 / versión técnica y caché PWA 78.
+
+## v75 — 2026-10-10
+
+- Protección de sincronización Cloudflare mediante comparación de revisión: un dispositivo antiguo ya no puede sobrescribir el repertorio completo recuperado.
+- Actualización en caliente del catálogo de canciones personalizadas al recibir cambios desde D1.
+- Herramienta temporal, de una sola operación, para fusionar las 14 canciones únicas perdidas de «LA PASMA (NUEVA)» desde una copia verificada de Cloudflare, conservando «PERO A TU LADO» y sin recuperar los 14 duplicados.
+- Copia histórica y copia previa guardadas de forma permanente en D1 antes de cualquier migración.
+- Preparada auditoría y mejora posterior de acordes por línea sobre los 23 temas del pase.
+- Interfaz v75, build técnico PWA 79.
