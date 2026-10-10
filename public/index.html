@@ -2471,10 +2471,18 @@ function undoChordChange(){
 function splitSeq(v){return (v||'').split(/\s*·\s*|\s*,\s*/).map(function(x){return x.trim();}).filter(Boolean);}
 function seqText(items){return items.join(' · ');}
 function render(f){
-  f=f||'';grid.innerHTML='';var n=0;
-  songs.forEach(function(song,i){
-    var shownTitle=getSongTitle(i);
-    if(shownTitle.toLowerCase().indexOf(f.toLowerCase())<0)return;
+  // Alphabetical display only. Never reorder the songs array: IDs are used by
+  // chord data, edits, Cloudflare sync and saved setlists/pases.
+  f=String(f||'');grid.innerHTML='';var n=0;
+  var ordered=songs.map(function(song,i){
+    return {index:i,title:getSongTitle(i)};
+  }).sort(function(a,b){
+    var byTitle=a.title.localeCompare(b.title,'es',{sensitivity:'base',numeric:true});
+    return byTitle||a.index-b.index;
+  });
+  ordered.forEach(function(item){
+    var i=item.index,shownTitle=item.title;
+    if(shownTitle.toLocaleLowerCase('es').indexOf(f.toLocaleLowerCase('es'))<0)return;
     n++;
     var b=document.createElement('button');
     b.className='songBtn';
