@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=65">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=65">
+<link rel="manifest" href="manifest.webmanifest?v=66">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=66">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1542,7 +1542,44 @@ body.lightTheme .globalUndoBtn{
 #view .bar{gap:5px;flex-wrap:wrap}
 #view .bar #back,#view .bar #prev,#view .bar #next,#view .bar #settingsBtn,#view .bar #autoScrollBtn{min-height:42px}
 @media(max-width:650px){#view .bar #shareSongbook{display:none!important}#view .bar #autoScrollSpeedWrap{flex:1;min-width:110px}#view .bar #minus,#view .bar #plus{padding:8px}}
-</style></head><body>
+</style><style id="v63-export-styles">
+/* v63 · Exportación 1-click para iPhone */
+#quickExportV63{
+  position:fixed;
+  right:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index:165000;
+  min-height:46px;
+  padding:10px 14px;
+  border:1px solid #6d5b2e;
+  border-radius:12px;
+  background:#17150f;
+  color:#e6c36a;
+  font-weight:900;
+  font-size:.9rem;
+  line-height:1;
+  box-shadow:0 8px 22px rgba(0,0,0,.28);
+  touch-action:manipulation;
+}
+#quickExportV63:active{transform:translateY(1px)}
+body.lightTheme #quickExportV63{
+  background:#fff8e2;
+  color:#6a5317;
+  border-color:#c9b371;
+}
+body.concertMode #quickExportV63{display:none!important}
+@media(max-width:600px){
+  #quickExportV63{
+    right:12px;
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+    min-height:44px;
+    padding:9px 12px;
+    font-size:.82rem;
+  }
+}
+</style>
+</head><body>\n<button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
+
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
   <div class="passPanel small">
@@ -1854,7 +1891,7 @@ body.lightTheme .globalUndoBtn{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v62</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v63</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
     <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="shareSongbookIndex" class="newSongBtn" type="button">↗ Compartir app</button><button id="shareAccessBtn" class="newSongBtn" type="button">👥 Compartir acceso</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
   </div>
@@ -3798,7 +3835,177 @@ buildPicker();render('');bindGlobalUndoButtons();
       if(!songs[songIndex])return '';
       return '<li><strong>'+escapeHtml(getSongTitle(songIndex))+'</strong></li>';
     }).join('');
-    return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}}</style></head><body><h1>'+escapeHtml(p.name)+'</h1><p>'+(p.songs||[]).length+' canciones · El Quinto Elemento</p><ol>'+items+'</ol><script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script></body></html>';
+    return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}}</style></head><body><h1>'+escapeHtml(p.name)+'</h1><p>'+(p.songs||[]).length+' canciones · El Quinto Elemento</p><ol>'+items+'</ol><script>window.onload=function(){setTimeout(function(){window.print()},250)}<\/script><script id="v63-export-script">
+(function(){
+  var btn=document.getElementById('quickExportV63');
+  if(!btn)return;
+
+  function wantedStorageKey(key){
+    return /(canciones|cancionero|quinto)/i.test(String(key||''));
+  }
+
+  function collectLocalStorage(){
+    var out={};
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var key=localStorage.key(i);
+        if(key && wantedStorageKey(key)){
+          out[key]=localStorage.getItem(key);
+        }
+      }
+    }catch(e){}
+    return out;
+  }
+
+  function readStore(db,storeName){
+    return new Promise(function(resolve){
+      var rows=[];
+      try{
+        var tx=db.transaction(storeName,'readonly');
+        var store=tx.objectStore(storeName);
+        var req=store.openCursor();
+        req.onsuccess=function(){
+          var cursor=req.result;
+          if(!cursor)return;
+          rows.push({key:cursor.key,value:cursor.value});
+          cursor.continue();
+        };
+        tx.oncomplete=function(){resolve(rows)};
+        tx.onerror=function(){resolve(rows)};
+        tx.onabort=function(){resolve(rows)};
+      }catch(e){resolve(rows)}
+    });
+  }
+
+  async function collectIndexedDB(){
+    var out={};
+    if(!window.indexedDB)return out;
+    var infos=[];
+    try{
+      if(typeof indexedDB.databases==='function'){
+        infos=await indexedDB.databases();
+      }
+    }catch(e){infos=[]}
+
+    for(var i=0;i<infos.length;i++){
+      var info=infos[i]||{};
+      var name=info.name;
+      if(!name)continue;
+      try{
+        var db=await new Promise(function(resolve,reject){
+          var req=indexedDB.open(name);
+          req.onsuccess=function(){resolve(req.result)};
+          req.onerror=function(){reject(req.error||new Error('No se pudo abrir '+name))};
+          req.onblocked=function(){reject(new Error('Base bloqueada '+name))};
+        });
+
+        var stores={};
+        var names=Array.prototype.slice.call(db.objectStoreNames||[]);
+        for(var s=0;s<names.length;s++){
+          stores[names[s]]=await readStore(db,names[s]);
+        }
+        out[name]={version:db.version,stores:stores};
+        db.close();
+      }catch(e){
+        out[name]={error:String(e&&e.message||e)};
+      }
+    }
+    return out;
+  }
+
+  function currentSongbook(){
+    var out=[];
+    try{
+      if(typeof songs==='undefined' || !Array.isArray(songs))return out;
+      songs.forEach(function(song,i){
+        var data=typeof getChordData==='function'?getChordData(i):{};
+        out.push({
+          id:String(i),
+          titulo:typeof getSongTitle==='function'?getSongTitle(i):String(song&&song.title||''),
+          artista:String(song&&((song.artista||song.artist)||'')||''),
+          letraConAcordes:{
+            texto:typeof getSongText==='function'?getSongText(i):String(song&&song.text||''),
+            lines:data&&data.lines||{},
+            words:data&&data.words||{},
+            intro:data&&data.intro||'',
+            introText:data&&data.introText||'',
+            instrumentals:data&&data.instrumentals||{},
+            instrumentalsText:data&&data.instrumentalsText||{},
+            references:data&&Array.isArray(data.references)?data.references:[]
+          }
+        });
+      });
+    }catch(e){}
+    return out;
+  }
+
+  function jsonReplacer(key,value){
+    if(typeof value==='bigint')return String(value);
+    if(typeof Blob!=='undefined' && value instanceof Blob){
+      return {__type:'Blob',type:value.type||'',size:value.size||0};
+    }
+    return value;
+  }
+
+  async function exportSongbook(){
+    btn.disabled=true;
+    var oldText=btn.textContent;
+    btn.textContent='Preparando…';
+    try{
+      var local=collectLocalStorage();
+      var idb=await collectIndexedDB();
+      var cancionero=currentSongbook();
+
+      if(!cancionero.length && !Object.keys(local).length && !Object.keys(idb).length){
+        alert('No se encontró ningún cancionero para exportar.');
+        return;
+      }
+
+      var payload={
+        format:'quinto-elemento-v62-export',
+        version:63,
+        buildVersion:66,
+        createdAt:new Date().toISOString(),
+        source:location.href,
+        cancionero:cancionero,
+        localStorage:local,
+        indexedDB:idb
+      };
+
+      var jsonText=JSON.stringify(payload,jsonReplacer,2);
+      var file=new File([jsonText],'cancionero-v62-export.json',{type:'application/json'});
+
+      if(navigator.share){
+        var shareData={files:[file],title:'Cancionero El Quinto Elemento'};
+        if(!navigator.canShare || navigator.canShare(shareData)){
+          await navigator.share(shareData);
+          alert('Exportadas '+cancionero.length+' canciones');
+          return;
+        }
+      }
+
+      var url=URL.createObjectURL(file);
+      var a=document.createElement('a');
+      a.href=url;
+      a.download='cancionero-v62-export.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){URL.revokeObjectURL(url);a.remove()},1200);
+      alert('Exportadas '+cancionero.length+' canciones');
+    }catch(e){
+      if(!(e && e.name==='AbortError')){
+        alert('No se pudo exportar el cancionero: '+String(e&&e.message||e));
+      }
+    }finally{
+      btn.disabled=false;
+      btn.textContent=oldText;
+    }
+  }
+
+  btn.addEventListener('click',exportSongbook);
+})();
+</script>
+</body></html>';
   }
     function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
   var sharePassBtn=document.getElementById('sharePassBtn');
@@ -4265,7 +4472,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=65;
+const APP_VERSION=66;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
