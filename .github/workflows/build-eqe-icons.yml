@@ -1,0 +1,48 @@
+name: Generate EQE official PWA icons
+on:
+  push:
+    branches: [release-v72-premium-stage-ux-20261010]
+    paths:
+      - ".github/workflows/build-eqe-icons.yml"
+permissions:
+  contents: write
+jobs:
+  build-icons:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release-v72-premium-stage-ux-20261010
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Render official supplied icon at Apple and PWA sizes
+        run: |
+          pip install Pillow==11.3.0
+          python - <<'PY'
+          from PIL import Image, ImageOps
+          from pathlib import Path
+          src = Image.open('public/premium-icon-source.webp').convert('RGB')
+          for size in (180,192,512):
+              image=ImageOps.fit(src,(size,size),method=Image.Resampling.LANCZOS)
+              image.save(f'public/premium-icon-{size}.png','PNG',optimize=True)
+              check=Image.open(f'public/premium-icon-{size}.png')
+              assert check.size==(size,size)
+          bg=Image.new('RGB',(512,512),'#090d17')
+          inset=ImageOps.fit(src,(410,410),method=Image.Resampling.LANCZOS)
+          bg.paste(inset,((512-410)//2,(512-410)//2))
+          bg.save('public/premium-icon-maskable-512.png','PNG',optimize=True)
+          assert Image.open('public/premium-icon-maskable-512.png').size==(512,512)
+          print('Official source preserved; generated 180, 192, 512 and maskable 512 PNGs.')
+          PY
+      - name: Commit only generated icon files to release branch
+        run: |
+          git config user.name "EQE PWA Asset Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/premium-icon-180.png public/premium-icon-192.png public/premium-icon-512.png public/premium-icon-maskable-512.png
+          if ! git diff --cached --quiet; then
+            git commit -m "assets: add official premium PWA icons"
+            git push origin HEAD:release-v72-premium-stage-ux-20261010
+          fi
