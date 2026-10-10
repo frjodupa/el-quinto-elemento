@@ -67,3 +67,10 @@
 - Canciones existentes: <70% bloqueado, 70–85% revisión manual, >85% permite completar con backup previo.
 - Canciones nuevas: se pueden añadir como canción personalizada con letra y acordes importados.
 - Interfaz v69 / build técnico PWA 73.
+
+## v70 — 2026-10-10
+
+- Corregido el parser de Ultimate Guitar para conservar líneas de acordes separadas sobre la letra.
+- El parser ya no descarta líneas formadas solo por etiquetas [ch]...[/ch].
+- Si el buscador de CifraClub devuelve 403, se prueban slugs directos derivados de artista/título de Ultimate Guitar y solo se muestran los que responden con cifra válida.
+- Interfaz v70 / build técnico PWA 74.
