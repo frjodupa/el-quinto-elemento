@@ -439,3 +439,8 @@ body.lightTheme .settingsBody input:not([type="checkbox"]):not([type="range"]),
 body.lightTheme .settingsBody textarea,body.lightTheme .settingsBody select{
   color:#23262b!important;background:#fff!important;border-color:#c9c2b5!important
 }
+
+/* v73: preserve real space between separately rendered word tokens. */
+#view.on #ly.lyrics .wordWrap{margin-right:.36em!important;margin-inline-end:.36em!important}
+#view.on #ly.lyrics .wordWrap:last-child{margin-right:0!important;margin-inline-end:0!important}
+#view.on #ly.lyrics .wordToken{letter-spacing:0!important}

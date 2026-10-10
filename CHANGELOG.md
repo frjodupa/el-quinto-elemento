@@ -93,3 +93,9 @@
 - Icono PWA sustituido por el diseño aportado (180, 192 y 512), con variante maskable y nombres nuevos para evitar caché obsoleta.
 - CSS y JS incluidos en precaché offline; versión técnica 76, exportación 72/76.
 - Ningún cambio en letras, acordes, Intro, Instrumental, referencias o datos D1.
+
+## v73 — 2026-10-10
+
+- Espaciado legible entre palabras en letras con acordes, sin cambiar letra ni anclajes de acordes.
+- Favicon premium actualizado y cache busting consistente.
+- Versión técnica offline 77 y exportación 73/77.

@@ -1,0 +1,32 @@
+name: EQE v73 - visual iPhone, iPad and desktop
+on:
+  push:
+    branches: [hotfix-v73-word-spacing-and-favicon-20261010]
+    paths: [".github/workflows/check-v73-visual.yml"]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify mobile legibility and navigation
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory public >/tmp/eqe-serve.log 2>&1 &
+          sleep 2
+          node scripts/test-premium-ui.cjs
+      - name: Capture proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eqe-v73-visual-qa
+          path: ui-review/
+          if-no-files-found: warn
