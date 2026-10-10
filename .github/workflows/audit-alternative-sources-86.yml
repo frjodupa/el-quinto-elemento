@@ -2,7 +2,7 @@ name: EQE auditoría secundaria de acordes originales (86)
 on:
   push:
     branches: [audit-alt-chord-sources-86-20261010]
-    paths: [.github/workflows/audit-alternative-sources-86.yml]
+    paths: [.github/workflows/audit-alternative-sources-86.yml, scripts/audit_alternative_sources_86.py]
   workflow_dispatch:
 permissions:
   contents: read
