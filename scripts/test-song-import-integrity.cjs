@@ -29,13 +29,18 @@ const indented=parse("    C       G\n    HOLA    MUNDO","cifraclub");
 assert.equal(indented.chordData.words["0:0"],"DO","Los espacios originales deben alinear el primer acorde");
 assert.equal(indented.chordData.words["0:1"],"SOL","Los espacios originales deben alinear el segundo acorde");
 
+const standalone=parse("HOLA MUNDO\\nC G\\n\\nSIGUIENTE LINEA","cifraclub");
+assert.equal(standalone.text,"HOLA MUNDO\\nSIGUIENTE LINEA");
+assert.equal(standalone.chordData.lines["0"],"DO · SOL","La fila aislada de acordes debe conservarse como acorde de línea");
+const trailing=parse("HOLA MUNDO\\nC G","cifraclub");
+assert.equal(trailing.chordData.lines["0"],"DO · SOL","La fila final de acordes no puede perderse");
+
 const findings=[];
 const collision=parse("[ch]C[/ch][ch]G[/ch]HOLA MUNDO","ultimate-guitar");
 assert.equal(collision.chordData.words["0:0"],"DO · SOL","No se pueden perder acordes asociados a la misma palabra");
 assert.equal(collision.chordCount,1,"Un anclaje con secuencia sigue contando como una posición; no como dos palabras");
 const lineFields=parse("C    G\nHOLA MUNDO","cifraclub");
-if(Object.keys(lineFields.chordData.lines).length===0)
-  findings.push({code:"LINE_CHORDS_NOT_POPULATED",detail:"El importador nunca crea anclajes lines desde líneas de acordes"});
+// Las filas de acordes consecutivas con texto asociado se mantienen ancladas a palabras.
 const duplicatedIntro=parse("Intro\nC C G\n\nHOLA MUNDO","cifraclub");
 assert.equal(duplicatedIntro.chordData.intro,"DO · DO · SOL","La Intro debe mantener las repeticiones y el orden originales");
 if(simple.chordData.references.length===0)
