@@ -1,4 +1,4 @@
-/* EQE v77 · editor rápido por canción. Reutiliza los editores existentes. */
+/* EQE v79 · editor completo por canción; reutiliza los editores existentes. */
 (function(){
   "use strict";
   function init(){
@@ -6,13 +6,16 @@
     var launcher=document.getElementById("quickEditSongBtn");
     var menu=document.getElementById("quickEditMenu");
     var lyricsBtn=document.getElementById("quickEditLyricsBtn");
+    var titleBtn=document.getElementById("quickEditTitleBtn");
     var chordsBtn=document.getElementById("quickEditChordsBtn");
+    var introBtn=document.getElementById("quickEditIntroBtn");
+    var instrumentalBtn=document.getElementById("quickEditInstrumentalBtn");
     var editBar=document.getElementById("quickChordBar");
     var done=document.getElementById("quickChordSave");
     var undo=document.getElementById("quickChordUndo");
     var intro=document.getElementById("quickChordIntro");
     var instrumental=document.getElementById("quickChordInstrumental");
-    if(!view||!launcher||!menu||!lyricsBtn||!chordsBtn||!editBar||!done)return;
+    if(!view||!launcher||!menu||!lyricsBtn||!titleBtn||!chordsBtn||!introBtn||!instrumentalBtn||!editBar||!done)return;
 
     var nativeChord=document.getElementById("chordMode");
     var nativeSave=document.getElementById("saveChordEdit");
@@ -52,11 +55,31 @@
       nativeLyrics.click();
       sync();
     }
+    function selectTitle(){
+      selectLyrics();
+      var title=document.getElementById("lyricEditorSongTitle");
+      if(title){
+        title.focus();
+        title.select();
+      }
+    }
     function selectChords(){
       closeMenu();
       if(isActive()){saveAndExit();return;}
       nativeChord.click();
       sync();
+    }
+    function selectIntro(){
+      closeMenu();
+      if(!isActive())nativeChord.click();
+      sync();
+      nativeIntro.click();
+    }
+    function selectInstrumental(){
+      closeMenu();
+      if(!isActive())nativeChord.click();
+      sync();
+      nativeInstrumental.click();
     }
     function trigger(native){
       if(!isActive())return;
@@ -72,7 +95,10 @@
       if(!menu.hidden)lyricsBtn.focus();
     });
     lyricsBtn.addEventListener("click",selectLyrics);
+    titleBtn.addEventListener("click",selectTitle);
     chordsBtn.addEventListener("click",selectChords);
+    introBtn.addEventListener("click",selectIntro);
+    instrumentalBtn.addEventListener("click",selectInstrumental);
     done.addEventListener("click",saveAndExit);
     undo.addEventListener("click",function(){trigger(nativeUndo);});
     intro.addEventListener("click",function(){trigger(nativeIntro);});
