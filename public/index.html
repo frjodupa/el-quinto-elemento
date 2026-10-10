@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=70">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=70">
+<link rel="manifest" href="manifest.webmanifest?v=71">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=71">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1816,10 +1816,15 @@ body.concertMode #quickExportV63{display:none!important}
 <div id="settingsModal" class="settingsModal" aria-hidden="true">
   <div class="settingsPanel">
     <div class="settingsHead">
-      <strong>AJUSTES</strong>
+      <div class="settingsHeadTitle">
+        <strong>AJUSTES</strong>
+        <span id="settingsContextLabel">DIRECTO</span>
+      </div>
+      <button id="settingsAdvancedToggle" type="button">Más herramientas</button>
       <button class="globalUndoBtn" type="button">↶ Deshacer</button>
       <button id="settingsClose" type="button">Cerrar</button>
     </div>
+    <div id="settingsContextHint" class="settingsContextHint"></div>
     <div class="settingsBody">
       <section class="settingsGroup">
         <h3>Edición</h3>
@@ -2081,7 +2086,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v66</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v67</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -4541,7 +4546,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=70;
+const APP_VERSION=71;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5585,6 +5590,138 @@ body.qeDirect .directSongBar #settingsBtn{
   });
 })();
 </script>
+<style id="v67-context-settings-ui">
+.settingsHeadTitle{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.settingsHeadTitle strong{color:#e6c36a}
+#settingsContextLabel{
+  font-size:.68rem;
+  line-height:1;
+  letter-spacing:.08em;
+  color:#989898;
+  font-weight:900;
+}
+#settingsAdvancedToggle{
+  min-height:38px!important;
+  padding:6px 10px!important;
+  white-space:nowrap;
+  color:#e6c36a!important;
+  border-color:#5d512e!important;
+  background:#1c1a13!important;
+}
+.settingsContextHint{
+  display:none;
+  padding:9px 14px;
+  border-bottom:1px solid #2b2c31;
+  color:#aaa;
+  background:#101114;
+  font-size:.78rem;
+  line-height:1.3;
+}
+.settingsModal.on .settingsContextHint{display:block}
+.settingsGroup.qeContextHidden{display:none!important}
+.settingsBody.qeContextCompact{
+  padding-top:10px!important;
+}
+.settingsBody.qeContextCompact .settingsGroup{
+  margin-top:0!important;
+  margin-bottom:10px!important;
+}
+.settingsBody.qeContextCompact .settingsGroup>h3{
+  margin-top:0!important;
+}
+@media(max-width:700px){
+  .settingsHead{
+    gap:7px!important;
+    padding:10px!important;
+  }
+  #settingsAdvancedToggle{
+    font-size:.74rem!important;
+    padding:5px 8px!important;
+  }
+  .settingsHead .globalUndoBtn{
+    width:40px!important;
+    min-width:40px!important;
+    overflow:hidden;
+    color:transparent!important;
+    position:relative;
+  }
+  .settingsHead .globalUndoBtn::after{
+    content:'↶';
+    color:#fff;
+    position:absolute;inset:0;
+    display:grid;place-items:center;
+    font-size:1rem;
+  }
+}
+</style>
+<script id="v67-context-settings-script">
+(function(){
+  var modal=document.getElementById('settingsModal');
+  var body=modal&&modal.querySelector('.settingsBody');
+  var toggle=document.getElementById('settingsAdvancedToggle');
+  var label=document.getElementById('settingsContextLabel');
+  var hint=document.getElementById('settingsContextHint');
+  var songBtn=document.getElementById('settingsBtn');
+  var indexBtn=document.getElementById('settingsIndexBtn');
+  var advanced=false;
+
+  if(!modal||!body||!toggle)return;
+
+  function heading(group){
+    var h=group.querySelector('h3');
+    return h?String(h.textContent||'').trim():'';
+  }
+
+  function songIsOpen(){
+    var view=document.getElementById('view');
+    return !!(view&&view.classList.contains('on'));
+  }
+
+  function allowedForContext(isSong){
+    return isSong
+      ? ['Tonalidad','Visualización','Scroll','Directo y ficha musical']
+      : ['Estado del cancionero','Sincronización','Copias automáticas','Mantenimiento'];
+  }
+
+  function apply(){
+    var isSong=songIsOpen();
+    var allowed=allowedForContext(isSong);
+    Array.prototype.forEach.call(body.querySelectorAll('.settingsGroup'),function(group){
+      var show=advanced||allowed.indexOf(heading(group))>=0;
+      group.classList.toggle('qeContextHidden',!show);
+    });
+    body.classList.toggle('qeContextCompact',!advanced);
+
+    if(label)label.textContent=isSong?'DIRECTO':'APP';
+    if(hint){
+      hint.textContent=advanced
+        ? 'Todas las herramientas están visibles.'
+        : (isSong
+            ? 'Solo controles útiles durante la actuación. La edición avanzada está en “Más herramientas”.'
+            : 'Solo mantenimiento y sincronización. Las herramientas de canción se muestran al abrir un tema.');
+    }
+    toggle.textContent=advanced?'Menos herramientas':'Más herramientas';
+    toggle.setAttribute('aria-pressed',advanced?'true':'false');
+  }
+
+  function openContext(){
+    advanced=false;
+    setTimeout(apply,0);
+  }
+
+  toggle.addEventListener('click',function(){
+    advanced=!advanced;
+    apply();
+  });
+  if(songBtn)songBtn.addEventListener('click',openContext);
+  if(indexBtn)indexBtn.addEventListener('click',openContext);
+
+  // Reaplicar tras cambios de vista por seguridad.
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden&&modal.classList.contains('on'))apply();
+  });
+})();
+</script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -5713,8 +5850,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:66,
-        buildVersion:70,
+        version:67,
+        buildVersion:71,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
