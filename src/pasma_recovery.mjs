@@ -129,6 +129,35 @@ export function buildLaPasmaRecovery(current,archived) {
   const added=[];
   const chosenOldIdToNewId=new Map();
 
+  // D1 was left with chords/lyrics from the old 99-ID layout even though only
+  // 72 songs are active. Those keys belong to old song IDs and cannot simply
+  // be reused: e.g. old 72 is ESCUELA, but new 72 will be CIEN GAVIOTAS.
+  // The Worker preserves ALL these keys in a durable pre-migration archive
+  // before committing this planned remapping. Orphan values are read from
+  // current state for merging into the matching restored titles.
+  const sourcePrefixes=new Set();
+  for(const oldKey of Object.keys(archived)) {
+    const match=oldKey.match(/^(quintoElemento\..+)\.(\d+)$/);
+    if(match && Number(match[2])>=FIRST_CUSTOM &&
+       Number(match[2])<FIRST_CUSTOM+archivedExtras.length)
+      sourcePrefixes.add(match[1]);
+  }
+  for(const prefix of [PREFIX+"lyrics.v1",PREFIX+"title.v1",PREFIX+"chords.v2"])
+    sourcePrefixes.add(prefix);
+  const orphanIndexedKeys=[];
+  const lowestOrphanId=FIRST_CUSTOM+currentExtras.length;
+  for(const k of Object.keys(next)) {
+    const match=k.match(/^(quintoElemento\..+)\.(\d+)$/);
+    if(!match || !sourcePrefixes.has(match[1]))continue;
+    const id=Number(match[2]);
+    if(id>=lowestOrphanId && id<FIRST_CUSTOM+archivedExtras.length){
+      orphanIndexedKeys.push(k);
+      delete next[k];
+    }
+  }
+  let currentOrphanChordMapsUsed=0;
+  let currentOrphanLyricEditsPreserved=0;
+
   for(const t of targetKeys) {
     if(currentNameToId.has(t))continue;
     const candidates=archivedByName.get(t);
@@ -147,8 +176,51 @@ export function buildLaPasmaRecovery(current,archived) {
       if(dst in next)throw new Error("El ID nuevo ya tiene datos: "+dst);
       next[dst]=val;
     }
-    if(!next[PREFIX+"lyrics.v1."+newId] && chosen.lyric!==String(chosen.item.text||""))
-      next[PREFIX+"lyrics.v1."+newId]=chosen.lyric;
+
+    // A more recent orphan may contain edits not present in backup 371.
+    // Compare its original song ID against the archived song identity.
+    const currentOrphanTitle=current[PREFIX+"title.v1."+chosen.id];
+    if(currentOrphanTitle && key(currentOrphanTitle)!==t)
+      throw new Error("El título huérfano no corresponde a la copia: "+t);
+    const orphanLyric=current[PREFIX+"lyrics.v1."+chosen.id];
+    const differs=typeof orphanLyric==="string" && orphanLyric.trim() &&
+       textFingerprint(orphanLyric)!==textFingerprint(chosen.lyric);
+    if(differs) {
+      // Current editor content is authoritative; do NOT reuse old chord
+      // positions when its lyrics have changed.
+      item.text=orphanLyric;
+      next[PREFIX+"lyrics.v1."+newId]=orphanLyric;
+      const orphanChords=current[PREFIX+"chords.v2."+chosen.id];
+      if(orphanChords){
+        next[PREFIX+"chords.v2."+newId]=orphanChords;
+        currentOrphanChordMapsUsed++;
+      }else{
+        delete next[PREFIX+"chords.v2."+newId];
+      }
+      currentOrphanLyricEditsPreserved++;
+    } else {
+      if(!next[PREFIX+"lyrics.v1."+newId] && chosen.lyric!==String(chosen.item.text||""))
+        next[PREFIX+"lyrics.v1."+newId]=chosen.lyric;
+      // The two lyric layouts match. Preserve newer user-added chord anchors,
+      // while retaining source chords for any untouched slots.
+      const recent=parse(current[PREFIX+"chords.v2."+chosen.id],null);
+      const older=parse(archived[PREFIX+"chords.v2."+chosen.id],null);
+      if(recent && typeof recent==="object" && !Array.isArray(recent)){
+        const merged=deepCopy(older && typeof older==="object" && !Array.isArray(older)?older:{});
+        for(const prop of ["words","lines","instrumentals","instrumentalsText"]) {
+          const base=merged[prop] && typeof merged[prop]==="object" ? merged[prop]:{};
+          const changed=recent[prop] && typeof recent[prop]==="object" ? recent[prop]:{};
+          merged[prop]={...base,...changed};
+        }
+        for(const prop of ["intro","introText"]) {
+          if(String(recent[prop]||"").trim())merged[prop]=recent[prop];
+        }
+        if(Array.isArray(recent.references) && recent.references.length)
+          merged.references=recent.references;
+        next[PREFIX+"chords.v2."+newId]=JSON.stringify(merged);
+        currentOrphanChordMapsUsed++;
+      }
+    }
     extras.push(item);
     currentNameToId.set(t,newId);
     chosenOldIdToNewId.set(chosen.id,newId);
@@ -201,6 +273,9 @@ export function buildLaPasmaRecovery(current,archived) {
     sourceCount:FIRST_CUSTOM+archivedExtras.length,
     recoveredCount:added.length,
     skippedArchiveDuplicateCount:14,
+    orphanIndexedKeysArchived:orphanIndexedKeys.length,
+    currentOrphanChordMapsUsed,
+    currentOrphanLyricEditsPreserved,
     restored:added,
     passName:target.name,
     passId:target.id,
