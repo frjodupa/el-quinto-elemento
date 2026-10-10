@@ -22,7 +22,7 @@ SID=39
 TITLE="LOS OLVIDADOS"
 URL="https://acordesweb.com/cancion/pedro-pastor/los-olvidados"
 HTML_SHA_PREVIOUS="b44823941f0ea6bfc3373658be20adb091cf7e2767381b1af6a096d125ff9dfe"
-PINNED_MUSICAL_SHA=""  # populated after independent double-fetch verification
+PINNED_MUSICAL_SHA="44d12e3ce6e018013d415c3387d4c060102453ac0fb5b6eea0055e476a7a04e4"
 OUT=Path("eqe-los-olvidados-guarded")
 OUT.mkdir(exist_ok=True)
 APPLY=os.getenv("APPLY_VERIFIED_LOS_OLVIDADOS","0")=="1"
