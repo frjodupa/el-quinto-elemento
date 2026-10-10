@@ -23,12 +23,11 @@ jobs:
           REQUEST_DELAY: "2"
         run: |
           python -m py_compile scripts/check_original_harmony_priority.py
-          cd scripts
-          python check_original_harmony_priority.py
+          python scripts/check_original_harmony_priority.py
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eqe-88-original-harmony-three-targets
-          path: scripts/eqe-priority-harmony-audit/PRIORITY_HARMONY_SOURCE_CHECK.json
+          path: eqe-priority-harmony-audit/PRIORITY_HARMONY_SOURCE_CHECK.json
           retention-days: 30
           if-no-files-found: warn
