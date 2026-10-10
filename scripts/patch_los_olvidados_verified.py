@@ -129,12 +129,17 @@ def main():
  back=b.json()
  if not (back.get("ok") and back.get("id")):
   raise RuntimeError("Cloudflare backup unconfirmed: no song write")
- fresh,_,_=snapshot()
+ fresh,_,fresh_meta=snapshot()
  if compact_hash(fresh)!=compact_hash(storage):
   raise RuntimeError("Live changed after backup, safe abort")
+ # Worker v76 uses optimistic concurrency: a write without expectedUpdatedAt
+ # is rejected with 409 to protect restored LA PASMA from stale devices.
+ expected_ts=int(fresh_meta.get("payload",{}).get("updatedAt",-1))
+ if expected_ts<=0:
+  raise RuntimeError("No valid D1 updatedAt; fail closed")
  target=copy.deepcopy(storage)
  target["quintoElemento.chords.v2.39"]=json.dumps(updated,ensure_ascii=False,separators=(",",":"))
- res=requests.put(a.LIVE_BASE+"/api/sync",json={"data":target},headers=HEADERS,timeout=60)
+ res=requests.put(a.LIVE_BASE+"/api/sync",json={"data":target,"expectedUpdatedAt":expected_ts},headers=HEADERS,timeout=60)
  res.raise_for_status()
  if res.json().get("ok") is not True:raise RuntimeError("Sync not confirmed")
  observed,live_song,_=snapshot()
