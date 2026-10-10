@@ -48,3 +48,11 @@
 - Desde el índice se muestran Estado, Sincronización, Copias y Mantenimiento.
 - “Más herramientas” permite recuperar todas las opciones avanzadas sin eliminar funcionalidad.
 - Interfaz v67 / build técnico PWA 71.
+
+## v68 — 2026-10-10
+
+- Detalle de Pases optimizado para actuación.
+- En uso normal se muestran Empezar pase y la lista de canciones.
+- Renombrar, duplicar, compartir, imprimir, eliminar, añadir, quitar y reordenar quedan detrás de “Editar pase”.
+- No se elimina ninguna función.
+- Interfaz v68 / build técnico PWA 72.
