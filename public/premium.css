@@ -1,0 +1,441 @@
+/* El Quinto Elemento · Premium Stage UI (v72)
+ * Presentation only: chord/lyrics storage, editor and offline logic remain unchanged.
+ * All assets are local so controls render offline in iPhone/iPad PWA.
+ */
+:root{
+  --premium-ink:#0a0c12;
+  --premium-surface:#111721;
+  --premium-surface-up:#171e2a;
+  --premium-border:rgba(191,205,227,.13);
+  --premium-border-strong:rgba(229,189,103,.37);
+  --premium-gold:#eac875;
+  --premium-gold-bright:#f8dd96;
+  --premium-ivory:#f6f4ed;
+  --premium-muted:#a4afc1;
+  --premium-blue:#315b8c;
+  --premium-radius:15px;
+  --premium-shadow:0 14px 38px rgba(0,0,0,.22);
+  --bg:var(--premium-ink);
+  --panel:var(--premium-surface);
+  --fg:var(--premium-ivory);
+  --muted:var(--premium-muted);
+  --accent:var(--premium-gold);
+}
+html{color-scheme:dark}
+body{
+  background:radial-gradient(ellipse 85% 330px at 55% -160px,rgba(34,86,148,.17),transparent),
+    #0a0c12;
+  color:var(--premium-ivory);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit}
+button{transition:background-color .16s ease,border-color .16s ease,box-shadow .16s ease}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--premium-gold)!important;
+  outline-offset:2px;
+}
+button:disabled{cursor:not-allowed;opacity:.54}
+.premium-svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;fill:none;flex:0 0 auto;pointer-events:none}
+.premium-icon-button{display:inline-flex!important;justify-content:center;align-items:center;gap:8px}
+.premium-icon-button.icon-only{padding:0!important}
+.premium-icon-button.icon-only .premium-svg{width:19px;height:19px}
+/* A small gold mark gives visual identity without obstructing the song title. */
+.directHome{
+  background:linear-gradient(168deg,rgba(17,32,54,.99),rgba(9,12,19,.985) 64%)!important;
+  border-bottom:1px solid var(--premium-border)!important;
+  box-shadow:0 10px 32px rgba(0,0,0,.25)!important;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 15px!important;
+}
+.directHomeHead{align-items:center!important;gap:12px}
+.directHome .brand{
+  font-size:clamp(.90rem,2.6vw,1.12rem)!important;
+  font-weight:850!important;
+  letter-spacing:.065em!important;
+  line-height:1.2!important;
+  color:var(--premium-ivory)!important;
+}
+.directHome .brand::before{
+  content:"";display:inline-block;vertical-align:-1px;
+  width:9px;height:13px;margin-right:8px;
+  border-radius:3px;background:linear-gradient(145deg,#f8dc91,#b98a37);
+  box-shadow:0 0 16px rgba(228,182,95,.22);
+}
+.directHome .uiVersion{color:#889bb8;font-weight:700}
+.directMeta{gap:8px 12px!important;margin-top:8px!important}
+.directMeta .count{font-weight:650;color:#c7cbd2!important}
+.directMeta .appStatus.online{color:#9cd8b1!important}
+.directMeta .appStatus.offline{color:var(--premium-gold)!important}
+.directMeta .offlineBadge{
+  color:#d9c285!important;
+  background:rgba(209,167,82,.09)!important;
+  border:1px solid rgba(224,182,98,.25)!important;
+  padding:5px 9px!important;
+}
+.directSettingsBtn,.directSongSettings{
+  border-radius:13px!important;
+  border:1px solid rgba(199,212,233,.17)!important;
+  background:rgba(255,255,255,.045)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055)!important;
+  color:#f3efe5!important;
+}
+.directSettingsBtn:active,.directSongSettings:active{background:rgba(234,200,117,.18)!important}
+.directSearch{
+  background:rgba(10,13,21,.88)!important;
+  border:1px solid rgba(195,205,225,.19)!important;
+  border-radius:15px!important;
+  min-height:55px!important;
+  margin-top:15px!important;
+  color:#f5f3ec!important;
+  font-size:1rem!important;
+  padding:12px 15px 12px 47px!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.035)!important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23d6bc79' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E")!important;
+  background-repeat:no-repeat!important;
+  background-position:17px center!important;
+  background-size:19px!important;
+}
+.directSearch::placeholder{color:#7f8898!important}
+.directSearch:focus{border-color:#b69755!important;box-shadow:0 0 0 3px rgba(231,187,101,.12)!important}
+.directActions{margin-top:11px!important}
+.directAction,.directActionPrimary{
+  min-height:48px!important;
+  border:1px solid rgba(237,201,115,.45)!important;
+  background:linear-gradient(135deg,rgba(195,147,57,.20),rgba(120,89,36,.09))!important;
+  color:var(--premium-gold-bright)!important;
+  border-radius:13px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.055)!important;
+  font-size:.92rem!important;
+  letter-spacing:.008em;
+}
+#index>.grid{
+  background:transparent;
+  padding:12px 13px calc(24px + env(safe-area-inset-bottom))!important;
+  gap:8px!important;
+}
+#index .songBtn{
+  background:linear-gradient(160deg,#171d28,#12171f)!important;
+  color:#f1f2ef!important;
+  border:1px solid var(--premium-border)!important;
+  border-radius:13px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03)!important;
+  min-height:53px!important;
+  font-size:.93rem!important;
+  font-weight:660!important;
+  padding:11px 39px 11px 14px!important;
+  text-transform:none;
+}
+#index .songBtn::after{color:#bda468!important}
+#index .songBtn:hover{border-color:var(--premium-border-strong)!important;background:#1d2530!important}
+#index .songBtn:active{background:#2a2b2a!important}
+.internetSearchHost{padding:0 13px 22px!important}
+.internetSearchPrompt{
+  background:rgba(22,29,40,.8)!important;
+  border-color:var(--premium-border-strong)!important;
+  border-style:solid!important;
+  border-radius:14px!important;
+}
+.internetResult{
+  background:#161d28!important;
+  border-color:var(--premium-border)!important;
+  border-radius:14px!important;
+}
+.internetResultTitle{font-size:.93rem}
+.internetSearchPrompt button,.internetUseBtn{border-radius:11px!important}
+.internetSource{color:var(--premium-gold)!important}
+/* Performance screen: keep the toolbar below safe areas and the lyrics above the fold. */
+.view{background:#090b10!important}
+.directSongBar{
+  background:rgba(13,17,25,.985)!important;
+  border-bottom:1px solid rgba(229,189,103,.23)!important;
+  box-shadow:0 8px 26px rgba(0,0,0,.35)!important;
+  gap:7px!important;
+}
+.directSongBar button{
+  border-radius:11px!important;
+  background:#1a202b!important;
+  border:1px solid rgba(185,195,214,.18)!important;
+  color:#f4f2ed!important;
+  min-height:43px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
+}
+.directSongBar #back{font-weight:800!important}
+.directSongBar #prev,.directSongBar #next{color:var(--premium-gold)!important}
+.directSongBar #autoScrollBtn{
+  background:linear-gradient(135deg,#362b18,#201c17)!important;
+  color:var(--premium-gold-bright)!important;
+  border-color:rgba(230,191,102,.42)!important;
+}
+.directSongBar #autoScrollBtn.active{
+  background:linear-gradient(135deg,#edcc7e,#d4a954)!important;
+  color:#141213!important;
+}
+.directSpeed{
+  background:#161c26!important;
+  border:1px solid rgba(180,191,209,.16)!important;
+  border-radius:11px!important;
+  min-width:0!important;
+}
+.directSpeed #autoScrollSpeedValue{color:var(--premium-gold)!important}
+.directSongTune #directTransposeDown,.directSongTune #directTransposeUp{
+  color:var(--premium-gold)!important;
+  background:#201e1e!important;
+  border-color:rgba(227,193,117,.32)!important;
+}
+#view.on .title{
+  color:var(--premium-gold)!important;
+  font-weight:850!important;
+  letter-spacing:-.025em!important;
+  padding:0 14px!important;
+  margin-top:14px!important;
+  margin-bottom:12px!important;
+}
+#view.on #ly.lyrics{
+  color:#f5f4ef!important;
+  font-weight:650!important;
+  max-width:1240px!important;
+  line-height:1.38!important;
+  padding-left:max(12px,env(safe-area-inset-left))!important;
+  padding-right:max(12px,env(safe-area-inset-right))!important;
+  letter-spacing:-.012em!important;
+}
+#ly.qeOriginalView .lyricLine{gap:4px!important;margin:.04em 0!important}
+#ly .wordChord,#ly .lineChord{color:#f2cd73!important;font-weight:850!important}
+#ly .wordToken{letter-spacing:-.013em!important}
+#ly .musicSection{
+  border:1px solid rgba(221,185,109,.34)!important;
+  background:#141822!important;
+  border-radius:13px!important;
+}
+#ly .musicChordChip{
+  background:#302718!important;color:#f4d38a!important;
+  border:1px solid rgba(223,186,108,.32)!important;
+}
+/* Settings: real modal hierarchy, compact cards, no double toolbars */
+.settingsModal,.passModal{background:rgba(3,7,14,.84)!important}
+.settingsPanel,.passPanel{
+  border:1px solid rgba(209,218,232,.18)!important;
+  background:linear-gradient(155deg,#151c27,#0e131c 70%)!important;
+  color:#f5f3ee!important;
+  border-radius:20px!important;
+  box-shadow:0 28px 82px rgba(0,0,0,.60),inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+.settingsPanel{width:min(720px,calc(100vw - 20px))!important;max-height:calc(100dvh - 32px)!important}
+.settingsHead,.passHead{
+  background:rgba(23,30,41,.95)!important;
+  border-bottom:1px solid var(--premium-border)!important;
+  padding:13px 16px!important;
+  gap:8px!important;
+}
+.settingsHeadTitle strong,.settingsHead strong,.passHead strong{
+  color:var(--premium-gold-bright)!important;
+  font-size:1rem!important;
+  font-weight:850!important;
+  letter-spacing:.07em;
+}
+#settingsContextLabel{color:#94a1b5!important;letter-spacing:.10em!important}
+.settingsContextHint{
+  background:rgba(20,27,38,.88)!important;
+  color:#9eabbf!important;
+  font-size:.76rem!important;
+  border-bottom:1px solid var(--premium-border)!important;
+  padding:9px 16px!important;
+}
+#settingsAdvancedToggle{
+  background:rgba(223,184,102,.11)!important;
+  border:1px solid rgba(228,188,107,.34)!important;
+  color:var(--premium-gold)!important;
+  font-weight:800!important;
+  border-radius:11px!important;
+}
+#settingsClose,#passesClose,#passDetailClose{
+  background:#242c38!important;
+  color:#f4f3f0!important;
+  border:1px solid var(--premium-border)!important;
+  border-radius:11px!important;
+}
+.settingsBody{padding:12px 16px calc(16px + env(safe-area-inset-bottom))!important}
+.settingsBody .settingsGroup{padding:5px 0 11px!important;border-bottom:1px solid rgba(205,216,230,.075)}
+.settingsBody .settingsGroup:last-child{border-bottom:0}
+.settingsBody .settingsGroup h3{
+  font-size:.78rem!important;
+  font-weight:850!important;
+  color:var(--premium-gold)!important;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+  margin:5px 0 9px!important;
+}
+.settingsGrid{gap:8px!important}
+.settingsHead button,.settingsGrid button,.settingsScrollRow button,.transposeBox button,
+.passHead button,.passActions button,.passEditTools button,
+.directPassActions button{
+  border-radius:11px!important;
+  border:1px solid rgba(186,201,220,.16)!important;
+  background:#1c2430!important;
+  color:#f3f4f0!important;
+  font-weight:720!important;
+  min-height:43px!important;
+  padding:8px 12px!important;
+}
+.settingsGrid button:active,.passActions button:active{background:#2b3542!important}
+.settingsGrid button.danger,.passEditTools button.danger{
+  background:rgba(173,55,66,.08)!important;
+  color:#ffc1c1!important;
+  border-color:rgba(204,106,110,.35)!important;
+}
+.settingsBody .transposeBox{
+  background:linear-gradient(150deg,#171d29,#111822)!important;
+  color:#f2f2ee!important;
+  border:1px solid rgba(204,215,234,.16)!important;
+  border-radius:14px!important;
+  padding:12px!important;
+}
+.settingsBody .transposeBox .transposeStatus{
+  font-size:.90rem!important;color:#bcc5d5!important
+}
+.settingsBody #transposeValue{color:var(--premium-gold)!important}
+.settingsBody #transposeApplyKey{
+  color:#18150d!important;
+  background:linear-gradient(110deg,#f1d58d,#d8af58)!important;
+  border:1px solid #d9b56c!important;
+  font-weight:900!important;
+  border-radius:10px!important;
+}
+.settingsBody input:not([type="checkbox"]):not([type="range"]),
+.settingsBody textarea,.settingsBody select,
+.passPanel input,.passPanel select{
+  color:#f4f4ef!important;
+  background:#111721!important;
+  border:1px solid rgba(189,201,222,.23)!important;
+  border-radius:9px!important;
+}
+.settingsBody input::placeholder,.passPanel input::placeholder{color:#7e8c9e!important}
+.settingsBody label{color:#bac4d2!important;font-size:.84rem!important}
+.settingsBody #settingsBpm{color:#f4f4ef!important}
+/* v71 already suppresses the unused musical card and duplicate scroll.
+   Leave its state in localStorage; only the UI is simplified. */
+#qeLegacyLiveCard,#qeDuplicateScrollSettings{display:none!important}
+.settingsBody #qeSaveLiveTone{display:none!important}
+.settingsBody .transposeControls #transposeDown,
+.settingsBody .transposeControls #transposeUp{display:none!important}
+.settingsBody .transposeControls #transposeReset{display:block!important;width:100%!important}
+/* Advanced-only controls remain reachable; there is no permanent deletion. */
+.settingsBody.qeContextCompact #settingsDuplicateChordBlock,
+.settingsBody.qeContextCompact #settingsDetectRepeats,
+.settingsBody.qeContextCompact #settingsReferenceText,
+.settingsBody.qeContextCompact #settingsClearReferences,
+.settingsBody.qeContextCompact #settingsPdfAllChords,
+.settingsBody.qeContextCompact #qeRepairAunque,
+.settingsBody.qeContextCompact #settingsClearChords,
+.settingsBody.qeContextCompact #settingsShareAccess,
+.settingsBody.qeContextCompact #qeGuideBtn,
+.settingsBody.qeContextCompact #settingsImportLaPasma{display:none!important}
+.passPanel .passSongRow,.passPanel .passesItem{
+  border-color:var(--premium-border)!important;
+}
+.passPanel .passSongTitle{
+  background:#1b2330!important;
+  color:#f5f4f0!important;
+  border-color:rgba(183,202,226,.17)!important;
+}
+.directPassActions #startPassBtn{
+  background:linear-gradient(110deg,#ecd083,#d2a850)!important;
+  color:#15120b!important;
+  border-color:#e1bb65!important;
+  box-shadow:0 5px 16px rgba(213,172,83,.13)!important;
+}
+#editPassBtn{background:#242b35!important;color:#e5dbbf!important}
+#newPassFromManager{color:var(--premium-gold)!important;border-color:rgba(233,199,115,.34)!important}
+.passEditTools{gap:7px!important}
+/* Local floating export remains in advanced settings only. */
+#quickExportV63{display:none!important}
+@media(max-width:700px){
+  .directHome{padding-left:12px!important;padding-right:12px!important}
+  #index>.grid{padding-left:10px!important;padding-right:10px!important;gap:7px!important}
+  #index .songBtn{min-height:51px!important;padding:10px 36px 10px 12px!important}
+  .settingsModal{padding:6px!important}
+  .settingsPanel{width:100%!important;max-height:calc(100dvh - 12px)!important;border-radius:16px!important}
+  .settingsHead{padding:10px 11px!important;gap:6px!important;flex-wrap:nowrap!important}
+  #settingsAdvancedToggle{font-size:.72rem!important;white-space:nowrap}
+  .settingsHeadTitle strong{font-size:.94rem!important}
+  .settingsHead .globalUndoBtn{width:38px!important;min-width:38px!important}
+  #settingsClose{font-size:.80rem!important}
+  .settingsBody{padding:9px 11px 14px!important}
+  .settingsGrid button{font-size:.79rem!important;padding:8px 6px!important}
+  .passPanel{width:100%!important;max-height:calc(100dvh - 12px)!important}
+  .directSongBar{padding:6px 7px 7px!important}
+  #view.on .title{font-size:clamp(1.08rem,4.2vw,1.5rem)!important}
+  #view.on #ly.lyrics{padding-left:9px!important;padding-right:9px!important}
+}
+@media(max-width:425px){
+  /* All controls stay usable: no clipped tonality or font-size buttons. */
+  .directSongBar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:
+      "nav settings"
+      "scroll scroll"
+      "tune tune"!important;
+    row-gap:5px!important;
+  }
+  .directSongNav{gap:5px}
+  .directSongScroll{min-width:0}
+  .directSongTune{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+  .directSongTune button{width:100%!important;min-width:0!important}
+  .directSongBar #autoScrollBtn{min-width:91px!important}
+  .directSpeed{flex:1!important;min-width:0!important}
+}
+@media(min-width:700px){
+  #index>.grid{max-width:1200px;margin-inline:auto}
+  .directHome{padding-left:max(24px,calc((100vw - 1180px)/2))!important;
+              padding-right:max(24px,calc((100vw - 1180px)/2))!important}
+}
+@media(prefers-reduced-motion:reduce){
+  button{transition:none!important;animation:none!important}
+}
+body.lightTheme{
+  --premium-ink:#f3f0e8;
+  --premium-surface:#fff;
+  --premium-border:rgba(76,66,48,.19);
+  --premium-ivory:#222326;
+  --premium-muted:#555a65;
+  background:#f3f0e8!important;
+  color:#222326!important;
+  color-scheme:light;
+}
+body.lightTheme .directHome{
+  background:linear-gradient(165deg,#f7f4ed,#eae5d8)!important;
+  border-color:#d5cab2!important;
+}
+body.lightTheme .directHome .brand,
+body.lightTheme #index .songBtn,
+body.lightTheme #view.on #ly.lyrics{color:#1c2027!important}
+body.lightTheme .directSearch{
+  background-color:#fff!important;
+  color:#26282d!important;
+  border-color:#c8bc9f!important;
+}
+body.lightTheme #index .songBtn{
+  background:#fff!important;
+  border-color:rgba(84,79,68,.2)!important;
+}
+body.lightTheme .directSettingsBtn,body.lightTheme .directSongBar button{
+  background:#fafafa!important;color:#20242a!important;
+  border-color:#d4c9b5!important;
+}
+body.lightTheme .view{background:#f3f0e8!important}
+body.lightTheme .directSongBar{background:#f2eee5!important;border-color:#d4c39f!important}
+body.lightTheme .settingsPanel,body.lightTheme .passPanel{
+  background:#fff!important;color:#222!important;border-color:#d5cbbd!important;
+}
+body.lightTheme .settingsHead,body.lightTheme .passHead,
+body.lightTheme .settingsContextHint{background:#f8f5ed!important;border-color:#ded6c7!important}
+body.lightTheme .settingsHead strong,body.lightTheme .passHead strong{color:#866018!important}
+body.lightTheme .settingsGrid button,body.lightTheme .settingsHead button,
+body.lightTheme .passHead button,body.lightTheme .passActions button{
+  background:#f9f8f5!important;color:#25282b!important;border-color:#d1c9b8!important
+}
+body.lightTheme .settingsBody .transposeBox{background:#fcfaf4!important;color:#25282b!important;border-color:#ddd3c0!important}
+body.lightTheme .settingsBody input:not([type="checkbox"]):not([type="range"]),
+body.lightTheme .settingsBody textarea,body.lightTheme .settingsBody select{
+  color:#23262b!important;background:#fff!important;border-color:#c9c2b5!important
+}
