@@ -2,7 +2,7 @@ name: EQE - Convertir 99 acordes ocultos a lineas (solo simulacion)
 on:
   push:
     branches: [audit-alt-chord-sources-86-20261010]
-    paths: [.github/workflows/check-aqui-hidden-chords.yml]
+    paths: [.github/workflows/check-aqui-hidden-chords.yml, scripts/convert_aqui_embedded_chords.py]
 permissions:
   contents: read
 jobs:
