@@ -99,3 +99,11 @@
 - Espaciado legible entre palabras en letras con acordes, sin cambiar letra ni anclajes de acordes.
 - Favicon premium actualizado y cache busting consistente.
 - Versión técnica offline 77 y exportación 73/77.
+
+## v74 — 2026-10-10
+
+- Botón «Buscar en Internet» permanentemente visible bajo el buscador principal en iPhone, iPad y escritorio.
+- Los resultados externos aparecen antes de la lista local, sin obligar a desplazarse por el repertorio.
+- El botón muestra ayuda cuando no hay título y avisa si no existe conexión.
+- Se mantienen búsqueda local offline, importación conservadora y el servicio actual CifraClub / Ultimate Guitar.
+- Interfaz v74 / versión técnica y caché PWA 78.
