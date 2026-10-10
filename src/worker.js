@@ -420,6 +420,13 @@ function parseSongContent(content,provider) {
     const seq=pending.tokens.map(x=>x.chord);
     if(/intro/i.test(section)) introChords.push(...seq);
     else if(/solo|instrumental/i.test(section)) instrumentalChords.push(...seq);
+    else if(seq.length){
+      // A standalone chord row separated by a blank line has no associated
+      // words. Preserve it as a line chord rather than silently discarding it.
+      const li=Math.min(lyrics.length, Math.max(0,lyrics.length-1));
+      chordData.lines[String(li)] = [chordData.lines[String(li)],...seq]
+        .filter(Boolean).join(" · ");
+    }
     pending=null;
   }
 
