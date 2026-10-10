@@ -862,25 +862,55 @@ export default {
         } catch {
           return json({ error: "JSON inválido" }, 400);
         }
-
-        if (!body || typeof body.data !== "object" || Array.isArray(body.data)) {
+        if (!body || !body.data || typeof body.data !== "object" || Array.isArray(body.data)) {
           return json({ error: "Formato de datos no válido" }, 400);
         }
 
-        const updatedAt = Date.now();
-        const data = JSON.stringify(body.data);
-
-        await env.DB.prepare(`
-          INSERT INTO app_state (id, data, updated_at)
-          VALUES (?, ?, ?)
-          ON CONFLICT(id) DO UPDATE SET
-            data = excluded.data,
-            updated_at = excluded.updated_at
-        `).bind("main", data, updatedAt).run();
-
-        await addBackup(env, data, "auto");
-
-        return json({ ok: true, updatedAt });
+        const old=await currentState(env);
+        const currentTs=Number(old?.updated_at||0);
+        const expectedRaw=body.expectedUpdatedAt;
+        if(expectedRaw===undefined||expectedRaw===null) {
+          // Keep legacy pre-migration clients functional, but never let an old
+          // cached PWA overwrite recovered songs with a stale 72-song snapshot.
+          const archived=await env.DB.prepare(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='eqe_recovery_archive'"
+          ).first();
+          if(archived) {
+            const migrated=await env.DB.prepare(
+              "SELECT tag FROM eqe_recovery_archive WHERE tag LIKE 'pasma-before-merge-%' LIMIT 1"
+            ).first();
+            if(migrated) return json({
+              ok:false,conflict:true,code:"UPGRADE_REQUIRED",
+              error:"Actualiza la PWA antes de sincronizar; se han recuperado canciones en la nube",
+              updatedAt:currentTs
+            },409);
+          }
+        } else {
+          const expected=Number(expectedRaw);
+          if(!Number.isInteger(expected)||expected<0||expected!==currentTs) {
+            return json({ok:false,conflict:true,code:"STALE_SNAPSHOT",
+              error:"Este dispositivo tiene una copia anterior. Los datos locales siguen guardados.",
+              updatedAt:currentTs},409);
+          }
+        }
+        const updatedAt=Math.max(Date.now(),currentTs+1);
+        const data=JSON.stringify(body.data);
+        if(old) {
+          const result=await env.DB.prepare(
+            "UPDATE app_state SET data=?, updated_at=? WHERE id=? AND updated_at=?"
+          ).bind(data,updatedAt,"main",currentTs).run();
+          if(Number(result?.meta?.changes||0)!==1)
+            return json({ok:false,conflict:true,code:"CONCURRENT_WRITE",updatedAt:currentTs},409);
+        } else {
+          if(currentTs!==0)return json({ok:false,conflict:true,code:"INITIALIZATION_CONFLICT"},409);
+          const result=await env.DB.prepare(
+            "INSERT OR IGNORE INTO app_state (id,data,updated_at) VALUES (?,?,?)"
+          ).bind("main",data,updatedAt).run();
+          if(Number(result?.meta?.changes||0)!==1)
+            return json({ok:false,conflict:true,code:"INITIALIZATION_CONFLICT"},409);
+        }
+        await addBackup(env,data,"auto");
+        return json({ok:true,updatedAt});
       }
 
       return new Response("Method Not Allowed", { status: 405 });
