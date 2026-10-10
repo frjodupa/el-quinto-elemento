@@ -23,12 +23,12 @@ jobs:
           for i in range(16):
               _,body=get("/version.json")
               version=json.loads(body)["version"]
-              print("CHECK_VERSION="+str(version),flush=True)
-              if version==79:break
-              time.sleep(10)
-          else:raise RuntimeError("v75 build 79 no publicado")
-          _,html=get("/")
-          if b'class="uiVersion">v75' not in html:raise RuntimeError("Interfaz pública anterior")
+              _,html=get("/")
+              ui=b'class="uiVersion">v75' in html
+              print("CHECK_VERSION="+str(version)+" UI75="+str(ui),flush=True)
+              if version==79 and ui:break
+              time.sleep(9)
+          else:raise RuntimeError("v75 build 79 todavía no coherente en Cloudflare")
           _,raw=get("/api/maintenance/la-pasma-recovery")
           d=json.loads(raw)
           summary={k:d.get(k) for k in ("ok","ready","backupId","updatedAt","originalCount","afterCount","sourceCount","recoveredCount","skippedArchiveDuplicateCount","passName","passId","passSongIds","fixedOtherPasses","preservedCurrentCustomTitles","changedKeys","action")}
