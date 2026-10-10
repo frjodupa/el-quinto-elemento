@@ -126,3 +126,12 @@
 - Las octavas exactas no reescriben nombres de acordes; Intro, Instrumentales y acordes entre palabras usan el transpositor existente.
 - No se modifica ninguna letra ni se toca la sincronización de Cloudflare.
 - Interfaz v76; build técnico PWA 80.
+
+## v77 — 2026-10-10
+
+- Botón «Editar» visible en la barra de cada canción durante el directo.
+- Acceso inmediato a Editar letra/título y Editar acordes por palabra, sin entrar en Ajustes.
+- Herramientas rápidas de acordes con Intro, Instrumental, Deshacer y Guardar y salir.
+- Conserva los editores, sincronización y modelo de datos existentes; no modifica ninguna letra ni acorde en la publicación.
+- Mejora de accesibilidad y diseño adaptable iPhone/iPad/escritorio.
+- Interfaz v77 / build técnico y caché offline 81.
