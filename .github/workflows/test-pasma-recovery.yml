@@ -17,3 +17,4 @@ jobs:
       - name: Run pure data recovery tests (no Cloudflare writes)
         run: |
           node scripts/test_pasma_recovery.mjs
+          node scripts/test_pasma_worker.mjs
