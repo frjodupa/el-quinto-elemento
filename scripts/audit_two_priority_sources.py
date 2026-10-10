@@ -25,6 +25,12 @@ TARGETS={
  51:{"title":"QUÉ NAVIDAD TAN ESPECIAL","artist":"Morella Muñoz",
     "url":"https://tucuatro.com/es/cancion/que-navidad/",
     "backup":None},
+ 73:{"title":"ESCUELA DE CALOR","artist":"Radio Futura",
+    "url":"https://acordes.lacuerda.net/radio_futura/escuela_de_calor",
+    "backup":"https://chords.lacuerda.net/radio_futura/escuela_de_calor.shtml"},
+ 26:{"title":"ESPALDAS MOJADAS","artist":"Tam Tam Go",
+    "url":"https://acordes.lacuerda.net/tam_tam_go/espaldas_mojadas.shtml",
+    "backup":"https://membership-mobile2.acordes.lacuerda.net/tam_tam_go/espaldas_mojadas-3.shtml"},
 }
 def clean_chordline(value):
  line=str(value).replace("_"," ").replace("\xa0"," ")
