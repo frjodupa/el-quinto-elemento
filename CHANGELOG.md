@@ -116,3 +116,13 @@
 - Copia histórica y copia previa guardadas de forma permanente en D1 antes de cualquier migración.
 - Preparada auditoría y mejora posterior de acordes por línea sobre los 23 temas del pase.
 - Interfaz v75, build técnico PWA 79.
+
+## v76 — 2026-10-10
+
+- En Ajustes → Tonalidad se puede transponer en semitonos en el intervalo −12 a +12.
+- Deslizador de un semitono por paso, botones −1/+1, saltos de octava −12/+12 y vuelta a «Original».
+- Los controles directos ♭/♯ también respetan los límites −12 y +12.
+- El indicador muestra el desplazamiento guardado para cada canción y desactiva los controles al llegar al límite.
+- Las octavas exactas no reescriben nombres de acordes; Intro, Instrumentales y acordes entre palabras usan el transpositor existente.
+- No se modifica ninguna letra ni se toca la sincronización de Cloudflare.
+- Interfaz v76; build técnico PWA 80.
