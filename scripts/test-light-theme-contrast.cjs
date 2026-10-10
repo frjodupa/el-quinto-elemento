@@ -67,6 +67,26 @@ async function check(page,label,selector,bg,minimum=4.5){
    home.push(await check(page,'Pases button','.directActions .directActionPrimary','rgb(255,247,229)'));
    home.push(await check(page,'Internet help','.internetSearchHint','rgb(243,240,232)'));
    if(!(await page.locator('#internetSearchBtn').isVisible()))throw Error('Internet search button invisible');
+
+   // Newly appended songs are alphabetic in the index, without changing IDs.
+   const alphabetical=await page.evaluate(()=>{
+     const lengthBefore=songs.length;
+     songs.push({title:'A ABRIR PRUEBA ALFABETICA',text:'Canción de prueba'});
+     render('');
+     const titles=Array.from(document.querySelectorAll('#grid .songBtn')).map(b=>b.textContent.trim());
+     const expected=titles.slice().sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base',numeric:true}));
+     return {
+       lengthBefore, lengthAfter:songs.length,
+       newSongIndex:songs.length-1, titleAtIndex:songs[songs.length-1].title,
+       alphabeticallySorted:JSON.stringify(titles)===JSON.stringify(expected),
+       insertedAt:titles.indexOf('A ABRIR PRUEBA ALFABETICA'),
+       indexFirst:titles.slice(0,5)
+     };
+   });
+   if(!alphabetical.alphabeticallySorted||alphabetical.insertedAt<0||
+      alphabetical.newSongIndex!==alphabetical.lengthBefore){
+     throw Error(s.name+': New song not alphabetically displayed with stable ID '+JSON.stringify(alphabetical));
+   }
    await page.screenshot({path:'ui-review/'+s.name+'-home-light.png',fullPage:false});
    const song=page.locator('#grid .songBtn').filter({hasText:'A LA LUZ DEL LORENZO'}).first();
    if(!(await song.isVisible()))throw Error(s.name+': sample song absent');
