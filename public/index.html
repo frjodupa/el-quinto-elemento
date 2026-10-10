@@ -805,7 +805,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=79">
+<link rel="manifest" href="manifest.webmanifest?v=80">
 <link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=78">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1812,6 +1812,27 @@ body.concertMode #quickExportV63{display:none!important}
   .settingsBody .settingsGrid button{font-size:.75rem!important}
 }
 </style>
+<style id="v76-semitone-range-style">
+.qeLegacyTranspose{display:none!important}
+.qeSemitonePanel{margin:12px 0 10px;padding:12px;border:1px solid rgba(228,194,120,.27);border-radius:12px;background:rgba(229,192,105,.055)}
+.qeSemitoneHead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.qeSemitoneHead label{font-weight:780;color:var(--premium-ivory,#f5f4ee)!important;font-size:.86rem!important}
+#transposeSemitoneCount{font-variant-numeric:tabular-nums;color:var(--premium-gold,#eac875);font-size:.85rem;font-weight:900}
+#transposeSemitoneRange{display:block;width:100%;accent-color:#eac875;min-height:38px;margin:8px 0 0;cursor:pointer}
+#transposeSemitoneRange:disabled{opacity:.5;cursor:not-allowed}
+.qeSemitoneEnds{display:flex;justify-content:space-between;margin:0 2px 9px;font-size:.7rem;color:var(--premium-muted,#a4afc1);font-variant-numeric:tabular-nums}
+.qeSemitoneActions{display:grid;grid-template-columns:1fr 1fr 1.35fr 1fr 1fr;gap:6px}
+.qeSemitoneActions button{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:9px!important;padding:7px 2px!important;border:1px solid rgba(226,193,116,.30)!important;background:#202734!important;color:var(--premium-ivory,#f5f4ee)!important;font-size:.83rem;font-weight:850;font-variant-numeric:tabular-nums}
+.qeSemitoneActions #transposeStepOriginal{color:var(--premium-gold,#eac875)!important}
+.qeSemitoneActions button:disabled{opacity:.38;cursor:default}
+.qeSemitoneNote{margin:10px 0 0!important;font-size:.74rem;line-height:1.35;color:var(--premium-muted,#a4afc1)!important}
+body.lightTheme .qeSemitonePanel{background:#fff9ec!important;border-color:#dac38e!important}
+body.lightTheme .qeSemitoneHead label{color:#20252c!important}
+body.lightTheme #transposeSemitoneCount{color:#846017!important}
+body.lightTheme .qeSemitoneActions button{background:#f7f4eb!important;color:#20252c!important;border-color:#d9c9a4!important}
+body.lightTheme .qeSemitoneActions #transposeStepOriginal{color:#846017!important}
+@media(max-width:420px){.qeSemitonePanel{padding:9px}.qeSemitoneActions{gap:4px}.qeSemitoneActions button{font-size:.76rem!important}}
+</style>
 </head><body>
 <button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
 
@@ -1914,10 +1935,23 @@ body.concertMode #quickExportV63{display:none!important}
           <button id="transposeApplyKey" type="button" style="width:100%;min-height:46px;margin-bottom:10px;border-radius:10px;border:1px solid #e6c36a;background:#e6c36a;color:#111;font-weight:900">Aplicar y guardar tonalidad</button>
           <button id="qeSaveLiveTone" type="button" style="width:100%;min-height:44px;margin-bottom:10px;border-radius:10px">★ Guardar tonalidad para directo</button>
           <div id="transposeKeyHelp" style="font-size:.8rem;color:#aaa;margin-bottom:10px">Indica la tonalidad original de esta canción. La elección queda guardada por canción.</div>
-          <div class="transposeControls">
-            <button id="transposeDown" type="button">♭ −1</button>
-            <button id="transposeReset" type="button">↺ Original</button>
-            <button id="transposeUp" type="button">♯ +1</button>
+          <div class="transposeControls qeLegacyTranspose" aria-hidden="true">
+            <button id="transposeDown" type="button" tabindex="-1">♭ −1</button>
+            <button id="transposeReset" type="button" tabindex="-1">↺ Original</button>
+            <button id="transposeUp" type="button" tabindex="-1">♯ +1</button>
+          </div>
+          <div class="qeSemitonePanel" aria-label="Transposición por semitonos">
+            <div class="qeSemitoneHead"><label for="transposeSemitoneRange">Transponer por semitonos</label><output id="transposeSemitoneCount" for="transposeSemitoneRange" aria-live="polite">0 · Original</output></div>
+            <input id="transposeSemitoneRange" type="range" min="-12" max="12" step="1" value="0" aria-label="Transposición desde menos doce hasta más doce semitonos">
+            <div class="qeSemitoneEnds"><span>−12</span><span>0</span><span>+12</span></div>
+            <div class="qeSemitoneActions">
+              <button id="transposeOctDown" type="button" aria-label="Menos doce semitonos">−12</button>
+              <button id="transposeStepDown" type="button" aria-label="Bajar un semitono">−1</button>
+              <button id="transposeStepOriginal" type="button" aria-label="Volver a tonalidad original">Original</button>
+              <button id="transposeStepUp" type="button" aria-label="Subir un semitono">+1</button>
+              <button id="transposeOctUp" type="button" aria-label="Más doce semitonos">+12</button>
+            </div>
+            <p class="qeSemitoneNote">De −12 a +12 en pasos de 1 semitono. ±12 equivale a una octava; los nombres de acordes no indican registro.</p>
           </div>
           <div class="transposeHint">Cambia todos los acordes de la canción, incluida INTRO e INSTRUMENTALES. La letra no se modifica.</div>
         </div>
@@ -2139,7 +2173,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v75</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v76</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -3393,8 +3427,8 @@ buildPicker();render('');bindGlobalUndoButtons();
   var FLAT=['DO','RE♭','RE','MI♭','MI','FA','SOL♭','SOL','LA♭','LA','SI♭','SI'];
   var ROOT_TO_PC={'DO':0,'DO#':1,'RE♭':1,'REB':1,'RE':2,'RE#':3,'MI♭':3,'MIB':3,'MI':4,'FA':5,'FA#':6,'SOL♭':6,'SOLB':6,'SOL':7,'SOL#':8,'LA♭':8,'LAB':8,'LA':9,'LA#':10,'SI♭':10,'SIB':10,'SI':11};
   function transKey(i){return 'quintoElemento.transpose.v1.'+i}
-  function getOffset(i){try{return Number(localStorage.getItem(transKey(i))||0)||0}catch(e){return 0}}
-  function normalizeOffset(n){n=((Number(n)||0)%12+12)%12;if(n>6)n-=12;return n}
+  function normalizeOffset(n){n=Number(n);if(!Number.isFinite(n))return 0;return Math.max(-12,Math.min(12,Math.round(n)))}
+  function getOffset(i){try{return normalizeOffset(localStorage.getItem(transKey(i))||0)}catch(e){return 0}}
   function setOffset(i,n){n=normalizeOffset(n);try{if(n===0)localStorage.removeItem(transKey(i));else localStorage.setItem(transKey(i),String(n))}catch(e){}}
   function offsetLabel(n){if(!n)return 'ORIGINAL';return (n>0?'+':'')+n+' SEMITONO'+(Math.abs(n)===1?'':'S')}
   function parseRoot(text){
@@ -3418,25 +3452,50 @@ buildPicker();render('');bindGlobalUndoButtons();
   function transposeMap(map,delta,preferFlats){Object.keys(map||{}).forEach(function(k){map[k]=transposeSequence(map[k],delta,preferFlats)})}
   function transposeCurrent(delta){
     if(typeof current==='undefined'||current<0){alert('Abre una canción para cambiar la tonalidad.');return}
+    delta=Math.round(Number(delta)||0);
+    if(!delta){updateTransposeUI();return}
+    var offset=getOffset(current),next=offset+delta;
+    if(next < -12 || next > 12){updateTransposeUI();return}
     var d=getChordData(current);
     var hasAny=!!d.intro||Object.keys(d.lines||{}).length||Object.keys(d.words||{}).length||Object.keys(d.instrumentals||{}).length;
-    if(!hasAny){alert('Esta canción todavía no tiene acordes añadidos.');return}
-    var preferFlats=delta<0;
-    d.intro=transposeSequence(d.intro,delta,preferFlats);transposeMap(d.lines,delta,preferFlats);transposeMap(d.words,delta,preferFlats);transposeMap(d.instrumentals,delta,preferFlats);
-    saveChordData(current,d);setOffset(current,getOffset(current)+delta);updateTransposeUI();renderLyrics();
+    if(!hasAny){alert('Esta canción todavía no tiene acordes añadidos.');updateTransposeUI();return}
+    // Pure octave moves only change register, not chord names.
+    if(delta%12!==0){
+      var preferFlats=delta<0;
+      d.intro=transposeSequence(d.intro,delta,preferFlats);
+      transposeMap(d.lines,delta,preferFlats);
+      transposeMap(d.words,delta,preferFlats);
+      transposeMap(d.instrumentals,delta,preferFlats);
+      saveChordData(current,d);
+    }
+    setOffset(current,next);
+    updateTransposeUI();
+    renderLyrics();
+  }
+  function setAbsoluteSemitones(target){
+    if(typeof current==='undefined'||current<0){alert('Abre una canción para cambiar la tonalidad.');return}
+    target=normalizeOffset(target);
+    transposeCurrent(target-getOffset(current));
   }
   function resetCurrent(){
     if(typeof current==='undefined'||current<0)return;
-    var offset=getOffset(current);if(!offset){updateTransposeUI();return}
-    var d=getChordData(current),delta=-offset,preferFlats=delta<0;
-    d.intro=transposeSequence(d.intro,delta,preferFlats);transposeMap(d.lines,delta,preferFlats);transposeMap(d.words,delta,preferFlats);transposeMap(d.instrumentals,delta,preferFlats);
-    saveChordData(current,d);setOffset(current,0);updateTransposeUI();renderLyrics();
+    setAbsoluteSemitones(0);
   }
   function updateTransposeUI(){
     var value=document.getElementById('transposeValue'),badge=document.getElementById('transposeBadge');
     var valid=typeof current!=='undefined'&&current>=0,n=valid?getOffset(current):0;
     if(value)value.textContent=valid?offsetLabel(n):'ABRE UNA CANCIÓN';
     if(badge){if(valid&&n){badge.style.display='block';badge.textContent='TONALIDAD · '+offsetLabel(n)}else{badge.style.display='none';badge.textContent=''}}
+    var range=document.getElementById('transposeSemitoneRange'),output=document.getElementById('transposeSemitoneCount');
+    if(range){range.value=String(n);range.disabled=!valid}
+    if(output)output.textContent=valid?(n===0?'0 · Original':(n>0?'+':'')+n+' semitonos'):'Abre una canción';
+    [['transposeStepDown',n<=-12],['transposeStepUp',n>=12],
+     ['transposeOctDown',n===-12],['transposeOctUp',n===12],
+     ['transposeStepOriginal',n===0]].forEach(function(item){
+       var btn=document.getElementById(item[0]);
+       if(btn)btn.disabled=!valid||item[1];
+     });
+    if(typeof keyUI==='function')keyUI();
   }
   // v55: selector directo de tonalidad por canción, sin inferir tonalidades ambiguas.
   var KEY_NAMES=['DO','DO#','RE','RE#','MI','FA','FA#','SOL','SOL#','LA','LA#','SI'];
@@ -3501,6 +3560,21 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(down)down.addEventListener('click',function(){transposeCurrent(-1)});
     if(up)up.addEventListener('click',function(){transposeCurrent(1)});
     if(reset)reset.addEventListener('click',resetCurrent);
+    [
+      ['transposeStepDown',function(){transposeCurrent(-1)}],
+      ['transposeStepUp',function(){transposeCurrent(1)}],
+      ['transposeOctDown',function(){setAbsoluteSemitones(-12)}],
+      ['transposeOctUp',function(){setAbsoluteSemitones(12)}],
+      ['transposeStepOriginal',resetCurrent]
+    ].forEach(function(pair){var btn=document.getElementById(pair[0]);if(btn)btn.addEventListener('click',pair[1])});
+    var slider=document.getElementById('transposeSemitoneRange'),out=document.getElementById('transposeSemitoneCount');
+    if(slider){
+      slider.addEventListener('input',function(){
+        var n=normalizeOffset(slider.value);
+        if(out)out.textContent=n===0?'0 · Original':(n>0?'+':'')+n+' semitonos';
+      });
+      slider.addEventListener('change',function(){setAbsoluteSemitones(slider.value)});
+    }
     var settingsBtn=document.getElementById('settingsBtn'),settingsIndexBtn=document.getElementById('settingsIndexBtn');
     if(settingsBtn)settingsBtn.addEventListener('click',function(){setTimeout(updateTransposeUI,0)});
     if(settingsIndexBtn)settingsIndexBtn.addEventListener('click',function(){setTimeout(updateTransposeUI,0)});
@@ -4639,7 +4713,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=79;
+const APP_VERSION=80;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4728,7 +4802,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=79',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=80',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6539,8 +6613,8 @@ body.lightTheme .internetSearchLaunch{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:75,
-        buildVersion:79,
+        version:76,
+        buildVersion:80,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
