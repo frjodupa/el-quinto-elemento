@@ -1,0 +1,34 @@
+name: EQE 87 - aplicar solo 5 acordes repetidos validados con backup
+on:
+  push:
+    branches: [apply-87-exact-stanza-repeat-20261010]
+    paths: [".github/workflows/apply-87-exact-stanzas.yml"]
+permissions:
+  contents: read
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencias
+        run: pip install requests beautifulsoup4
+      - name: Respaldar, validar y completar solo estrofas idénticas
+        env:
+          APPLY_SAFE_REPEATS: "1"
+        run: |
+          python -m py_compile scripts/audit_songbook.py scripts/audit_repeated_chords_86.py
+          python scripts/audit_repeated_chords_86.py
+      - name: Informe de cambios
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-87-cinco-acordes-repetidos-aplicados
+          path: |
+            eqe-repeat-chord-audit/REPEAT_CHORD_PREFLIGHT.json
+            eqe-repeat-chord-audit/REPEAT_CHORD_APPLIED.json
+          retention-days: 21
+          if-no-files-found: warn
