@@ -8,3 +8,9 @@
 - Nuevo endpoint `GET /export` para descargar el estado persistido en Cloudflare D1.
 - El endpoint de exportación queda fuera de la caché offline.
 - La versión técnica de caché/PWA pasa de 65 a 66 para no degradar el sistema de actualización existente.
+
+## v64 — 2026-10-10
+
+- Auditoría automática del cancionero con CifraClub / Ultimate Guitar y normalización ChordPro.
+- Enriquecimiento conservador de acordes solo en coincidencias validadas.
+- Versión técnica PWA actualizada de 66 a 67 para el siguiente despliegue.
