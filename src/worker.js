@@ -82,6 +82,45 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname === "/export") {
+      if (request.method !== "GET") {
+        return new Response("Method Not Allowed", { status: 405 });
+      }
+
+      await ensureSchema(env);
+      const row = await currentState(env);
+      if (!row?.data) {
+        return json({ error: "Todavía no hay datos para exportar" }, 404);
+      }
+
+      let storage = {};
+      try {
+        storage = JSON.parse(row.data || "{}");
+      } catch {
+        storage = { raw: String(row.data || "") };
+      }
+
+      const payload = {
+        format: "quinto-elemento-cloud-export",
+        version: 63,
+        buildVersion: 66,
+        createdAt: new Date().toISOString(),
+        updatedAt: Number(row.updated_at || 0),
+        storage
+      };
+
+      return new Response(JSON.stringify(payload, null, 2), {
+        status: 200,
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "content-disposition": 'attachment; filename="cancionero-v62-export.json"',
+          "cache-control": "no-store, no-cache, must-revalidate",
+          "pragma": "no-cache",
+          "expires": "0"
+        }
+      });
+    }
+
     if (url.pathname === "/api/health") {
       try {
         await ensureSchema(env);
