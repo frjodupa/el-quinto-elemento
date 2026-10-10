@@ -1,3 +1,5 @@
+import { buildLaPasmaRecovery } from "./pasma_recovery.mjs";
+
 async function ensureSchema(env) {
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS app_state (
@@ -665,6 +667,88 @@ export default {
       } catch (error) {
         return json({ ok: false, error: String(error?.message || error) }, 500);
       }
+    }
+
+    // One-time, deterministic, non-destructive recovery of LA PASMA (NUEVA).
+    // The route is removed after the guarded migration succeeds.
+    // No original song, current extra or existing chord data is overwritten.
+    if (url.pathname === "/api/maintenance/la-pasma-recovery") {
+      if (request.method !== "GET" && request.method !== "POST")
+        return json({error:"Método no permitido"},405);
+      await ensureSchema(env);
+      const current = await currentState(env);
+      if(!current?.data)return json({error:"No hay estado D1 actual"},404);
+      let currentStorage={};
+      try{currentStorage=JSON.parse(current.data)}catch{return json({error:"Estado D1 actual ilegible"},500)}
+      // All snapshots are encrypted-at-rest inside the user's own D1; only summary metadata leaves the server.
+      const rows=await env.DB.prepare(
+        "SELECT id,data FROM app_backups ORDER BY created_at DESC,id DESC LIMIT 10"
+      ).all();
+      let selection=null,plan=null,failures=[];
+      for(const row of rows?.results||[]){
+        try{
+          const data=JSON.parse(row.data||"{}");
+          const attempt=buildLaPasmaRecovery(currentStorage,data);
+          selection={id:Number(row.id),data:row.data};
+          plan=attempt;
+          break;
+        }catch(e){
+          failures.push({backupId:Number(row.id),reason:String(e?.message||e).slice(0,200)});
+        }
+      }
+      if(!plan){
+        return json({ok:false,error:"Ninguna copia conserva el pase íntegro para fusionarlo sin pérdida de datos",
+                     failureCount:failures.length},409);
+      }
+      if(request.method==="GET"){
+        return json({ok:true,ready:true,backupId:selection.id,updatedAt:Number(current.updated_at||0),
+          ...plan.summary});
+      }
+      let body={};
+      try{body=await request.json()}catch{return json({error:"Cuerpo JSON inválido"},400)}
+      if(body.action!=="merge_only"||Number(body.expectedUpdatedAt)!==Number(current.updated_at)||
+         Number(body.backupId)!==selection.id){
+        return json({error:"Precondición no válida: vuelve a consultar la vista previa"},409);
+      }
+      // Enforce exact migration to avoid a generic unauthenticated D1 writer.
+      if(plan.summary.recoveredCount!==14 ||
+         plan.summary.afterCount!==plan.summary.originalCount+14 ||
+         plan.summary.passSongIds.length!==23 ||
+         plan.summary.originalCount!==72){
+        return json({error:"El estado no cumple la migración exacta autorizada; abortado",summary:plan.summary},409);
+      }
+
+      // Historical 99-song snapshot and pre-migration current state survive the
+      // rotating last-10 automatic backups, for forensic restoration if necessary.
+      await env.DB.prepare(
+        "CREATE TABLE IF NOT EXISTS eqe_recovery_archive (tag TEXT PRIMARY KEY, created_at INTEGER NOT NULL, data TEXT NOT NULL)"
+      ).run();
+      const now=Date.now();
+      await env.DB.batch([
+        env.DB.prepare("INSERT OR IGNORE INTO eqe_recovery_archive (tag,created_at,data) VALUES (?,?,?)")
+          .bind("pasma-99-source-"+selection.id,now,selection.data),
+        env.DB.prepare("INSERT OR IGNORE INTO eqe_recovery_archive (tag,created_at,data) VALUES (?,?,?)")
+          .bind("pasma-before-merge-"+current.updated_at,now,current.data)
+      ]);
+      const protectedBackup=await addBackup(env,current.data,"before_pasma_recovery");
+      if(!protectedBackup)return json({error:"No se confirmó copia previa; no se ha modificado D1"},500);
+
+      // Conditional update rejects concurrent edits from user's other devices.
+      const fresh=await currentState(env);
+      if(fresh?.data!==current.data || Number(fresh?.updated_at)!==Number(current.updated_at))
+        return json({error:"Los datos cambiaron mientras se preparaba la copia; abortado sin modificar el repertorio"},409);
+      const updateAt=Date.now();
+      const targetString=JSON.stringify(plan.state);
+      const changed=await env.DB.prepare(
+        "UPDATE app_state SET data = ?, updated_at = ? WHERE id = ? AND updated_at = ?"
+      ).bind(targetString,updateAt,"main",current.updated_at).run();
+      if(Number(changed?.meta?.changes||0)!==1)
+        return json({error:"No se pudo aplicar la fusión porque cambió el estado; no se ha sustituido ningún dato"},409);
+      const verify=await currentState(env);
+      if(verify?.data!==targetString)
+        return json({error:"Falló la verificación de D1: recuperación archivada, revisar antes de continuar"},500);
+      return json({ok:true,verified:true,backupId:protectedBackup,archivedSourceId:selection.id,
+        updatedAt:updateAt,...plan.summary});
     }
 
     if (url.pathname === "/api/backups") {
