@@ -4,7 +4,7 @@ on:
     branches:
       - audit-current-86-priority-20261010
     paths:
-      - ".github/workflows/audit-full-readonly.yml"
+      - ".github/workflows/eqe-source-audit-86.yml"
   workflow_dispatch:
 
 permissions:
