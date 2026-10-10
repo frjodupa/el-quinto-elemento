@@ -70,9 +70,26 @@ sync=requests.get(BASE+"/api/sync?ts="+str(int(time.time()*1000)),timeout=30).js
 storage=sync.get("data") or {}
 text=str(storage.get(f"quintoElemento.lyrics.v1.{IDX}",""))
 if not text:
-    # base song text is not in D1 when unedited; fetch export UI isn't needed here because
-    # this song has current override only if repaired. Abort rather than guessing.
-    raise SystemExit("No current lyric override for ID 35; refusing blind repair")
+    html=open("public/index.html",encoding="utf-8").read()
+    marker="let songs="
+    p=html.index(marker)+len(marker)
+    while html[p].isspace():p+=1
+    start=p;depth=0;quote=None;esc=False;arr=None
+    for k in range(start,len(html)):
+        ch=html[k]
+        if quote:
+            if esc:esc=False
+            elif ch=="\\\\":esc=True
+            elif ch==quote:quote=None
+            continue
+        if ch in ('"',"'"):quote=ch
+        elif ch=="[":depth+=1
+        elif ch=="]":
+            depth-=1
+            if depth==0:
+                arr=json.loads(html[start:k+1]);break
+    if not arr or IDX>=len(arr):raise SystemExit("Base song not found")
+    text=str(arr[IDX].get("text") or "")
 try:cur=nd(json.loads(storage.get(f"quintoElemento.chords.v2.{IDX}","{}")))
 except:cur=empty()
 r=requests.post(BASE+"/api/song-fetch",json={"source":"ultimate-guitar","id":UG_ID,"url":"https://tabs.ultimate-guitar.com/tab/radio-futura/paseo-con-la-negra-flor-chords-3336638"},timeout=45)
