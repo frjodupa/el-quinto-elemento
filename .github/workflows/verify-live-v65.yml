@@ -31,10 +31,10 @@ jobs:
           else
             echo "DIRECT_UI=NO"
           fi
-          if grep -q 'class="uiVersion">v69' /tmp/index.html; then
-            echo "UI_V69=YES"
+          if grep -q 'class="uiVersion">v70' /tmp/index.html; then
+            echo "UI_V70=YES"
           else
-            echo "UI_V69=NO"
+            echo "UI_V70=NO"
           fi
           echo "=== SONG DIRECT UI ==="
           if grep -q 'class="bar directSongBar"' /tmp/index.html; then
@@ -144,15 +144,15 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v73" /tmp/sw.js; then
-            echo "SW_CACHE_73=YES"
+          if grep -q "quinto-elemento-v74" /tmp/sw.js; then
+            echo "SW_CACHE_74=YES"
           else
-            echo "SW_CACHE_73=NO"
+            echo "SW_CACHE_74=NO"
           fi
-          if grep -q '"version": 73' /tmp/version.json; then
-            echo "VERSION_JSON_73=YES"
+          if grep -q '"version": 74' /tmp/version.json; then
+            echo "VERSION_JSON_74=YES"
           else
-            echo "VERSION_JSON_73=NO"
+            echo "VERSION_JSON_74=NO"
           fi
 
           echo "=== LIVE D1 STATE ==="
