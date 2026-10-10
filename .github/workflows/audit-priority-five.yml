@@ -1,0 +1,54 @@
+name: EQE - Primeros temas incompletos (solo lectura)
+on:
+  push:
+    branches: [audit-full-repertory-readonly-20261010]
+    paths: [".github/workflows/audit-priority-five.yml"]
+permissions:
+  contents: read
+jobs:
+  priority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - uses: actions/setup-go@v5
+        with: {go-version: "1.23"}
+      - name: Dependencies
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/olimontes/setlive.git /tmp/setlive
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          git clone --depth 1 https://github.com/mfuentesg/capo.git /tmp/capo
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+          CAPO_VERSION=$(node -e "const p=require('/tmp/capo/package.json'); console.log(String(p.dependencies.chordsheetjs).replace(/^[^0-9]*/,''))")
+          npm install --prefix /tmp/audit-node --no-audit --no-fund "chordsheetjs@$CAPO_VERSION"
+      - name: Audit priority song IDs 16 19 21 22 35 without changing live data
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          SETLIVE_SCRAPER_PATH: "/tmp/setlive/backend/apps/repertoire/cifra_scraper.py"
+          UG_HELPER: "/tmp/ug-audit"
+          CHORDPRO_CONVERTER: "scripts/chordpro_convert.cjs"
+          NODE_PATH: "/tmp/audit-node/node_modules"
+          APPLY_TO_LIVE: "0"
+          REPORT_ONLY: "1"
+          REQUEST_DELAY: "2"
+          ONLY_IDS: "16,19,21,22,35"
+          AUDIT_OUT: "priority_output"
+        run: |
+          python scripts/audit_songbook.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eqe-priority-five-report
+          path: |
+            priority_output/AUDITORIA_REPORT.md
+            priority_output/RUN_STATUS.json
+            priority_output/raw/*.json
+            priority_output/diff/*.md
+          retention-days: 14
+          if-no-files-found: warn
