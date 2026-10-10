@@ -403,6 +403,12 @@ function parseInlineUg(line) {
   return {plain,anchors};
 }
 
+function appendImportedWordChord(words,key,chord) {
+  // EQE uses ' · ' as the sequence separator, including during transposition.
+  // Never replace an earlier chord anchored to the same word.
+  words[key] = words[key] ? words[key] + " · " + chord : chord;
+}
+
 function parseSongContent(content,provider) {
   const chordData={lines:{},words:{},intro:"",introText:"",instrumentals:{},instrumentalsText:{},references:[]};
   const lyrics=[];
@@ -451,7 +457,7 @@ function parseSongContent(content,provider) {
       if(pending){
         pending.tokens.forEach(a=>{
           const wi=nearestWordIndex(parsed.plain,a.column);
-          if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+          if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
         });
         pending=null;
       }
@@ -459,7 +465,7 @@ function parseSongContent(content,provider) {
       // Después aplicar acordes inline de la propia línea.
       parsed.anchors.forEach(a=>{
         const wi=nearestWordIndex(parsed.plain,a.column);
-        if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+        if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
       });
       continue;
     }
@@ -482,7 +488,7 @@ function parseSongContent(content,provider) {
     if(pending){
       pending.tokens.forEach(a=>{
         const wi=nearestWordIndex(lyric,a.column);
-        if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+        if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
       });
       pending=null;
     }
