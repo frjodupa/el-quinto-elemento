@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=74">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=74">
+<link rel="manifest" href="manifest.webmanifest?v=75">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=75">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1763,6 +1763,55 @@ body.concertMode #quickExportV63{display:none!important}
   font-size:.72rem!important;
 }
 </style>
+<style id="v71-compact-mobile-song-and-settings">
+/* Lines keep their source text; font can now be decreased past the old 0.75 limit. */
+#view.on #ly.lyrics{
+  padding-left:max(10px,env(safe-area-inset-left))!important;
+  padding-right:max(10px,env(safe-area-inset-right))!important;
+  max-width:1200px!important;
+  letter-spacing:0!important;
+  line-height:1.34!important;
+}
+#ly.qeOriginalView .lyricLine{gap:4px!important;margin:.07em 0!important;min-height:1.35em!important}
+#ly.qeOriginalView .wordWrap{margin-right:.14em!important}
+#ly.qeOriginalView .wordToken{letter-spacing:-.015em}
+#view.on .title{padding:0 12px!important;font-size:clamp(1.12rem,3.8vw,1.65rem)!important}
+/* Retire the UI for the optional live data card, keeping the underlying saved data. */
+#qeLegacyLiveCard{display:none!important}
+/* Scroll/tempo already appear in the live top bar; no second set of controls. */
+.settingsGroup:has(#settingsScrollToggle){display:none!important}
+.settingsBody #transposeDown,.settingsBody #transposeUp{display:none!important}
+.settingsBody .transposeControls{grid-template-columns:1fr!important}
+.settingsBody #qeSaveLiveTone{display:none!important}
+.settingsBody #qeShareApp,.settingsBody #qeShare{display:none!important}
+/* Default view is deliberately smaller: retain all tooling behind "More tools". */
+.settingsBody.qeContextCompact #settingsDuplicateChordBlock,
+.settingsBody.qeContextCompact #settingsDetectRepeats,
+.settingsBody.qeContextCompact #settingsReferenceText,
+.settingsBody.qeContextCompact #settingsClearReferences,
+.settingsBody.qeContextCompact #settingsPdfAllChords,
+.settingsBody.qeContextCompact #qeRepairAunque,
+.settingsBody.qeContextCompact #settingsClearChords,
+.settingsBody.qeContextCompact #settingsShareAccess,
+.settingsBody.qeContextCompact #qeGuideBtn,
+.settingsBody.qeContextCompact #settingsImportLaPasma,
+.settingsBody.qeContextCompact #settingsConcertMode{display:none!important}
+.settingsBody.qeContextCompact #qeLegacyLiveCard{display:none!important}
+/* Keep action controls legible in dark mode, including text inputs in optional tools. */
+.settingsBody input:not([type="checkbox"]):not([type="range"]),
+.settingsBody select,.settingsBody textarea{
+  background:#1b1c20!important;color:#f4f2eb!important;
+  border:1px solid #45464e!important;border-radius:8px!important;
+}
+.settingsBody .settingsGroup{padding-top:7px!important;padding-bottom:7px!important}
+.settingsBody .settingsGroup h3{font-size:.92rem!important}
+@media(max-width:600px){
+  #view.on .title{margin:10px auto 7px!important}
+  #ly.qeOriginalView .lineBody{line-height:1.29!important}
+  .settingsBody .settingsGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .settingsBody .settingsGrid button{font-size:.75rem!important}
+}
+</style>
 </head><body>\n<button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
 
 
@@ -1892,7 +1941,7 @@ body.concertMode #quickExportV63{display:none!important}
         </div>
       </section>
 
-      <section class="settingsGroup">
+      <section id="qeLegacyLiveCard" class="settingsGroup">
         <h3>Directo y ficha musical</h3>
         <div class="settingsGrid">
           <button id="qeDirectMode" type="button">🎤 Activar modo directo</button>
@@ -2089,7 +2138,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v70</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v71</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -3120,16 +3169,16 @@ function songFontSizeKey(i){
   return 'quintoElemento.fontSize.song.'+i;
 }
 function loadSongFontSize(i){
-  var v=1;
+  var v=0.94;
   try{
     var raw=localStorage.getItem(songFontSizeKey(i));
     if(raw!==null){
       var n=parseFloat(raw);
-      if(!isNaN(n))v=Math.max(.75,Math.min(1.6,n));
+      if(!isNaN(n))v=Math.max(.52,Math.min(1.7,n));
     }
   }catch(e){}
   size=v;
-  ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')';
+  ly.style.fontSize='calc(clamp(1rem,2.6vw,1.75rem)*'+size+')';
 }
 function saveSongFontSize(){
   if(current<0)return;
@@ -3214,8 +3263,8 @@ document.getElementById('next').onclick=function(){
   if(window.passNextSong && window.passNextSong())return;
   openSong((current+1)%songs.length)
 };
-document.getElementById('plus').onclick=function(){size=Math.min(1.6,size+.1);ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')';saveSongFontSize()};
-document.getElementById('minus').onclick=function(){size=Math.max(.75,size-.1);ly.style.fontSize='calc(clamp(1.35rem,3.4vw,2.35rem)*'+size+')';saveSongFontSize()};
+document.getElementById('plus').onclick=function(){size=Math.min(1.7,Number((size+.08).toFixed(2)));ly.style.fontSize='calc(clamp(1rem,2.6vw,1.75rem)*'+size+')';saveSongFontSize()};
+document.getElementById('minus').onclick=function(){size=Math.max(.52,Number((size-.08).toFixed(2)));ly.style.fontSize='calc(clamp(1rem,2.6vw,1.75rem)*'+size+')';saveSongFontSize()};
 chordMode.onclick=function(){
   editingChords=!editingChords;
   if(!editingChords){placingInstrumental=false;instrumentAction=null}
@@ -4550,7 +4599,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=74;
+const APP_VERSION=75;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4639,7 +4688,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=52',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=75',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -5683,8 +5732,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
   function allowedForContext(isSong){
     return isSong
-      ? ['Tonalidad','Visualización','Scroll','Directo y ficha musical']
-      : ['Estado del cancionero','Sincronización','Copias automáticas','Mantenimiento'];
+      ? ['Edición','Tonalidad','Visualización']
+      : ['Sincronización','Copias automáticas','Mantenimiento'];
   }
 
   function apply(){
@@ -5701,8 +5750,8 @@ body.qeDirect .directSongBar #settingsBtn{
       hint.textContent=advanced
         ? 'Todas las herramientas están visibles.'
         : (isSong
-            ? 'Solo controles útiles durante la actuación. La edición avanzada está en “Más herramientas”.'
-            : 'Solo mantenimiento y sincronización. Las herramientas de canción se muestran al abrir un tema.');
+            ? 'Editar acordes, tonalidad y apariencia. Scroll y tamaño están en la barra de la canción.'
+            : 'Sincronización y copias. Las opciones poco usadas están en “Más herramientas”.');
     }
     toggle.textContent=advanced?'Menos herramientas':'Más herramientas';
     toggle.setAttribute('aria-pressed',advanced?'true':'false');
@@ -6383,8 +6432,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:70,
-        buildVersion:74,
+        version:71,
+        buildVersion:75,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
