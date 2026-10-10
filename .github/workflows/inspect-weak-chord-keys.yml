@@ -1,0 +1,22 @@
+name: EQE - identificar acordes originales de canciones críticas
+on:
+  push:
+    branches: [audit-alt-chord-sources-86-20261010]
+    paths: [.github/workflows/inspect-weak-chord-keys.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install requests beautifulsoup4
+      - name: Inspect existing chord signatures read-only
+        env:
+          LIVE_BASE: https://crimson-rice-1fe1.joseduqueparedes.workers.dev
+        run: |
+          python -m py_compile scripts/inspect_weak_chords.py
+          python scripts/inspect_weak_chords.py
