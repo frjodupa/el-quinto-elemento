@@ -476,18 +476,19 @@ function parseSongContent(content,provider) {
       continue;
     }
 
-    let lyric=stripHtml(trimmed)
+    // Preserve source indentation and internal spacing for column-based chord
+    // matching. The stored lyric stays normalized for existing EQE consumers.
+    const alignedLyric=stripHtml(String(raw))
       .replace(/\[\/?(?:tab|ch)\]/gi,"")
-      .replace(/\[[^\]]+\]/g,"")
-      .replace(/\s+/g," ")
-      .trim();
+      .replace(/\[[^\]]+\]/g,"");
+    let lyric=alignedLyric.replace(/\s+/g," ").trim();
     if(!lyric || looksChordLine(lyric) || isTabLine(lyric)) continue;
 
     const li=lyrics.length;
     lyrics.push(lyric);
     if(pending){
       pending.tokens.forEach(a=>{
-        const wi=nearestWordIndex(lyric,a.column);
+        const wi=nearestWordIndex(alignedLyric,a.column);
         if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
       });
       pending=null;
