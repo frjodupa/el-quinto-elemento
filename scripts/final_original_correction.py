@@ -55,6 +55,21 @@ TARGETS = {
 }
 
 
+def norm_name(value):
+    return audit.deaccent(str(value or "")).lower().replace(" y los problemas", "").replace(" y ", " ")
+    
+
+def artist_matches(expected, actual):
+    e = norm_name(expected)
+    a = norm_name(actual)
+    # Core artist tokens must be represented; tolerate punctuation / accents / group suffixes.
+    tokens = [t for t in e.split() if len(t) > 2 and t not in {"los", "las", "the"}]
+    if not tokens:
+        return False
+    hits = sum(1 for t in tokens if t in a)
+    return hits / len(tokens) >= 0.67
+
+
 def dump(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -118,12 +133,52 @@ def main():
         }
         final_data = copy.deepcopy(base_data)
 
+        provider = ""
+        source_url = spec["url"]
+        source_hash = ""
+        model = None
+        source_key = ""
+        source_artist = spec["artist"]
+        errors = []
+
+        # Mandatory CifraClub first.
         try:
             raw = fetch_exact_cifra(spec["url"])
             chordpro = audit.convert_to_chordpro(raw, spec["title"], spec["artist"])
             model = audit.chordpro_to_model(chordpro)
-            sim = audit.similarity(text, model["lyrics"]) if model.get("lyrics") else 0.0
-            mapped, coverage = audit.map_placements(model, text) if model.get("lyrics") else ([], 0.0)
+            provider = "CifraClub"
+            source_hash = audit.hashlib.sha256(raw.encode("utf-8")).hexdigest()
+        except Exception as exc:
+            errors.append(f"CifraClub: {exc}")
+
+        # Required fallback: Pilfer/ultimate-guitar-scraper, constrained to original artist.
+        if not model or not model.get("lyrics"):
+            try:
+                ug = audit.ug_fetch(spec["title"], spec["artist"])
+                if ug and artist_matches(spec["artist"], ug.get("artist")):
+                    ug_model = audit.ug_to_model(ug["content"])
+                    if ug_model.get("lyrics"):
+                        model = ug_model
+                        provider = "Ultimate Guitar"
+                        source_url = ug.get("url") or source_url
+                        source_key = ug.get("key") or ""
+                        source_artist = ug.get("artist") or spec["artist"]
+                        source_hash = audit.hashlib.sha256(ug["content"].encode("utf-8")).hexdigest()
+                elif ug:
+                    errors.append(
+                        f"UG rejected: artist mismatch expected={spec['artist']!r} actual={ug.get('artist')!r}"
+                    )
+                else:
+                    errors.append("UG: no result")
+            except Exception as exc:
+                errors.append(f"Ultimate Guitar: {exc}")
+
+        try:
+            if not model or not model.get("lyrics"):
+                raise RuntimeError("; ".join(errors) or "No original source could be validated")
+
+            sim = audit.similarity(text, model["lyrics"])
+            mapped, coverage = audit.map_placements(model, text)
             shift, shift_conf = audit.choose_shift(mapped, base_data["words"]) if mapped else (0, 0.0)
             candidate, additions, conflicts = audit.apply_mapped_chords(base_data, mapped, shift) if mapped else (base_data, 0, 0)
             source_count = audit.source_chord_count(model)
@@ -131,6 +186,10 @@ def main():
             final_count = audit.count_chords(candidate)
 
             source_meta.update({
+                "artist": source_artist,
+                "url": source_url,
+                "provider": provider,
+                "key": source_key,
                 "similarity": round(sim, 6),
                 "coverage": round(coverage, 6),
                 "sourceChords": source_count,
@@ -140,21 +199,25 @@ def main():
                 "transposeConfidence": round(shift_conf, 6),
                 "additions": additions,
                 "conflictsPreserved": conflicts,
-                "sourceSha256": audit.hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+                "sourceSha256": source_hash,
+                "errors": errors,
             })
 
             if sim > 0.85 and source_count >= base_count and coverage >= 0.60 and additions > 0 and final_count >= base_count:
                 final_data = candidate
                 action = "replaced_with_original_source"
-                detail = f"Fuente original validada: similitud {sim*100:.1f}%, cobertura {coverage*100:.1f}%."
+                detail = (
+                    f"{provider} del artista original validado: similitud {sim*100:.1f}%, "
+                    f"cobertura {coverage*100:.1f}%."
+                )
             else:
                 detail = (
                     f"Fuente original no superó todos los filtros: similitud {sim*100:.1f}%, "
                     f"cobertura {coverage*100:.1f}%, acordes fuente/base {source_count}/{base_count}. "
-                    "Se restaura el estado anterior a la auditoría."
+                    "Se mantiene/restaura el estado anterior a la auditoría."
                 )
         except Exception as exc:
-            detail = f"No se pudo validar la fuente original ({exc}). Se restaura el estado anterior a la auditoría."
+            detail = f"No se pudo validar la fuente original ({exc}). Se mantiene/restaura el estado anterior a la auditoría."
 
         current_serialized = storage.get(f"quintoElemento.chords.v2.{sid}")
         final_serialized = json.dumps(final_data, ensure_ascii=False, separators=(",", ":"))
@@ -241,7 +304,7 @@ def main():
     ]
     for row in rows:
         report.append(
-            f"| {row['id']} | {row['title']} | [{row['requiredOriginalArtist']}]({row['sourceUrl']}) | "
+            f"| {row['id']} | {row['title']} | [{row.get('provider') or 'Fuente'}]({row.get('url') or row['sourceUrl']}) · {row['requiredOriginalArtist']} | "
             f"{float(row.get('similarity',0))*100:.1f}% | {float(row.get('coverage',0))*100:.1f}% | "
             f"{row.get('baseChords',0)} → {row.get('finalChords',0)} | {row['action']} |"
         )
