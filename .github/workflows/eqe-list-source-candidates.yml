@@ -30,4 +30,21 @@ jobs:
                   selected.append({'title':cells[0], 'similarity':cells[1], 'chords':cells[2], 'source':cells[3],'action':cells[4]})
           print('EQE_SHORTLIST='+json.dumps(selected,ensure_ascii=False),flush=True)
           print('EQE_SHORTLIST_COUNT='+str(len(selected)),flush=True)
+          ids=[]
+          for src in pathlib.Path('/tmp/full-audit/raw').glob('*.json'):
+              data=json.loads(src.read_text(encoding='utf-8'))
+              if any(data.get('titulo')==r['title'] for r in selected):
+                  diff=pathlib.Path('/tmp/full-audit/diff')/(str(data['id'])+'.md')
+                  keep={}
+                  if diff.exists():
+                      for line in diff.read_text(encoding='utf-8').splitlines():
+                          if line.startswith('- ') and ':' in line:
+                              key,value=line[2:].split(':',1)
+                              if key in ('ID','Similitud de letra','Acordes antes','Acordes después','Cobertura de mapeo','Acordes añadidos','Conflictos conservados sin sobrescribir','Transposición aplicada','Fuente','URL'):
+                                  keep[key]=value.strip()
+                  ids.append({'id':data.get('id'),'title':data.get('titulo'),'source':data.get('provider'),
+                      'sourceHash':data.get('source_content_sha256'),
+                      'sourceChords':data.get('source_chord_count'),
+                      'metrics':keep})
+          print('EQE_SEVEN_DETAILED_METRICS='+json.dumps(ids,ensure_ascii=False),flush=True)
           PY
