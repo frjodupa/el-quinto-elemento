@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=72">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=72">
+<link rel="manifest" href="manifest.webmanifest?v=73">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=73">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -2089,7 +2089,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v68</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v69</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -2122,6 +2122,7 @@ body.concertMode #quickExportV63{display:none!important}
   <button id="savePassSelection" type="button" class="primary">Guardar pase</button>
 </div>
 <div id="grid" class="grid"></div>
+<div id="internetSearchHost" class="internetSearchHost" aria-live="polite"></div>
 </section>
 
 <section id="view" class="view">
@@ -4549,7 +4550,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=72;
+const APP_VERSION=73;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5854,6 +5855,406 @@ body.qeDirect .directSongBar #settingsBtn{
   observer.observe(modal,{attributes:true,attributeFilter:['class']});
 })();
 </script>
+<style id="v69-internet-search-ui">
+.internetSearchHost{
+  padding:0 12px calc(18px + env(safe-area-inset-bottom,0px));
+  max-width:1100px;
+  margin:0 auto;
+}
+.internetSearchPrompt{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  margin:1px 0 8px;
+  border:1px dashed #4e452d;
+  border-radius:12px;
+  background:#11110f;
+}
+.internetSearchPrompt span{
+  flex:1;
+  min-width:0;
+  color:#aaa;
+  font-size:.82rem;
+  line-height:1.25;
+}
+.internetSearchPrompt button{
+  min-height:42px;
+  border:1px solid #66572f;
+  border-radius:10px;
+  background:#201d13;
+  color:#e9c96d;
+  font-weight:900;
+  padding:8px 11px;
+  white-space:nowrap;
+}
+.internetSearchState{
+  padding:13px;
+  color:#aaa;
+  border:1px solid #28282d;
+  border-radius:12px;
+  background:#121214;
+  font-size:.84rem;
+}
+.internetResults{
+  display:grid;
+  gap:7px;
+}
+.internetResult{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+  align-items:center;
+  padding:10px 11px;
+  border:1px solid #2d2d32;
+  border-radius:12px;
+  background:#141417;
+}
+.internetResultTitle{
+  color:#f3f2ee;
+  font-weight:850;
+  line-height:1.15;
+}
+.internetResultMeta{
+  color:#9a9a9f;
+  font-size:.76rem;
+  margin-top:4px;
+}
+.internetSource{
+  display:inline-block;
+  margin-right:6px;
+  color:#e6c36a;
+  font-weight:900;
+}
+.internetUseBtn{
+  min-height:42px;
+  border-radius:10px;
+  border:1px solid #65572f;
+  background:#201d13;
+  color:#ebca6d;
+  font-weight:900;
+  padding:7px 11px;
+}
+.internetUseBtn[disabled]{opacity:.55}
+.internetSummary{
+  margin:10px 0 7px;
+  color:#aaa;
+  font-size:.78rem;
+}
+@media(max-width:560px){
+  .internetSearchPrompt{align-items:stretch;flex-direction:column}
+  .internetSearchPrompt button{width:100%}
+  .internetResult{grid-template-columns:1fr}
+  .internetUseBtn{width:100%}
+}
+</style>
+<script id="v69-internet-search-script">
+(function(){
+  var host=document.getElementById('internetSearchHost');
+  var input=document.getElementById('q');
+  if(!host||!input)return;
+
+  var lastQuery='';
+  var currentResults=[];
+  var searching=false;
+
+  function canon(v){
+    var s=String(v||'').toUpperCase();
+    try{s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'')}catch(e){}
+    return s.replace(/[^A-Z0-9Ñ]+/g,' ').replace(/\s+/g,' ').trim();
+  }
+
+  function words(v){
+    var s=canon(v).toLowerCase();
+    return s?s.split(/\s+/).filter(Boolean):[];
+  }
+
+  function bigrams(v){
+    var w=words(v), out=[];
+    if(w.length<2)return w;
+    for(var i=0;i<w.length-1;i++)out.push(w[i]+' '+w[i+1]);
+    return out;
+  }
+
+  function similarity(a,b){
+    var aa=bigrams(a),bb=bigrams(b);
+    if(!aa.length||!bb.length)return 0;
+    var counts={};
+    aa.forEach(function(x){counts[x]=(counts[x]||0)+1});
+    var inter=0;
+    bb.forEach(function(x){if(counts[x]>0){inter++;counts[x]--}});
+    var dice=(2*inter)/(aa.length+bb.length);
+    var coverage=inter/Math.max(1,Math.min(aa.length,bb.length));
+    return Math.max(dice,coverage);
+  }
+
+  function countLines(text){
+    return String(text||'').split('\n').filter(function(x){return x.trim()}).length;
+  }
+
+  function countChords(d){
+    d=d||{};
+    var n=0;
+    n+=Object.keys(d.words||{}).filter(function(k){return d.words[k]}).length;
+    Object.keys(d.lines||{}).forEach(function(k){
+      if(d.lines[k])n+=String(d.lines[k]).split(/\s*·\s*|\s*,\s*/).filter(Boolean).length||1;
+    });
+    if(d.intro)n+=String(d.intro).split(/\s*·\s*|\s*,\s*/).filter(Boolean).length;
+    Object.keys(d.instrumentals||{}).forEach(function(k){
+      if(d.instrumentals[k])n+=String(d.instrumentals[k]).split(/\s*·\s*|\s*,\s*/).filter(Boolean).length;
+    });
+    return n;
+  }
+
+  function clone(v){
+    try{return JSON.parse(JSON.stringify(v))}catch(e){return v}
+  }
+
+  function mergeChordData(base,incoming){
+    var out=clone(base||emptyData())||emptyData();
+    incoming=incoming||emptyData();
+    ['lines','words'].forEach(function(name){
+      if(!out[name])out[name]={};
+      Object.keys(incoming[name]||{}).forEach(function(k){
+        if(!out[name][k]&&incoming[name][k])out[name][k]=incoming[name][k];
+      });
+    });
+    if(!out.intro&&incoming.intro)out.intro=incoming.intro;
+    if(!out.introText&&incoming.introText)out.introText=incoming.introText;
+    if(!out.instrumentals)out.instrumentals={};
+    Object.keys(incoming.instrumentals||{}).forEach(function(k){
+      if(!out.instrumentals[k]&&incoming.instrumentals[k])out.instrumentals[k]=incoming.instrumentals[k];
+    });
+    if(!out.instrumentalsText)out.instrumentalsText={};
+    Object.keys(incoming.instrumentalsText||{}).forEach(function(k){
+      if(!out.instrumentalsText[k]&&incoming.instrumentalsText[k])out.instrumentalsText[k]=incoming.instrumentalsText[k];
+    });
+    if(!Array.isArray(out.references))out.references=[];
+    return out;
+  }
+
+  function markDirty(){
+    try{localStorage.setItem('qeSync.dirty','1')}catch(e){}
+  }
+
+  function exactLocalIndex(title){
+    var key=canon(title);
+    if(!key)return -1;
+    for(var i=0;i<songs.length;i++){
+      if(canon(getSongTitle(i))===key)return i;
+    }
+    return -1;
+  }
+
+  function artistKey(i){return 'quintoElemento.artist.v1.'+i}
+
+  function saveArtist(i,artist){
+    if(!artist)return;
+    try{localStorage.setItem(artistKey(i),String(artist).trim())}catch(e){}
+  }
+
+  function backupExisting(i){
+    try{
+      var payload={
+        id:i,
+        title:getSongTitle(i),
+        artist:localStorage.getItem(artistKey(i))||'',
+        text:getSongText(i),
+        chordData:getChordData(i),
+        createdAt:new Date().toISOString()
+      };
+      localStorage.setItem('quintoElemento.internetImportBackup.v1.'+i+'.'+Date.now(),JSON.stringify(payload));
+    }catch(e){}
+  }
+
+  function addNewSong(sheet){
+    var title=normalizeMasterTitle(sheet.title||'');
+    var text=normalizeMasterText(sheet.text||'');
+    if(!title||!text){alert('La fuente no ha devuelto una canción utilizable.');return}
+    var existing=exactLocalIndex(title);
+    if(existing>=0){completeExisting(existing,sheet);return}
+
+    if(!confirm('Añadir «'+title+'» al cancionero con la letra y los acordes encontrados en '+(sheet.source==='cifraclub'?'CifraClub':'Ultimate Guitar')+'?'))return;
+
+    var obj={title:title,text:text,artist:String(sheet.artist||'')};
+    customSongs.push(obj);
+    saveCustomSongs(customSongs);
+    songs.push(obj);
+    var idx=songs.length-1;
+    saveSongTitle(idx,title);
+    saveSongText(idx,text);
+    saveArtist(idx,sheet.artist||'');
+    saveChordData(idx,clone(sheet.chordData||emptyData()));
+    markDirty();
+    var count=document.getElementById('count');
+    if(count)count.textContent=songs.length+' canciones';
+    input.value='';
+    host.innerHTML='';
+    render('');
+    openSong(idx);
+    alert('Canción añadida: '+countLines(text)+' líneas · '+countChords(sheet.chordData)+' acordes.');
+  }
+
+  function completeExisting(idx,sheet){
+    var oldText=getSongText(idx);
+    var sourceText=normalizeMasterText(sheet.text||'');
+    if(!sourceText){alert('La fuente no contiene una letra utilizable.');return}
+
+    var sim=similarity(oldText,sourceText);
+    var pct=Math.round(sim*100);
+    if(sim<0.70){
+      alert('No se modifica. Coincidencia de letra '+pct+'%: parece otra versión o una fuente incorrecta.');
+      return;
+    }
+    if(sim<0.85){
+      alert('Revisión manual necesaria. Coincidencia '+pct+'%. No se ha cambiado la canción.');
+      return;
+    }
+
+    var oldData=getChordData(idx);
+    var oldChordCount=countChords(oldData);
+    var sourceChordCount=countChords(sheet.chordData||{});
+    var oldLines=countLines(oldText);
+    var sourceLines=countLines(sourceText);
+    var replaceLyrics=sourceLines>oldLines+2 || sourceText.length>oldText.length*1.08;
+
+    if(!confirm(
+      'Completar «'+getSongTitle(idx)+'» desde '+(sheet.source==='cifraclub'?'CifraClub':'Ultimate Guitar')+
+      '?\n\nCoincidencia: '+pct+'%'+
+      '\nLíneas: '+oldLines+' → '+(replaceLyrics?sourceLines:oldLines)+
+      '\nAcordes fuente: '+sourceChordCount+
+      '\n\nSe guardará una copia antes de modificar.'
+    ))return;
+
+    backupExisting(idx);
+
+    var targetText=replaceLyrics?sourceText:oldText;
+    var migratedExisting=replaceLyrics?migrateChordData(oldText,targetText,oldData):oldData;
+    var sourceMapped=replaceLyrics
+      ? clone(sheet.chordData||emptyData())
+      : migrateChordData(sourceText,targetText,clone(sheet.chordData||emptyData()));
+
+    var merged=mergeChordData(migratedExisting,sourceMapped);
+    if(replaceLyrics)saveSongText(idx,targetText);
+    saveArtist(idx,sheet.artist||'');
+    saveChordData(idx,merged);
+    markDirty();
+
+    var newCount=countChords(merged);
+    render(input.value||'');
+    if(typeof current!=='undefined'&&current===idx){
+      st.textContent=getSongTitle(idx);
+      renderLyrics();
+    }
+    alert('Completada. Coincidencia '+pct+'% · acordes '+oldChordCount+' → '+newCount+(replaceLyrics?' · letra ampliada':' · letra conservada')+'.');
+  }
+
+  async function useResult(result,button){
+    if(button){button.disabled=true;button.textContent='Cargando…'}
+    try{
+      var r=await fetch('/api/song-fetch',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({source:result.source,id:result.id,url:result.url})
+      });
+      var d=await r.json();
+      if(!r.ok||!d.ok||!d.song)throw new Error(d.error||'No se pudo leer la fuente');
+      var idx=exactLocalIndex(d.song.title);
+      if(idx>=0)completeExisting(idx,d.song);
+      else addNewSong(d.song);
+    }catch(e){
+      alert('No se pudo importar esta fuente: '+String(e&&e.message||e));
+    }finally{
+      if(button){button.disabled=false;button.textContent='Usar'}
+    }
+  }
+
+  function sourceName(source){
+    return source==='cifraclub'?'CifraClub':'Ultimate Guitar';
+  }
+
+  function renderResults(query,results,errors){
+    host.innerHTML='';
+    var summary=document.createElement('div');
+    summary.className='internetSummary';
+    summary.textContent=results.length+' resultados en Internet para «'+query+'»';
+    host.appendChild(summary);
+
+    if(!results.length){
+      var empty=document.createElement('div');
+      empty.className='internetSearchState';
+      empty.textContent='No se encontraron resultados utilizables.'+(errors&&errors.length?' Una de las fuentes respondió con error.':'');
+      host.appendChild(empty);
+      return;
+    }
+
+    var box=document.createElement('div');box.className='internetResults';
+    results.forEach(function(item){
+      var row=document.createElement('div');row.className='internetResult';
+      var info=document.createElement('div');
+      var title=document.createElement('div');title.className='internetResultTitle';title.textContent=item.title||query;
+      var meta=document.createElement('div');meta.className='internetResultMeta';
+      var src=document.createElement('span');src.className='internetSource';src.textContent=sourceName(item.source);
+      meta.appendChild(src);
+      meta.appendChild(document.createTextNode((item.artist||'Artista sin identificar')+(item.rating?' · ★ '+Number(item.rating).toFixed(1):'')));
+      info.appendChild(title);info.appendChild(meta);
+
+      var use=document.createElement('button');use.type='button';use.className='internetUseBtn';use.textContent='Usar';
+      use.addEventListener('click',function(){useResult(item,use)});
+      row.appendChild(info);row.appendChild(use);box.appendChild(row);
+    });
+    host.appendChild(box);
+  }
+
+  async function runSearch(){
+    var query=String(input.value||'').trim();
+    if(query.length<2)return;
+    searching=true;
+    host.innerHTML='<div class="internetSearchState">Buscando en CifraClub y Ultimate Guitar…</div>';
+    try{
+      var r=await fetch('/api/song-search?q='+encodeURIComponent(query),{cache:'no-store'});
+      var d=await r.json();
+      if(!r.ok)throw new Error(d.error||'Error de búsqueda');
+      currentResults=Array.isArray(d.results)?d.results:[];
+      lastQuery=query;
+      renderResults(query,currentResults,d.errors||[]);
+    }catch(e){
+      host.innerHTML='<div class="internetSearchState">No se pudo buscar en Internet: '+String(e&&e.message||e)+'</div>';
+    }finally{
+      searching=false;
+    }
+  }
+
+  function renderPrompt(){
+    if(searching)return;
+    var query=String(input.value||'').trim();
+    if(query.length<2){host.innerHTML='';return}
+    if(query===lastQuery&&currentResults.length){renderResults(query,currentResults,[]);return}
+    host.innerHTML='';
+    var box=document.createElement('div');box.className='internetSearchPrompt';
+    var text=document.createElement('span');
+    text.textContent='La lista de arriba busca en tu cancionero. Para encontrar otra versión o una canción nueva:';
+    var btn=document.createElement('button');btn.type='button';btn.textContent='🌐 Buscar en Internet';
+    btn.addEventListener('click',runSearch);
+    box.appendChild(text);box.appendChild(btn);host.appendChild(box);
+  }
+
+  input.addEventListener('input',function(){
+    lastQuery='';
+    currentResults=[];
+    setTimeout(renderPrompt,0);
+  });
+  input.addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&String(input.value||'').trim().length>=2){
+      e.preventDefault();
+      runSearch();
+    }
+  });
+
+  window.qeInternetSongSearch=runSearch;
+  renderPrompt();
+})();
+</script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -5982,8 +6383,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:68,
-        buildVersion:72,
+        version:69,
+        buildVersion:73,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,

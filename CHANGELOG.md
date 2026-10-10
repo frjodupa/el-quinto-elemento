@@ -56,3 +56,14 @@
 - Renombrar, duplicar, compartir, imprimir, eliminar, añadir, quitar y reordenar quedan detrás de “Editar pase”.
 - No se elimina ninguna función.
 - Interfaz v68 / build técnico PWA 72.
+
+## v69 — 2026-10-10
+
+- Búsqueda real en Internet integrada en la caja de canciones.
+- Se mantiene la búsqueda local inmediata y se añade “Buscar en Internet”.
+- CifraClub se consulta con la estrategia verificada de setlive: imprimir.html / pre y fallback de cifra.
+- Ultimate Guitar se consulta replicando el API y cabeceras del scraper de Pilfer.
+- Las fuentes se convierten al formato interno lines/words/Intro/Instrumental/references.
+- Canciones existentes: <70% bloqueado, 70–85% revisión manual, >85% permite completar con backup previo.
+- Canciones nuevas: se pueden añadir como canción personalizada con letra y acordes importados.
+- Interfaz v69 / build técnico PWA 73.
