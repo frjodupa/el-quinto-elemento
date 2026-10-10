@@ -1,0 +1,38 @@
+name: EQE PRIORIDAD - acordes para 3 canciones recuperadas
+on:
+  push:
+    branches: [audit-current-86-priority-20261010]
+    paths: [".github/workflows/eqe-three-zero-current.yml"]
+permissions:
+  contents: read
+jobs:
+  search-and-rank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-go@v5
+        with: {go-version: "1.23"}
+      - name: Build verified Ultimate Guitar scraper
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Cross-check by source artist, song title and lyric overlaps (READ ONLY)
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          UG_HELPER: "/tmp/ug-audit"
+          REQUEST_DELAY: "2"
+        run: |
+          python -m py_compile scripts/search_missing_chords.py
+          python scripts/search_missing_chords.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EQE-86-three-missing-chords-source-candidates
+          path: eqe-86-missing-chords-sources/RANKED_SOURCE_CANDIDATES.json
+          retention-days: 21
+          if-no-files-found: warn
