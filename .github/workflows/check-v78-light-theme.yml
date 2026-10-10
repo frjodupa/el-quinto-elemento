@@ -9,7 +9,7 @@ permissions:
 jobs:
   contrast-and-visual:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
