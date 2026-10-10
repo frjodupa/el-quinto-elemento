@@ -74,3 +74,11 @@
 - El parser ya no descarta líneas formadas solo por etiquetas [ch]...[/ch].
 - Si el buscador de CifraClub devuelve 403, se prueban slugs directos derivados de artista/título de Ultimate Guitar y solo se muestran los que responden con cifra válida.
 - Interfaz v70 / build técnico PWA 74.
+
+## v71 — 2026-10-10
+
+- Tipografía de letras más pequeña y rango ampliado hasta 0,52 en iPhone; se guarda por canción.
+- Menos márgenes y espacios en letra para mostrar líneas más completas sin cambiar el texto original.
+- Ajustes de directo simplificados: edición, tonalidad y apariencia; scroll y transposición ya en la barra superior.
+- Se oculta la ficha musical de directo y se eliminan botones duplicados de la vista. Los datos y handlers se conservan.
+- Cache PWA y metadatos subidos a versión técnica 75.
