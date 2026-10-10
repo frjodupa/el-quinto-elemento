@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=71">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=71">
+<link rel="manifest" href="manifest.webmanifest?v=72">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=72">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1788,24 +1788,27 @@ body.concertMode #quickExportV63{display:none!important}
 </div>
 
 <div id="passDetailModal" class="passModal" aria-hidden="true">
-  <div class="passPanel">
+  <div class="passPanel directPassPanel">
     <div class="passHead">
       <strong id="passDetailTitle">PASE</strong>
-      <button class="globalUndoBtn" type="button">↶ Deshacer</button>
+      <button class="globalUndoBtn passEditOnly" type="button">↶ Deshacer</button>
       <button id="passDetailClose" type="button">Cerrar</button>
     </div>
-    <div class="passDetailTop">
+    <div class="passDetailTop directPassActions">
       <button id="startPassBtn" type="button" class="primary">▶ Empezar pase</button>
-      <button id="renamePassBtn" type="button">✎ Renombrar</button>
-      <button id="duplicatePassBtn" type="button">⧉ Duplicar pase</button>
-      <button id="sharePassBtn" type="button">↗ Compartir pase</button>
-      <button id="printPassBtn" type="button">🖨 Imprimir títulos / PDF</button>
-      <button id="deletePassBtn" type="button" class="danger">Eliminar pase</button>
+      <button id="editPassBtn" type="button">✎ Editar pase</button>
+      <div class="passEditTools">
+        <button id="renamePassBtn" type="button">Renombrar</button>
+        <button id="duplicatePassBtn" type="button">Duplicar</button>
+        <button id="sharePassBtn" type="button">Compartir</button>
+        <button id="printPassBtn" type="button">Imprimir / PDF</button>
+        <button id="deletePassBtn" type="button" class="danger">Eliminar</button>
+      </div>
     </div>
-    <div style="padding:10px;border:1px solid #494949;border-radius:10px;margin:10px 0">
-      <label for="passAddSongSearch" style="display:block;margin-bottom:6px;font-weight:700">Añadir canciones al pase</label>
-      <input id="passAddSongSearch" type="search" placeholder="Buscar canción…" autocomplete="off" style="box-sizing:border-box;width:100%;min-height:44px;padding:9px;background:#222;color:white;border:1px solid #666;border-radius:8px">
-      <div id="passAddSongResults" style="max-height:210px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:8px"></div>
+    <div class="passEditOnly passAddBox">
+      <label for="passAddSongSearch">Añadir canciones al pase</label>
+      <input id="passAddSongSearch" type="search" placeholder="Buscar canción…" autocomplete="off">
+      <div id="passAddSongResults"></div>
     </div>
     <div id="passDetailSongs" class="passDetailSongs"></div>
   </div>
@@ -2086,7 +2089,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v67</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v68</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -4546,7 +4549,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=71;
+const APP_VERSION=72;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5722,6 +5725,135 @@ body.qeDirect .directSongBar #settingsBtn{
   });
 })();
 </script>
+<style id="v68-direct-passes-ui">
+.directPassPanel{max-height:94vh!important}
+.directPassActions{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+  padding:10px 12px!important;
+}
+.directPassActions #startPassBtn{
+  min-height:50px!important;
+  font-size:1rem!important;
+}
+#editPassBtn{
+  min-height:50px!important;
+  min-width:118px!important;
+}
+.passEditTools{
+  display:none!important;
+  grid-column:1/-1;
+  gap:7px;
+  flex-wrap:wrap;
+  padding-top:2px;
+}
+.directPassPanel.passEditMode .passEditTools{display:flex!important}
+.passEditOnly{display:none!important}
+.directPassPanel.passEditMode .passEditOnly{display:block!important}
+.directPassPanel.passEditMode .passHead .passEditOnly{display:inline-flex!important}
+
+.passAddBox{
+  margin:0 12px 10px!important;
+  padding:10px!important;
+  border:1px solid #3a3a40!important;
+  border-radius:10px!important;
+  background:#141518!important;
+}
+.passAddBox label{
+  display:block;
+  margin-bottom:6px;
+  font-weight:800;
+  color:#d7d7d7;
+}
+.passAddBox input{
+  box-sizing:border-box;
+  width:100%;
+  min-height:44px;
+  padding:9px 11px;
+  background:#202126;
+  color:#fff;
+  border:1px solid #4c4d53;
+  border-radius:8px;
+}
+#passAddSongResults{
+  max-height:210px;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  margin-top:8px;
+}
+
+.directPassPanel .passDetailSongs{padding-top:5px!important}
+.directPassPanel .passSongRow{
+  grid-template-columns:40px minmax(0,1fr)!important;
+  gap:8px!important;
+  min-height:50px;
+  padding:6px 0!important;
+}
+.directPassPanel .passSongRow>button:not(.passSongTitle){
+  display:none!important;
+}
+.directPassPanel.passEditMode .passSongRow{
+  grid-template-columns:40px minmax(0,1fr) auto auto auto!important;
+}
+.directPassPanel.passEditMode .passSongRow>button:not(.passSongTitle){
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.directPassPanel .passSongTitle{
+  width:100%!important;
+  min-height:44px!important;
+  border-radius:9px!important;
+  padding:8px 10px!important;
+  background:#16171a!important;
+  border:1px solid #292a2f!important;
+}
+.directPassPanel .passOrder{
+  width:36px!important;height:36px!important;
+  background:#28251b!important;
+  color:#e6c36a!important;
+  border:1px solid #62552f!important;
+}
+@media(max-width:540px){
+  .directPassActions{grid-template-columns:1fr auto!important}
+  #editPassBtn{min-width:104px!important;font-size:.78rem!important}
+  .directPassPanel.passEditMode .passSongRow{
+    grid-template-columns:36px minmax(0,1fr) 40px 40px!important;
+  }
+  .directPassPanel.passEditMode .passSongRow .removeSongBtn{
+    grid-column:2/-1;
+    width:100%;
+  }
+}
+</style>
+<script id="v68-direct-passes-script">
+(function(){
+  var modal=document.getElementById('passDetailModal');
+  var panel=modal&&modal.querySelector('.directPassPanel');
+  var edit=document.getElementById('editPassBtn');
+  var close=document.getElementById('passDetailClose');
+  var start=document.getElementById('startPassBtn');
+  if(!modal||!panel||!edit)return;
+
+  function setEdit(on){
+    panel.classList.toggle('passEditMode',!!on);
+    edit.textContent=on?'✓ Terminar edición':'✎ Editar pase';
+    edit.setAttribute('aria-pressed',on?'true':'false');
+  }
+
+  edit.addEventListener('click',function(){
+    setEdit(!panel.classList.contains('passEditMode'));
+  });
+  if(close)close.addEventListener('click',function(){setEdit(false)});
+  if(start)start.addEventListener('click',function(){setEdit(false)});
+
+  var observer=new MutationObserver(function(){
+    if(modal.classList.contains('on'))setEdit(false);
+  });
+  observer.observe(modal,{attributes:true,attributeFilter:['class']});
+})();
+</script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -5850,8 +5982,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:67,
-        buildVersion:71,
+        version:68,
+        buildVersion:72,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
