@@ -1,0 +1,10 @@
+# Changelog
+
+## v63 — 2026-10-10
+
+- Añadido export 1-click para iPhone.
+- Botón flotante “⤓ Exportar v62” con Web Share API en iPhone y descarga directa en escritorio.
+- Exportación conservadora de las canciones actuales, claves relevantes de localStorage y todas las bases/objectStores de IndexedDB disponibles.
+- Nuevo endpoint `GET /export` para descargar el estado persistido en Cloudflare D1.
+- El endpoint de exportación queda fuera de la caché offline.
+- La versión técnica de caché/PWA pasa de 65 a 66 para no degradar el sistema de actualización existente.
