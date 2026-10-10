@@ -1,0 +1,32 @@
+name: EQE v79 - comprobar editor completo en iPhone
+on:
+  push:
+    branches: [release-v79-complete-editor-20261010]
+    paths: [.github/workflows/check-v79-full-editor.yml]
+permissions:
+  contents: read
+jobs:
+  editor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install isolated browser
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test editing in iPhone, iPad and desktop (mocked Cloudflare)
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory public >/tmp/eqe-editor-qa.log 2>&1 &
+          sleep 2
+          node scripts/test-full-song-editor.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eqe-v79-editor-mobile-screenshots
+          path: ui-review/
+          retention-days: 14
+          if-no-files-found: warn
