@@ -2,7 +2,7 @@ name: EQE - auditar 87 y LA PASMA con fuentes alternativas
 on:
   push:
     branches: [audit-87-priority-completion-20261010]
-    paths: [.github/workflows/audit-87-priority-completion.yml]
+    paths: [.github/workflows/audit-87-priority-completion.yml, scripts/audit_depedro_public_chords.py]
 permissions:
   contents: read
 jobs:
