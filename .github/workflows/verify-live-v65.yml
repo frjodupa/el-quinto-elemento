@@ -56,6 +56,21 @@ jobs:
                   print(type(e).__name__+': '+str(e))
           PY
 
+          echo "=== OFFLINE VERSION ==="
+          curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
+          cat /tmp/version.json
+          curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
+          if grep -q "quinto-elemento-v68" /tmp/sw.js; then
+            echo "SW_CACHE_68=YES"
+          else
+            echo "SW_CACHE_68=NO"
+          fi
+          if grep -q '"version": 68' /tmp/version.json; then
+            echo "VERSION_JSON_68=YES"
+          else
+            echo "VERSION_JSON_68=NO"
+          fi
+
           echo "=== LIVE D1 STATE ==="
           curl -fsSL "$URL/api/sync?verify=$(date +%s)" -o /tmp/sync.json
           python - <<'PY'
