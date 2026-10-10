@@ -25,7 +25,7 @@ const paired=parse("C       G\nHOLA    MUNDO","cifraclub");
 assert.equal(paired.text,"HOLA MUNDO");
 assert.ok(Object.keys(paired.chordData.words).length>0);
 
-const indented=parse("    C       G\\n    HOLA    MUNDO","cifraclub");
+const indented=parse("    C       G\n    HOLA    MUNDO","cifraclub");
 assert.equal(indented.chordData.words["0:0"],"DO","Los espacios originales deben alinear el primer acorde");
 assert.equal(indented.chordData.words["0:1"],"SOL","Los espacios originales deben alinear el segundo acorde");
 
