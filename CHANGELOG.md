@@ -25,3 +25,9 @@
 - Nueva canción, copias, exportación, compartir acceso y mantenimiento se trasladan a Ajustes sin eliminar funcionalidad.
 - Barra de canción simplificada para directo.
 - Versión técnica PWA actualizada a 68.
+
+## v65 · hotfix
+
+- Exportación JSON alineada con interfaz v65.
+- Metadatos de exportación actualizados a versión 65 / build técnico 69.
+- Caché offline y version.json actualizados a 69.
