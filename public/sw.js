@@ -1,8 +1,8 @@
-const CACHE='quinto-elemento-v65';
+const CACHE='quinto-elemento-v68';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=65',
+  './manifest.webmanifest?v=68',
   './version.json',
   './pdf-chords-v44.json',
   './icon-192.png',
@@ -51,7 +51,7 @@ self.addEventListener('fetch',event=>{
   const url=new URL(req.url);
 
 
-  if(url.pathname.startsWith('/api/')){
+  if(url.pathname.startsWith('/api/') || url.pathname==='/export'){
     event.respondWith(fetch(req,{cache:'no-store'}));
     return;
   }
