@@ -31,10 +31,10 @@ jobs:
           else
             echo "DIRECT_UI=NO"
           fi
-          if grep -q 'class="uiVersion">v66' /tmp/index.html; then
-            echo "UI_V66=YES"
+          if grep -q 'class="uiVersion">v67' /tmp/index.html; then
+            echo "UI_V67=YES"
           else
-            echo "UI_V66=NO"
+            echo "UI_V67=NO"
           fi
           echo "=== SONG DIRECT UI ==="
           if grep -q 'class="bar directSongBar"' /tmp/index.html; then
@@ -46,6 +46,13 @@ jobs:
             echo "QUICK_TRANSPOSE=YES"
           else
             echo "QUICK_TRANSPOSE=NO"
+          fi
+
+          echo "=== CONTEXT SETTINGS ==="
+          if grep -q 'id="settingsAdvancedToggle"' /tmp/index.html && grep -q 'qeContextHidden' /tmp/index.html; then
+            echo "CONTEXT_SETTINGS=YES"
+          else
+            echo "CONTEXT_SETTINGS=NO"
           fi
 
           echo "=== EXPORT ENDPOINT ==="
@@ -72,15 +79,15 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v70" /tmp/sw.js; then
-            echo "SW_CACHE_70=YES"
+          if grep -q "quinto-elemento-v71" /tmp/sw.js; then
+            echo "SW_CACHE_71=YES"
           else
-            echo "SW_CACHE_70=NO"
+            echo "SW_CACHE_71=NO"
           fi
-          if grep -q '"version": 70' /tmp/version.json; then
-            echo "VERSION_JSON_70=YES"
+          if grep -q '"version": 71' /tmp/version.json; then
+            echo "VERSION_JSON_71=YES"
           else
-            echo "VERSION_JSON_70=NO"
+            echo "VERSION_JSON_71=NO"
           fi
 
           echo "=== LIVE D1 STATE ==="
