@@ -14,3 +14,12 @@
 - Auditoría automática del cancionero con CifraClub / Ultimate Guitar y normalización ChordPro.
 - Enriquecimiento conservador de acordes solo en coincidencias validadas.
 - Versión técnica PWA actualizada de 66 a 67 para el siguiente despliegue.
+
+## v65 — 2026-10-10
+
+- Portada rediseñada para uso en directo.
+- Se dejan visibles únicamente Buscar canción, Pases, Crear pase y Ajustes.
+- Nueva lista compacta de canciones para mostrar más repertorio en iPhone.
+- Nueva canción, copias, exportación, compartir acceso y mantenimiento se trasladan a Ajustes sin eliminar funcionalidad.
+- Barra de canción simplificada para directo.
+- Versión técnica PWA actualizada a 68.
