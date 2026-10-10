@@ -672,15 +672,38 @@ export default {
 
       if (request.method === "GET") {
         const rows = await env.DB.prepare(
-          "SELECT id, created_at, source FROM app_backups ORDER BY created_at DESC, id DESC LIMIT 10"
+          "SELECT id, created_at, source, data FROM app_backups ORDER BY created_at DESC, id DESC LIMIT 10"
         ).all();
 
         return json({
-          backups: (rows?.results || []).map((r) => ({
-            id: Number(r.id),
-            createdAt: Number(r.created_at || 0),
-            source: String(r.source || "auto")
-          }))
+          backups: (rows?.results || []).map((r) => {
+            let songCount = null;
+            let customSongs = null;
+            let pasmaSongs = null;
+            let pasmaBrokenRefs = null;
+            try {
+              const state = JSON.parse(r.data || "{}");
+              const extras = JSON.parse(state["quintoElemento.customSongs.v1"] || "[]");
+              if (Array.isArray(extras)) {
+                customSongs = extras.length;
+                songCount = 71 + extras.length;
+              }
+              const passes = JSON.parse(state["quintoElemento.passes.v1"] || "[]");
+              const pass = Array.isArray(passes) ? passes.find(p => (
+                String(p?.name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase() === "LA PASMA (NUEVA)"
+              )) : null;
+              if (Array.isArray(pass?.songs) && Number.isInteger(songCount)) {
+                pasmaSongs = pass.songs.length;
+                pasmaBrokenRefs = pass.songs.filter(id => !Number.isInteger(id) || id < 0 || id >= songCount).length;
+              }
+            } catch {}
+            return {
+              id: Number(r.id),
+              createdAt: Number(r.created_at || 0),
+              source: String(r.source || "auto"),
+              songCount, customSongs, pasmaSongs, pasmaBrokenRefs
+            };
+          })
         });
       }
 
