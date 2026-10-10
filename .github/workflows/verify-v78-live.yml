@@ -1,0 +1,47 @@
+name: EQE verify published v78 and high-contrast assets
+on:
+  push:
+    branches: [verify-v78-light-theme-live-20261010]
+    paths: ['.github/workflows/verify-v78-live.yml']
+permissions:
+  contents: read
+jobs:
+  check-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check Cloudflare UI, PWA cache, and premium stylesheet
+        run: |
+          python3 - <<'PY'
+          import json, re, time, urllib.request, urllib.error
+          root="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          def get(path):
+              sep='&' if '?' in path else '?'
+              url=root+path+sep+"eqe_v78_verify="+str(int(time.time()*1000))
+              req=urllib.request.Request(url,headers={"Cache-Control":"no-cache","User-Agent":"EQE-Mobile-Verification/1.0"})
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  return response.status,response.read().decode("utf8","replace")
+          for attempt in range(1,13):
+              _,html=get("/")
+              ui='class="uiVersion">v78' in html
+              css='premium.css?v=82' in html
+              _,meta=get("/version.json")
+              try: v=json.loads(meta)["version"]
+              except Exception: v=None
+              print(f"CHECK {attempt}: UI={ui} CSS={css} BUILD={v}",flush=True)
+              if ui and css and v==82: break
+              time.sleep(12)
+          else: raise RuntimeError("El despliegue v78 aún no está activo")
+          _,style=get("/premium.css?v=82")
+          chord="body.lightTheme #view.on #ly .wordChord" in style
+          ink="color:#73500d!important" in style
+          passes="body.lightTheme .directActions .directActionPrimary" in style
+          print("CSS_LIGHT_CHORD="+str(chord),flush=True)
+          print("CSS_DARK_AMBER="+str(ink),flush=True)
+          print("CSS_PASSES="+str(passes),flush=True)
+          if not (chord and ink and passes):raise RuntimeError("CSS PREMIUM no actualizado")
+          _,sw=get("/sw.js")
+          print("SERVICE_WORKER_82="+str("quinto-elemento-v82" in sw),flush=True)
+          if "quinto-elemento-v82" not in sw:raise RuntimeError("Service worker aún no es v82")
+          print("LIVE_V78_VERIFIED=YES",flush=True)
+          PY
