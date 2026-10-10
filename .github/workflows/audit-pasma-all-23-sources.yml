@@ -1,0 +1,38 @@
+name: LA PASMA - contrastar fuentes originales de las 23 canciones
+on:
+  push:
+    branches: [audit-la-pasma-23-deep-20261010]
+    paths: [.github/workflows/audit-pasma-all-23-sources.yml]
+permissions:
+  contents: read
+jobs:
+  all-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - uses: actions/setup-go@v5
+        with: {go-version: '1.23'}
+      - name: Build scraper and Python dependencies
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Compare 23 pass songs with artist-matched original sources, no D1 writes
+        env:
+          UG_HELPER: /tmp/ug-audit
+          REQUEST_DELAY: '2'
+          MAX_FETCHES_PER_SONG: '1'
+        run: |
+          python -m py_compile scripts/audit_pasma_all_23_sources.py
+          python scripts/audit_pasma_all_23_sources.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: la-pasma-all-23-original-sources
+          path: pasma-all-23-sources-audit/ALL_PASMA_23_SONG_SOURCES.json
+          retention-days: 21
+          if-no-files-found: warn
