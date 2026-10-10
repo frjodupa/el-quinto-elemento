@@ -31,14 +31,16 @@ TARGETS = {
     "73": {
         "title": "HACE CALOR",
         "artist": "Los Rodríguez",
-        "url": "https://www.cifraclub.com/los-rodriguez/hace-calor/",
-        "reason": "La fuente anterior era Andrés Calamaro en solitario; se corrige a Los Rodríguez.",
+        "ugTitle": "Mucho Mejor",
+        "url": "https://www.cifraclub.com/los-rodriguez/mucho-mejor/",
+        "reason": "La fuente anterior era Andrés Calamaro en solitario; el título original de Los Rodríguez es Mucho Mejor.",
     },
     "87": {
         "title": "HACE CALOR",
         "artist": "Los Rodríguez",
-        "url": "https://www.cifraclub.com/los-rodriguez/hace-calor/",
-        "reason": "Duplicado sincronizado: se corrige a la fuente original de Los Rodríguez.",
+        "ugTitle": "Mucho Mejor",
+        "url": "https://www.cifraclub.com/los-rodriguez/mucho-mejor/",
+        "reason": "Duplicado sincronizado: se corrige a Mucho Mejor, fuente original de Los Rodríguez.",
     },
     "78": {
         "title": "LA CHICA DE AYER",
@@ -154,7 +156,7 @@ def main():
         # Required fallback: Pilfer/ultimate-guitar-scraper, constrained to original artist.
         if not model or not model.get("lyrics"):
             try:
-                ug = audit.ug_fetch(spec["title"], spec["artist"])
+                ug = audit.ug_fetch(spec.get("ugTitle", spec["title"]), spec["artist"])
                 if ug and artist_matches(spec["artist"], ug.get("artist")):
                     ug_model = audit.ug_to_model(ug["content"])
                     if ug_model.get("lyrics"):
