@@ -82,3 +82,14 @@
 - Ajustes de directo simplificados: edición, tonalidad y apariencia; scroll y transposición ya en la barra superior.
 - Se oculta la ficha musical de directo y se eliminan botones duplicados de la vista. Los datos y handlers se conservan.
 - Cache PWA y metadatos subidos a versión técnica 75.
+
+## v72 — Premium Stage · 2026-10-10
+
+- Diseño visual de escenario premium, negro grafito y azul noche con detalles dorados; contraste accesible en modo oscuro y claro.
+- Iconos vectoriales locales, modernos y coherentes; sin fuentes remotas y compatibles con PWA offline.
+- Home, búsqueda, lista, pases, barra de canción y Ajustes refinados para iPhone y iPad.
+- Barra de canción móvil reorganizada para evitar controles cortados en pantallas estrechas.
+- Ajustes simplificados visualmente, preservando herramientas avanzadas sin borrar ninguna funcionalidad.
+- Icono PWA sustituido por el diseño aportado (180, 192 y 512), con variante maskable y nombres nuevos para evitar caché obsoleta.
+- CSS y JS incluidos en precaché offline; versión técnica 76, exportación 72/76.
+- Ningún cambio en letras, acordes, Intro, Instrumental, referencias o datos D1.
