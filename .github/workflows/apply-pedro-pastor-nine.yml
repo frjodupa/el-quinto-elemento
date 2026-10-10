@@ -2,7 +2,7 @@ name: EQE - añadir 9 acordes validados con respaldo y sin tocar letras
 on:
   push:
     branches: [apply-pedro-pastor-nine-20261010]
-    paths: [.github/workflows/apply-pedro-pastor-nine.yml]
+    paths: [.github/workflows/apply-pedro-pastor-nine.yml, scripts/patch_los_olvidados_verified.py]
 permissions:
   contents: read
 jobs:
