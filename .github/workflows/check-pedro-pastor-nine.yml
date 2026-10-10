@@ -2,7 +2,7 @@ name: EQE - Validar 9 acordes Pedro Pastor sin escritura
 on:
   push:
     branches: [audit-alt-chord-sources-86-20261010]
-    paths: [.github/workflows/check-pedro-pastor-nine.yml]
+    paths: [.github/workflows/check-pedro-pastor-nine.yml, scripts/patch_los_olvidados_verified.py]
 permissions:
   contents: read
 jobs:
