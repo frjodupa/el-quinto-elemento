@@ -18,6 +18,8 @@
 ## v65 — 2026-10-10
 
 - Portada rediseñada para uso en directo.
+- La portada queda reducida a Buscar canción, Pases y Ajustes; “Nuevo pase” se crea desde Pases.
+- Al iniciar un pase se activa automáticamente el Modo directo.
 - Se dejan visibles únicamente Buscar canción, Pases, Crear pase y Ajustes.
 - Nueva lista compacta de canciones para mostrar más repertorio en iPhone.
 - Nueva canción, copias, exportación, compartir acceso y mantenimiento se trasladan a Ajustes sin eliminar funcionalidad.
