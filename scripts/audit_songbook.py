@@ -357,12 +357,16 @@ def ug_fetch(title, artist=""):
 def ug_to_model(content):
     text = str(content or "").replace("[tab]","").replace("[/tab]","")
     lyric_lines, placements = [], []
+    pending_anchors = []
+
     for raw in text.splitlines():
         line = raw.rstrip()
         if not line.strip():
+            pending_anchors = []
             continue
         if re.fullmatch(r"\s*\[[^\]]+\]\s*", line) and "[ch]" not in line:
             continue
+
         out = ""
         anchors = []
         pos = 0
@@ -375,15 +379,35 @@ def ug_to_model(content):
         out += line[pos:]
         out = re.sub(r"\[/?(?:tab|ch)\]", "", out, flags=re.I)
         lyric = re.sub(r"\s+", " ", out).strip()
-        if not lyric or chord_line(lyric) or SECTIONS_RE.match(deaccent(lyric)):
+
+        # UG often stores chords on a separate line immediately above lyrics.
+        if anchors and (not lyric or chord_line(lyric)):
+            pending_anchors = anchors
             continue
+        if not lyric or SECTIONS_RE.match(deaccent(lyric)):
+            continue
+
         li = len(lyric_lines)
         lyric_lines.append(lyric)
         starts = [m.start() for m in re.finditer(r"\S+", lyric)]
-        for charpos, chord in anchors:
-            if starts:
-                wi = min(range(len(starts)), key=lambda j: abs(starts[j]-charpos))
-                placements.append({"line":li, "word":wi, "chord":chord})
+        use_anchors = anchors if anchors else pending_anchors
+        pending_anchors = []
+
+        if starts and use_anchors:
+            if anchors:
+                for charpos, chord in use_anchors:
+                    wi = min(range(len(starts)), key=lambda j: abs(starts[j]-charpos))
+                    placements.append({"line":li, "word":wi, "chord":chord})
+            else:
+                # Chord-only rows retain approximate horizontal positions.
+                maxpos = max((p for p,_ in use_anchors), default=0)
+                for charpos, chord in use_anchors:
+                    if maxpos <= 0 or len(starts) == 1:
+                        wi = 0
+                    else:
+                        wi = round((charpos / maxpos) * (len(starts)-1))
+                    placements.append({"line":li, "word":max(0,min(wi,len(starts)-1)), "chord":chord})
+
     return {"lyrics":"\n".join(lyric_lines), "lines":lyric_lines, "placements":placements, "intro":[]}
 
 def try_source(song):
@@ -427,18 +451,50 @@ def try_source(song):
         except Exception as e:
             errors.append("Cifra fetch: " + str(e))
     # 3) Ultimate Guitar fallback using Pilfer package.
+    # If the export has no artist, UG can identify a likely artist; we then
+    # retry a direct CifraClub slug (not the blocked search endpoint) and keep
+    # Cifra only when its lyrics strongly agree with the current song.
     try:
         ug = ug_fetch(title, artist)
         if ug:
-            model = ug_to_model(ug["content"])
-            if model["lyrics"]:
+            ug_model = ug_to_model(ug["content"])
+
+            if not artist and ug.get("artist"):
+                inferred_artist = ug["artist"]
+                direct_url = f"https://www.cifraclub.com/{slugify(inferred_artist)}/{slugify(title)}/"
+                try:
+                    print_url = direct_url.rstrip("/") + "/imprimir.html"
+                    raw = clean_source_content(cifra_fetch_text(print_url))
+                    if not raw.strip():
+                        raw = clean_source_content(cifra_fetch_text(direct_url))
+                    if raw.strip():
+                        chordpro = convert_to_chordpro(raw, title, inferred_artist)
+                        cifra_model = chordpro_to_model(chordpro)
+                        cifra_sim = similarity(song["texto"], cifra_model["lyrics"]) if cifra_model["lyrics"] else 0.0
+                        ug_sim = similarity(song["texto"], ug_model["lyrics"]) if ug_model["lyrics"] else 0.0
+                        if cifra_model["lyrics"] and cifra_sim >= 0.85 and cifra_sim >= ug_sim - 0.03:
+                            return {
+                                "provider":"CifraClub",
+                                "url":direct_url,
+                                "key":ug["key"],
+                                "title":title,
+                                "artist":inferred_artist,
+                                "model":cifra_model,
+                                "content_hash":hashlib.sha256(raw.encode("utf-8")).hexdigest(),
+                                "content_chars":len(raw),
+                                "errors":errors + ["Artist inferred from UG search; Cifra direct source independently lyric-validated."],
+                            }
+                except Exception as e:
+                    errors.append("Cifra direct after UG artist inference: " + str(e))
+
+            if ug_model["lyrics"]:
                 return {
                     "provider":"Ultimate Guitar",
                     "url":ug["url"],
                     "key":ug["key"],
                     "title":ug["title"],
                     "artist":ug["artist"],
-                    "model":model,
+                    "model":ug_model,
                     "content_hash":hashlib.sha256(ug["content"].encode("utf-8")).hexdigest(),
                     "content_chars":len(ug["content"]),
                     "errors":errors,
@@ -742,4 +798,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-# trigger: autonomous audit v63
+
+# trigger: autonomous audit v63 second pass (UG chord-row parser + direct Cifra retry)
