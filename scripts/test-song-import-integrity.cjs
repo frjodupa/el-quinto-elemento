@@ -33,8 +33,7 @@ const lineFields=parse("C    G\nHOLA MUNDO","cifraclub");
 if(Object.keys(lineFields.chordData.lines).length===0)
   findings.push({code:"LINE_CHORDS_NOT_POPULATED",detail:"El importador nunca crea anclajes lines desde líneas de acordes"});
 const duplicatedIntro=parse("Intro\nC C G\n\nHOLA MUNDO","cifraclub");
-if((duplicatedIntro.chordData.intro.match(/DO/g)||[]).length<2)
-  findings.push({code:"INTRO_REPETITIONS_LOST",detail:"Intro elimina repeticiones de acordes con Set"});
+assert.equal(duplicatedIntro.chordData.intro,"DO · DO · SOL","La Intro debe mantener las repeticiones y el orden originales");
 if(simple.chordData.references.length===0)
   findings.push({code:"SOURCE_REFERENCE_NOT_IN_PARSER",detail:"El parser entrega references vacío; verificar si la interfaz agrega la referencia al importar"});
 
