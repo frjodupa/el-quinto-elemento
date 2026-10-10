@@ -17,7 +17,9 @@ const source={
 };
 const current={
   "quintoElemento.customSongs.v1":JSON.stringify([{title:"PERO A TU LADO",text:"original del usuario"}]),
-  "quintoElemento.passes.v1":JSON.stringify(passes)
+  "quintoElemento.passes.v1":JSON.stringify(passes),
+"quintoElemento.lyrics.v1.72":"Texto de prueba\notra línea de prueba",
+"quintoElemento.chords.v2.75":JSON.stringify({words:{"0:1":"SOL"},lines:{},intro:"",references:[]})
 };
 const initialTs=147;
 class DB{
@@ -107,6 +109,8 @@ const actualExtras=JSON.parse(merged["quintoElemento.customSongs.v1"]);
 assert.equal(actualExtras.length,15);
 assert.equal(actualExtras[0].title,"PERO A TU LADO");
 assert.equal(actualExtras[1].title,"CIEN GAVIOTAS");
+assert.ok(posted.data.orphanIndexedKeysArchived>=2);
+assert.ok(posted.data.currentOrphanChordMapsUsed>=1);
 const actualPasses=JSON.parse(merged["quintoElemento.passes.v1"]);
 assert.equal(actualPasses.find(x=>x.id==="pasma").songs[0],72);
 assert.equal(actualPasses.find(x=>x.id==="pasma").songs.length,23);
