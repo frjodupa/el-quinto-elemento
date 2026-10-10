@@ -52,11 +52,13 @@ async function check(page,label,selector,bg,minimum=4.5){
    const context=await browser.newContext({viewport:{width:s.width,height:s.height},
       isMobile:s.isMobile,hasTouch:s.isMobile,deviceScaleFactor:s.isMobile?2:1,serviceWorkers:'block'});
    const page=await context.newPage();
+   page.setDefaultTimeout(10000);
    const errors=[];
    page.on('pageerror',e=>errors.push(String(e)));
    await page.route('**/api/sync**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":true,"data":{}}'}));
    await page.route('**/api/backups**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"ok":true,"backups":[]}'}));
-   await page.goto('http://127.0.0.1:4173/?lightcontrast='+s.name,{waitUntil:'networkidle',timeout:30000});
+   await page.goto('http://127.0.0.1:4173/?lightcontrast='+s.name,{waitUntil:'domcontentloaded',timeout:20000});
+   await page.waitForTimeout(1300);
    await page.evaluate(()=>document.body.classList.add('lightTheme'));
    await page.waitForTimeout(250);
    const home=[];
@@ -96,4 +98,4 @@ async function check(page,label,selector,bg,minimum=4.5){
  }
  fs.writeFileSync('ui-review/contrast-summary.json',JSON.stringify(all,null,2));
  await browser.close();
-})().catch(error=>{console.error(error.stack||String(error));process.exitCode=1});
+})().catch(error=>{console.error(error.stack||String(error));process.exit(1)});
