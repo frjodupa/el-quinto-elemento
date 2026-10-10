@@ -210,7 +210,11 @@ export function buildLaPasmaRecovery(current,archived) {
         for(const prop of ["words","lines","instrumentals","instrumentalsText"]) {
           const base=merged[prop] && typeof merged[prop]==="object" ? merged[prop]:{};
           const changed=recent[prop] && typeof recent[prop]==="object" ? recent[prop]:{};
-          merged[prop]={...base,...changed};
+          const combined={...base};
+          for(const [position,chord] of Object.entries(changed)){
+            if(String(chord||"").trim())combined[position]=chord;
+          }
+          merged[prop]=combined;
         }
         for(const prop of ["intro","introText"]) {
           if(String(recent[prop]||"").trim())merged[prop]=recent[prop];
