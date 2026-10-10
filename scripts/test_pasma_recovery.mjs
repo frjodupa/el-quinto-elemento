@@ -23,7 +23,10 @@ const current={
 "quintoElemento.customSongs.v1":JSON.stringify([{title:"PERO A TU LADO",text:"nueva canción añadida"}]),
 "quintoElemento.passes.v1":JSON.stringify(passes),
 "quintoElemento.chords.v2.71":JSON.stringify({words:{"0:0":"MI"},lines:{},instrumentals:{},intro:"",references:[]}),
-"quintoElemento.lyrics.v1.71":"nueva canción añadida"
+"quintoElemento.lyrics.v1.71":"nueva canción añadida",
+// Orphan slots persisted from an older 99-song layout despite the now 72-song UI.
+"quintoElemento.lyrics.v1.72":"línea uno\nlínea dos\nlínea tres",
+"quintoElemento.chords.v2.75":JSON.stringify({words:{"0:2":"FA"},lines:{},intro:"",instrumentals:{},references:[]})
 };
 const before=JSON.stringify(current);
 const {state,summary}=buildLaPasmaRecovery(current,archived);
@@ -32,6 +35,8 @@ assert.equal(summary.originalCount,72);
 assert.equal(summary.afterCount,86);
 assert.equal(summary.recoveredCount,14);
 assert.equal(summary.skippedArchiveDuplicateCount,14);
+assert.ok(summary.orphanIndexedKeysArchived>=2);
+assert.ok(summary.currentOrphanChordMapsUsed>=1);
 assert.equal(summary.changedKeys>0,true);
 const newCustom=JSON.parse(state["quintoElemento.customSongs.v1"]);
 assert.equal(newCustom.length,15);
@@ -41,6 +46,7 @@ assert.equal(state["quintoElemento.lyrics.v1.71"],"nueva canción añadida");
 assert.equal(state["quintoElemento.chords.v2.71"],current["quintoElemento.chords.v2.71"]);
 const recoveredChordId=72+customTitles.indexOf("MIL CALLES LLEVAN HACIA TI");
 assert.equal(JSON.parse(state["quintoElemento.chords.v2."+recoveredChordId]).words["1:2"],"LA");
+assert.equal(JSON.parse(state["quintoElemento.chords.v2."+recoveredChordId]).words["0:2"],"FA");
 const outPasses=JSON.parse(state["quintoElemento.passes.v1"]);
 const pasma=outPasses.find(p=>p.name==="LA PASMA (NUEVA)");
 assert.equal(pasma.songs.length,23);
