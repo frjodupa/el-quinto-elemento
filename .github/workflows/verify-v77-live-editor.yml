@@ -1,0 +1,54 @@
+name: EQE v77 — comprobar editor publicado en Cloudflare
+on:
+  push:
+    branches: [verify-v77-live-editor-20261010]
+    paths: ['.github/workflows/verify-v77-live-editor.yml']
+permissions:
+  contents: read
+jobs:
+  verify-public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check v77 live interface, Worker, JS, and offline cache 81
+        run: |
+          python3 - <<'PY'
+          import json,time,urllib.request
+          root='https://crimson-rice-1fe1.joseduqueparedes.workers.dev'
+          def req(path):
+              url=root+path+('&' if '?' in path else '?')+'_='+str(int(time.time()*1000))
+              headers={'Cache-Control':'no-cache','User-Agent':'EQE-UI-Version-Checker'}
+              with urllib.request.urlopen(urllib.request.Request(url,headers=headers),timeout=22) as r:
+                  return r.status,r.read().decode('utf-8','replace')
+          ok=False
+          for i in range(1,13):
+              try:
+                  s,html=req('/')
+                  s2,version=req('/version.json')
+                  live='class="uiVersion">v77' in html
+                  button='id="quickEditSongBtn"' in html
+                  build=json.loads(version).get('version')==81
+                  print(f'ATTEMPT={i} UI_V77={live} EDIT_BUTTON={button} BUILD81={build}',flush=True)
+                  if live and button and build:
+                      ok=True
+                      break
+              except Exception as ex:
+                  print(f'ATTEMPT={i} ERROR={str(ex)[:160]}',flush=True)
+              time.sleep(10)
+          if not ok:raise RuntimeError('Cloudflare aún no sirve UI v77 / build 81')
+          status,source=req('/song-quick-edit.js')
+          print('QUICK_EDITOR_JS='+str(status==200 and 'quickChordSave' in source),flush=True)
+          assert status==200 and 'quickChordSave' in source
+          status,css=req('/premium.css?v=81')
+          print('QUICK_EDITOR_STYLE='+str(status==200 and '.quickEditSongBtn' in css),flush=True)
+          assert status==200 and '.quickEditSongBtn' in css
+          status,sw=req('/sw.js')
+          print('OFFLINE_81='+str("quinto-elemento-v81" in sw and "song-quick-edit.js?v=81" in sw),flush=True)
+          assert "quinto-elemento-v81" in sw and "song-quick-edit.js?v=81" in sw
+          status,export=req('/export')
+          obj=json.loads(export)
+          print('EXPORT_VERSION='+str(obj.get('version')),flush=True)
+          print('EXPORT_BUILD='+str(obj.get('buildVersion')),flush=True)
+          if obj.get('version')!=77 or obj.get('buildVersion')!=81:raise RuntimeError('Export Worker version mismatch')
+          print('LIVE_V77_EDIT_VERIFIED=YES',flush=True)
+          PY
