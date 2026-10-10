@@ -1,0 +1,28 @@
+name: EQE - cobertura final tras 255 nuevos acordes
+on:
+  push:
+    branches: [audit-repeated-chord-lines-86-20261010]
+    paths: [.github/workflows/check-post-255-coverage.yml]
+permissions:
+  contents: read
+jobs:
+  recount:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests beautifulsoup4
+      - name: Verify D1 chords on every line and La Pasma integrity
+        run: python scripts/audit_current_chord_coverage.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-86-current-line-coverage-after-255
+          path: |
+            eqe-current-audit/AUDITORIA_COBERTURA.md
+            eqe-current-audit/LINE_COVERAGE_FULL.json
+          if-no-files-found: warn
+          retention-days: 21
