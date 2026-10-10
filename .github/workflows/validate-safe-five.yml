@@ -1,0 +1,37 @@
+name: EQE validacion parche cinco entradas (sin cambios)
+on:
+  push:
+    branches: [audit-full-repertory-readonly-20261010]
+    paths: [".github/workflows/validate-safe-five.yml"]
+permissions:
+  contents: read
+jobs:
+  verify-source-and-chord-position:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-go@v5
+        with: {go-version: "1.23"}
+      - name: Setup exact verified scraper
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Validate original sources, chord mapping and existing D1 state
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          UG_HELPER: "/tmp/ug-audit"
+          REQUEST_DELAY: "2"
+          ALLOW_LIVE_WRITE: "0"
+        run: python scripts/apply_verified_chord_patch.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eqe-verified-five-validation
+          path: safe_patch_output/PATCH_VALIDATION.json
+          retention-days: 14
+          if-no-files-found: warn
