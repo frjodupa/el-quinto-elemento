@@ -1,0 +1,31 @@
+name: EQE - completar acordes de líneas repetidas (auditoría segura)
+on:
+  push:
+    branches: [audit-repeated-chord-lines-86-20261010]
+    paths: [.github/workflows/audit-repeat-chords-86.yml]
+permissions:
+  contents: read
+jobs:
+  dry-run-all-86:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Prepare requirements
+        run: python -m pip install requests beautifulsoup4
+      - name: Audit exact repeated lines and predict chord additions (NO D1 WRITES)
+        env:
+          APPLY_SAFE_REPEATS: "0"
+        run: |
+          python -m py_compile scripts/audit_songbook.py scripts/audit_repeated_chords_86.py
+          python scripts/audit_repeated_chords_86.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EQE-86-exact-repeat-chord-candidates
+          path: eqe-repeat-chord-audit/REPEAT_CHORD_PREFLIGHT.json
+          if-no-files-found: warn
+          retention-days: 21
