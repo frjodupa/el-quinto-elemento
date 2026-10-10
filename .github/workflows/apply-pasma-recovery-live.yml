@@ -1,0 +1,70 @@
+name: EQE - Recuperar LA PASMA en Cloudflare con respaldo y verificación
+on:
+  push:
+    branches: [apply-pasma-recovery-live-20261010]
+    paths: [.github/workflows/apply-pasma-recovery-live.yml]
+permissions:
+  contents: read
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Read-only preview -> one guarded merge -> full Cloudflare verification
+        run: |
+          python3 - <<'PY'
+          import json,time,urllib.request,urllib.error
+          BASE="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          def req(path,payload=None):
+              data=json.dumps(payload).encode("utf-8") if payload is not None else None
+              url=BASE+path+("&" if "?" in path else "?")+"ts="+str(time.time_ns())
+              h={"User-Agent":"EQE-Pasma-Audit/1.0","Accept":"application/json","Cache-Control":"no-cache"}
+              if data is not None:h["Content-Type"]="application/json"
+              r=urllib.request.Request(url,data=data,headers=h,method="POST" if data else "GET")
+              try:
+                  with urllib.request.urlopen(r,timeout=55) as result:
+                      return result.status,json.loads(result.read())
+              except urllib.error.HTTPError as exc:
+                  detail=exc.read().decode("utf-8","replace")
+                  print("HTTP_STATUS="+str(exc.code)+" RESPONSE="+detail[:800],flush=True)
+                  raise
+          status,plan=req("/api/maintenance/la-pasma-recovery")
+          assert status==200 and plan.get("ok") and plan.get("ready")
+          assert plan["originalCount"]==72 and plan["afterCount"]==86
+          assert plan["sourceCount"]==99 and plan["recoveredCount"]==14
+          assert plan["backupId"]==371
+          assert len(set(plan["passSongIds"]))==23
+          assert "PERO A TU LADO" in plan["preservedCurrentCustomTitles"]
+          print("PREVIEW_OK="+json.dumps({k:plan[k] for k in ("updatedAt","backupId","originalCount","afterCount","recoveredCount","skippedArchiveDuplicateCount","changedKeys")},ensure_ascii=False),flush=True)
+          status,result=req("/api/maintenance/la-pasma-recovery",{
+              "action":"merge_only",
+              "expectedUpdatedAt":plan["updatedAt"],
+              "backupId":plan["backupId"]
+          })
+          assert status==200 and result.get("ok") is True and result.get("verified") is True
+          assert result.get("afterCount")==86 and result.get("recoveredCount")==14
+          assert result.get("archivedSourceId")==371 and result.get("backupId")
+          print("RECOVERY_COMMIT="+json.dumps({k:result.get(k) for k in ("verified","backupId","archivedSourceId","updatedAt","originalCount","afterCount","recoveredCount","orphanIndexedKeysArchived","currentOrphanChordMapsUsed","currentOrphanLyricEditsPreserved")},ensure_ascii=False),flush=True)
+          _,post=req("/export")
+          st=post["storage"]
+          custom=json.loads(st.get("quintoElemento.customSongs.v1","[]"))
+          passes=json.loads(st.get("quintoElemento.passes.v1","[]"))
+          assert len(custom)==15
+          assert custom[0]["title"]=="PERO A TU LADO"
+          expected=["CIEN GAVIOTAS","ESCUELA DE CALOR","HACE CALOR","LOBO-HOMBRE EN PARÍS",
+             "MIL CALLES LLEVAN HACIA TI","SABOR DE AMOR","EL LÍMITE","LA CHICA DE AYER",
+             "EL RITMO DEL GARAJE","ENAMORADO DE LA MODA JUVENIL","ADIÓS PAPÁ",
+             "CAROLINA","CUANDO BRILLE EL SOL","MIÑA TERRA GALEGA"]
+          assert [x["title"] for x in custom[1:]]==expected
+          selected=[p for p in passes if p.get("name")=="LA PASMA (NUEVA)"]
+          assert len(selected)==1
+          indices=selected[0]["songs"]
+          assert len(indices)==23 and len(set(indices))==23
+          assert all(0<=i<71+len(custom) for i in indices)
+          assert indices[0]==72 and indices[-1]==85
+          assert st.get("quintoElemento.title.v1.71","PERO A TU LADO")=="PERO A TU LADO"
+          print("PASS_SONG_IDS="+json.dumps(indices),flush=True)
+          print("RECOVERED_TITLES="+json.dumps([x["title"] for x in custom[1:]],ensure_ascii=False),flush=True)
+          print("PASMA_FINAL_TOTAL="+str(71+len(custom)),flush=True)
+          print("LA_PASMA_RECOVERY_VERIFIED=YES",flush=True)
+          PY
