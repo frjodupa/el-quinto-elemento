@@ -2,7 +2,7 @@ name: EQE - Fuente independiente Aquí no hay playa y Qué Navidad
 on:
   push:
     branches: [audit-alt-chord-sources-86-20261010]
-    paths: [.github/workflows/audit-two-urgent-originals.yml]
+    paths: [.github/workflows/audit-two-urgent-originals.yml, scripts/audit_two_priority_sources.py]
 permissions:
   contents: read
 jobs:
