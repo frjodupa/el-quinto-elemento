@@ -1,0 +1,49 @@
+name: Check live Internet search v74
+on:
+  push:
+    branches: [verify-v74-live-search-20261010]
+    paths: ['.github/workflows/verify-v74-live-search.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check published UI, cache and real search endpoint
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request
+          from urllib.parse import quote
+          root='https://crimson-rice-1fe1.joseduqueparedes.workers.dev'
+          def get(path,timeout=25):
+              url=root+path+('&' if '?' in path else '?')+'qa='+str(int(time.time()*1000))
+              req=urllib.request.Request(url,headers={'Cache-Control':'no-cache','User-Agent':'EQE-Live-Verification/1.0'})
+              with urllib.request.urlopen(req,timeout=timeout) as r:
+                  return r.status,r.read()
+          for attempt in range(1,9):
+              status,raw=get('/')
+              html=raw.decode('utf-8','replace')
+              ui='class="uiVersion">v74' in html
+              visible='id="internetSearchBtn"' in html and html.find('id="q"')<html.find('id="internetSearchBtn"')<html.find('id="grid"')
+              print(f"ATTEMPT={attempt} LIVE_UI_74={ui} SEARCH_VISIBLE_NEAR_TOP={visible}",flush=True)
+              if ui and visible:break
+              time.sleep(10)
+          else:raise RuntimeError('Cloudflare no ha publicado todavía la interfaz v74')
+          status,ver=get('/version.json')
+          print('VERSION_JSON='+ver.decode('utf-8','replace'),flush=True)
+          if int(json.loads(ver)['version'])!=78:raise RuntimeError('Version.json desactualizado')
+          status,sw=get('/sw.js')
+          print('SW_78='+str('quinto-elemento-v78' in sw.decode('utf-8','replace')),flush=True)
+          if b'quinto-elemento-v78' not in sw:raise RuntimeError('SW desactualizado')
+          status,payload=get('/api/song-search?q='+quote('corazon de neon'))
+          obj=json.loads(payload)
+          print('SEARCH_STATUS='+str(status),flush=True)
+          print('SEARCH_OK='+str(obj.get('ok')),flush=True)
+          print('SEARCH_RESULTS='+str(len(obj.get('results') or [])),flush=True)
+          print('SEARCH_SOURCES='+','.join(sorted({str(x.get('source')) for x in obj.get('results',[]) if x.get('source')})),flush=True)
+          print('SEARCH_ERRORS='+json.dumps(obj.get('errors') or [],ensure_ascii=False),flush=True)
+          if status!=200 or obj.get('ok') is not True or not isinstance(obj.get('results'),list):
+              raise RuntimeError('Endpoint externo no utilizable')
+          print('LIVE_V74_VERIFIED=YES',flush=True)
+          PY
