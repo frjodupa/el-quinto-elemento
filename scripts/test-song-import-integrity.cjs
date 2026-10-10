@@ -27,8 +27,8 @@ assert.ok(Object.keys(paired.chordData.words).length>0);
 
 const findings=[];
 const collision=parse("[ch]C[/ch][ch]G[/ch]HOLA MUNDO","ultimate-guitar");
-if(collision.chordCount<2)
-  findings.push({code:"MULTIPLE_CHORDS_SAME_WORD",detail:"Dos acordes sobre una palabra se reducen a una única entrada words; el anterior se sobrescribe",observed:collision.chordData.words["0:0"]});
+assert.equal(collision.chordData.words["0:0"],"DO · SOL","No se pueden perder acordes asociados a la misma palabra");
+assert.equal(collision.chordCount,1,"Un anclaje con secuencia sigue contando como una posición; no como dos palabras");
 const lineFields=parse("C    G\nHOLA MUNDO","cifraclub");
 if(Object.keys(lineFields.chordData.lines).length===0)
   findings.push({code:"LINE_CHORDS_NOT_POPULATED",detail:"El importador nunca crea anclajes lines desde líneas de acordes"});
