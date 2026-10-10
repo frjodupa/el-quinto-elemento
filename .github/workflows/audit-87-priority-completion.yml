@@ -1,0 +1,45 @@
+name: EQE - auditar 87 y LA PASMA con fuentes alternativas
+on:
+  push:
+    branches: [audit-87-priority-completion-20261010]
+    paths: [.github/workflows/audit-87-priority-completion.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install auditors
+        run: |
+          pip install requests beautifulsoup4
+          python -m py_compile scripts/audit_songbook.py scripts/audit_current_chord_coverage.py scripts/audit_pasma_priority.py scripts/audit_alternative_sources_86.py scripts/audit_depedro_public_chords.py scripts/audit_two_priority_sources.py
+      - name: Verify current songbook and every line (read-only)
+        run: python scripts/audit_current_chord_coverage.py
+      - name: Audit 23 songs in LA PASMA (NUEVA) (read-only)
+        run: python scripts/audit_pasma_priority.py
+      - name: Compare alternative artist-verified chord sheets (read-only)
+        run: python scripts/audit_alternative_sources_86.py
+      - name: Check source harmonies for the four weakest songs (read-only)
+        run: python scripts/audit_two_priority_sources.py
+      - name: Independently check Depedro positions (read-only)
+        run: python scripts/audit_depedro_public_chords.py
+      - name: Save audit metadata only (never store lyrics or D1 export)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eqe-current-87-priority-and-pasma
+          retention-days: 21
+          if-no-files-found: warn
+          path: |
+            eqe-current-audit/LINE_COVERAGE_FULL.json
+            eqe-current-audit/AUDITORIA_COBERTURA.md
+            eqe-priority-latest/LA_PASMA_23_CURRENT.json
+            eqe-priority-latest/LA_PASMA_23_CURRENT.md
+            eqe-alternative-sources/ALTERNATIVE_CHORD_SOURCE_REPORT.json
+            eqe-priority-outside-sources/READONLY_PRIORITY_SOURCE_AUDIT.json
+            eqe-depedro-audit/DE_PEDRO_AUDIT.json
