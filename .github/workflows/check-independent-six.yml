@@ -1,0 +1,37 @@
+name: EQE - cotejo independiente seis canciones con fuente original
+on:
+  push:
+    branches: [audit-repeated-chord-lines-86-20261010]
+    paths: [.github/workflows/check-independent-six.yml]
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-go@v5
+        with: {go-version: "1.23"}
+      - name: Compile source exact scraper
+        run: |
+          python -m pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ug-original
+          cp scripts/ug_audit.go /tmp/ug-original/ug_audit.go
+          (cd /tmp/ug-original && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Assess original version and key matches without changes to live D1
+        env:
+          UG_HELPER: /tmp/ug-audit
+          REQUEST_DELAY: "2"
+        run: |
+          python -m py_compile scripts/independent_six_sources.py
+          python scripts/independent_six_sources.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-six-sources-key-independent-report
+          path: eqe-six-source-independent/SIX_SOURCE_RECHECK.json
+          retention-days: 21
+          if-no-files-found: warn
