@@ -1,0 +1,28 @@
+name: LA PASMA - auditoría profunda de 23 canciones
+on:
+  push:
+    branches: [audit-la-pasma-23-deep-20261010]
+    paths: [.github/workflows/audit-pasma-23-deep.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Prepare
+        run: python -m pip install requests beautifulsoup4
+      - name: Audit live full 23 song set, read only
+        run: |
+          python -m py_compile scripts/audit_pasma_deep.py scripts/audit_songbook.py scripts/audit_current_chord_coverage.py
+          python scripts/audit_pasma_deep.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: la-pasma-23-deep-audit
+          path: pasma-deep-audit/
+          retention-days: 21
+          if-no-files-found: warn
