@@ -698,7 +698,7 @@ export default {
       }
       if(!plan){
         return json({ok:false,error:"Ninguna copia conserva el pase íntegro para fusionarlo sin pérdida de datos",
-                     failureCount:failures.length},409);
+                     failureCount:failures.length,failedChecks:failures},409);
       }
       if(request.method==="GET"){
         return json({ok:true,ready:true,backupId:selection.id,updatedAt:Number(current.updated_at||0),
