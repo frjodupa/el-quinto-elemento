@@ -135,3 +135,12 @@
 - Conserva los editores, sincronización y modelo de datos existentes; no modifica ninguna letra ni acorde en la publicación.
 - Mejora de accesibilidad y diseño adaptable iPhone/iPad/escritorio.
 - Interfaz v77 / build técnico y caché offline 81.
+
+## v78 — 2026-10-10
+
+- Corrección integral de contraste del modo claro en iPhone, iPad y escritorio.
+- Acordes encima de las palabras y acordes de línea: ámbar oscuro y contraste superior a 4.5:1 sobre marfil.
+- Introducción e instrumentales: tarjetas claras con acordes de alto contraste.
+- Letras y títulos en grafito y ámbar oscuro, con botones, contador y mensajes de búsqueda legibles.
+- Tema oscuro sin cambios. Sin alteraciones al editor de acordes, repertorio, claves guardadas ni datos D1.
+- Interfaz v78 y compilación PWA/caché 82.
