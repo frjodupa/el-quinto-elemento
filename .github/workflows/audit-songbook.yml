@@ -1,0 +1,163 @@
+name: Auditoria Cancionero v63
+
+on:
+  push:
+    branches:
+      - cancionero-v63-export
+    paths:
+      - ".github/workflows/audit-songbook.yml"
+      - "scripts/audit_songbook.py"
+      - "scripts/chordpro_convert.cjs"
+      - "scripts/ug_audit.go"
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: cancionero-v63-export
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+
+      - name: Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Try deploy v63
+        id: deploy_v63
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          mkdir -p audit_output
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "v63 deploy skipped: Cloudflare secrets not configured in GitHub." | tee audit_output/DEPLOY_V63.txt
+            exit 0
+          fi
+          npm ci
+          npx wrangler deploy 2>&1 | tee audit_output/DEPLOY_V63.txt
+
+      - name: Checkout verified scraper sources
+        run: |
+          git clone --depth 1 https://github.com/olimontes/setlive.git /tmp/setlive
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          git clone --depth 1 https://github.com/mfuentesg/capo.git /tmp/capo
+          test -f /tmp/setlive/backend/apps/repertoire/cifra_scraper.py
+          test -f /tmp/ultimate-guitar-scraper/pkg/ultimateguitar/search.go
+          test -f /tmp/capo/package.json
+          {
+            echo "setlive $(git -C /tmp/setlive rev-parse HEAD)"
+            echo "ultimate-guitar-scraper $(git -C /tmp/ultimate-guitar-scraper rev-parse HEAD)"
+            echo "capo $(git -C /tmp/capo rev-parse HEAD)"
+          } > audit_output/SCRAPER_REVISIONS.txt
+
+      - name: Build Ultimate Guitar helper
+        run: |
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          cd /tmp/ultimate-guitar-scraper
+          go build -o /tmp/ug-audit ./ug_audit.go
+          /tmp/ug-audit -h >/dev/null
+
+      - name: Install Capo ChordSheetJS version
+        run: |
+          CAPO_VERSION=$(node -e "const p=require('/tmp/capo/package.json'); console.log(String(p.dependencies.chordsheetjs).replace(/^[^0-9]*/,''))")
+          mkdir -p /tmp/audit-node
+          npm install --prefix /tmp/audit-node --no-audit --no-fund "chordsheetjs@$CAPO_VERSION"
+          NODE_PATH=/tmp/audit-node/node_modules node -e "require('chordsheetjs'); console.log('ChordSheetJS OK')"
+
+      - name: Run autonomous audit
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          SETLIVE_SCRAPER_PATH: "/tmp/setlive/backend/apps/repertoire/cifra_scraper.py"
+          UG_HELPER: "/tmp/ug-audit"
+          CHORDPRO_CONVERTER: "scripts/chordpro_convert.cjs"
+          NODE_PATH: "/tmp/audit-node/node_modules"
+          REQUEST_DELAY: "2"
+          APPLY_TO_LIVE: "1"
+          AUDIT_OUT: "audit_output"
+        run: |
+          python -m py_compile scripts/audit_songbook.py
+          python scripts/audit_songbook.py
+
+      - name: Bump branch to interface v64 and technical v67
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json
+
+          p=Path("public/index.html")
+          s=p.read_text(encoding="utf-8")
+          s=s.replace(">v63</span>", ">v64</span>")
+          s=s.replace("manifest.webmanifest?v=66", "manifest.webmanifest?v=67")
+          s=s.replace("apple-touch-icon.png?v=66", "apple-touch-icon.png?v=67")
+          s=s.replace("const APP_VERSION=66;", "const APP_VERSION=67;")
+          p.write_text(s, encoding="utf-8")
+
+          p=Path("public/sw.js")
+          s=p.read_text(encoding="utf-8")
+          s=s.replace("quinto-elemento-v66", "quinto-elemento-v67")
+          s=s.replace("manifest.webmanifest?v=66", "manifest.webmanifest?v=67")
+          p.write_text(s, encoding="utf-8")
+
+          Path("public/version.json").write_text(json.dumps({"version":67}, indent=2)+"\n", encoding="utf-8")
+
+          c=Path("CHANGELOG.md")
+          old=c.read_text(encoding="utf-8") if c.exists() else "# Changelog\n"
+          block="\n## v64 — 2026-10-10\n\n- Auditoría automática del cancionero con CifraClub / Ultimate Guitar y normalización ChordPro.\n- Enriquecimiento conservador de acordes solo en coincidencias validadas.\n- Versión técnica PWA actualizada de 66 a 67 para el siguiente despliegue.\n"
+          if "## v64 — 2026-10-10" not in old:
+              c.write_text(old.rstrip()+"\n"+block, encoding="utf-8")
+          PY
+
+          git config user.name "EQE Audit Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/index.html public/sw.js public/version.json CHANGELOG.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: prepare cancionero v64 technical build 67"
+            git push origin HEAD:cancionero-v63-export
+          fi
+
+      - name: Try deploy v64 technical 67
+        id: deploy_v64
+        continue-on-error: true
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "v64/67 deploy skipped: Cloudflare secrets not configured in GitHub." | tee audit_output/DEPLOY_V64.txt
+            exit 0
+          fi
+          npm ci
+          npx wrangler deploy 2>&1 | tee audit_output/DEPLOY_V64.txt
+
+      - name: Upload audit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cancionero-auditoria-v64
+          path: audit_output/
+          if-no-files-found: warn
+          retention-days: 30
