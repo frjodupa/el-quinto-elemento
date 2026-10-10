@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=75">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=75">
+<link rel="manifest" href="manifest.webmanifest?v=76">
+<link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=76">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1812,7 +1812,8 @@ body.concertMode #quickExportV63{display:none!important}
   .settingsBody .settingsGrid button{font-size:.75rem!important}
 }
 </style>
-</head><body>\n<button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
+</head><body>
+<button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
 
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
@@ -2138,7 +2139,7 @@ body.concertMode #quickExportV63{display:none!important}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v71</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v72</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -4599,7 +4600,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=75;
+const APP_VERSION=76;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4688,7 +4689,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=75',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=76',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6304,6 +6305,10 @@ body.qeDirect .directSongBar #settingsBtn{
   renderPrompt();
 })();
 </script>
+<style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
+@import url("./premium.css?v=76");
+</style>
+<script defer src="./premium-icons.js?v=76"></script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -6432,8 +6437,8 @@ body.qeDirect .directSongBar #settingsBtn{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:71,
-        buildVersion:75,
+        version:72,
+        buildVersion:76,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
