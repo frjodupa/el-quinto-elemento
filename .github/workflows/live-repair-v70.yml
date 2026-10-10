@@ -1,0 +1,41 @@
+name: Targeted live repair v70
+
+on:
+  push:
+    branches:
+      - audit-v70-repair-20261010
+    paths:
+      - ".github/workflows/live-repair-v70.yml"
+      - "scripts/live_repair_v70.py"
+
+permissions:
+  contents: read
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-v70-repair-20261010
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install requests
+      - name: Repair screenshot songs safely
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          REQUEST_DELAY: "2"
+          TARGET_TITLES: "CORAZÓN DE NEÓN|DEPENDE|ECHO DE MENOS|EL BLUES DEL AUTOBÚS|LA NEGRA FLOR"
+          OUT_DIR: "repair_output"
+        run: python scripts/live_repair_v70.py
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: targeted-repair-v70
+          path: repair_output/
+          if-no-files-found: warn
+          retention-days: 30
