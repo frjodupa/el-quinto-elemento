@@ -1779,7 +1779,7 @@ body.concertMode #quickExportV63{display:none!important}
 /* Retire the UI for the optional live data card, keeping the underlying saved data. */
 #qeLegacyLiveCard{display:none!important}
 /* Scroll/tempo already appear in the live top bar; no second set of controls. */
-.settingsGroup:has(#settingsScrollToggle){display:none!important}
+#qeDuplicateScrollSettings{display:none!important}
 .settingsBody #transposeDown,.settingsBody #transposeUp{display:none!important}
 .settingsBody .transposeControls{grid-template-columns:1fr!important}
 .settingsBody #qeSaveLiveTone{display:none!important}
@@ -1930,7 +1930,7 @@ body.concertMode #quickExportV63{display:none!important}
         </div>
       </section>
 
-      <section class="settingsGroup">
+      <section id="qeDuplicateScrollSettings" class="settingsGroup">
         <h3>Scroll</h3>
         <div class="settingsScrollRow">
           <button id="settingsScrollToggle" type="button">▶ Iniciar</button>
