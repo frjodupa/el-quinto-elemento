@@ -1,0 +1,37 @@
+name: EQE - estructura DOM de acordes de fuente pública
+on:
+  push:
+    branches: [audit-repeated-chord-lines-86-20261010]
+    paths: [.github/workflows/check-depedro-dom.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install requests beautifulsoup4
+      - run: |
+          python - <<'PY'
+          from bs4 import BeautifulSoup,NavigableString,Tag
+          from collections import Counter
+          import requests,json,re
+          html=requests.get('https://acordesweb.com/cancion/depedro/te-sigo-sonando',timeout=20).text
+          pre=BeautifulSoup(html,'html.parser').select_one('#chordsPre')
+          if not pre:raise RuntimeError('no chords pre')
+          tags=Counter(n.name for n in pre.descendants if isinstance(n,Tag))
+          print('PRE_TAGS='+json.dumps(tags),flush=True)
+          print('PRE_HTML_BYTES='+str(len(pre.decode_contents())),flush=True)
+          for i,n in enumerate(pre.descendants):
+              if i>=70:break
+              if isinstance(n,Tag):
+                  print('DOM_TAG='+json.dumps({'name':n.name,'id':n.get('id'),'cls':n.get('class'),'title':n.get('title'),'data':list(k for k in n.attrs if k.startswith('data-'))},ensure_ascii=False),flush=True)
+              elif isinstance(n,NavigableString):
+                  txt=str(n)
+                  if txt.strip():
+                      chord=bool(re.fullmatch(r'(?:[A-G]|DO|RE|MI|FA|SOL|LA|SI)[#b]?(?:m|maj|7|9|sus)?\d*',txt.strip(),re.I))
+                      print('DOM_TEXT='+json.dumps({'len':len(txt),'chord':chord,'value':txt.strip() if chord else '', 'newlines':txt.count('\n')},ensure_ascii=False),flush=True)
+          PY
