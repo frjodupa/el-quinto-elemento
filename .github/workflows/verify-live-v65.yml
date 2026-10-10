@@ -18,9 +18,9 @@ jobs:
       - name: Check public Worker
         run: |
           set -e
-          URL="https://crimson-rice-1fe1.joseduqueparedes.workers.dev/"
+          URL="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
           echo "Fetching $URL"
-          curl -fsSL -D /tmp/headers.txt "$URL?verify=$(date +%s)" -o /tmp/index.html
+          curl -fsSL -D /tmp/headers.txt "$URL/?verify=$(date +%s)" -o /tmp/index.html
           echo "=== HEADERS ==="
           cat /tmp/headers.txt
           echo "=== VERSION MARKERS ==="
