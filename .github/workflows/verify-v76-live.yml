@@ -1,0 +1,53 @@
+name: Verificar transposición v76 publicada en Cloudflare
+on:
+  push:
+    branches: [verify-v76-live-20261010]
+    paths: ['.github/workflows/verify-v76-live.yml']
+permissions:
+  contents: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify UI v76, new semitone controls, version and offline cache
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request
+          ROOT="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          def get(path):
+              u=ROOT+path+("&" if "?" in path else "?")+"check="+str(int(time.time()*1000))
+              req=urllib.request.Request(u,headers={"Cache-Control":"no-cache","User-Agent":"EQE-Audit-Verify/1.0"})
+              with urllib.request.urlopen(req,timeout=28) as response:
+                  return response.status,response.read()
+          for attempt in range(1,13):
+              status,content=get("/")
+              html=content.decode("utf-8","replace")
+              ui='class="uiVersion">v76' in html
+              range_ok=('id="transposeSemitoneRange"' in html and 'min="-12" max="12" step="1"' in html)
+              buttons=all(('id="'+b+'"') in html for b in ('transposeOctDown','transposeStepDown','transposeStepOriginal','transposeStepUp','transposeOctUp'))
+              print(f"ATTEMPT={attempt} UI_V76={ui} SEMITONE_RANGE={range_ok} CONTROL_BUTTONS={buttons}",flush=True)
+              if ui and range_ok and buttons:break
+              time.sleep(10)
+          else:raise RuntimeError("La interfaz Cloudflare no ha llegado a v76")
+          status,raw=get("/version.json")
+          version=json.loads(raw)
+          print("VERSION_JSON="+str(version.get("version")),flush=True)
+          if version.get("version")!=80:raise RuntimeError("La versión técnica sigue obsoleta")
+          status,raw=get("/sw.js")
+          sw=raw.decode("utf-8","replace")
+          print("OFFLINE_CACHE_V80="+str("quinto-elemento-v80" in sw),flush=True)
+          if "quinto-elemento-v80" not in sw:raise RuntimeError("El service worker no coincide")
+          status,raw=get("/export")
+          try:
+              exported=json.loads(raw)
+              # This endpoint returns metadata and actual storage; never log user data.
+              print("EXPORT_STATUS="+str(status),flush=True)
+              print("EXPORT_VERSION="+str(exported.get("version")),flush=True)
+              print("EXPORT_BUILD="+str(exported.get("buildVersion")),flush=True)
+              if exported.get("version")!=76 or exported.get("buildVersion")!=80:
+                  raise RuntimeError("Metadata /export incoherente")
+          except json.JSONDecodeError:
+              raise RuntimeError("/export no devolvió JSON")
+          print("LIVE_V76_VERIFIED=YES",flush=True)
+          PY
