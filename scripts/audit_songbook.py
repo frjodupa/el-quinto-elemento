@@ -492,12 +492,12 @@ def try_source(song):
         if ug:
             ug_model = ug_to_model(ug["content"])
             inferred_artist = artist or ug.get("artist","")
+            ug_sim = similarity(song["texto"], ug_model["lyrics"]) if ug_model["lyrics"] else 0.0
 
-            if not artist and inferred_artist:
+            if not artist and inferred_artist and ug_sim >= 0.85:
                 direct = try_cifra_direct(song, inferred_artist, errors)
                 if direct:
                     cifra_sim = similarity(song["texto"], direct["model"]["lyrics"])
-                    ug_sim = similarity(song["texto"], ug_model["lyrics"]) if ug_model["lyrics"] else 0.0
                     if cifra_sim >= 0.85 and cifra_sim >= ug_sim - 0.03:
                         direct["key"] = ug.get("key","")
                         direct["errors"] = errors + ["Artist inferred from UG metadata; Cifra direct source independently lyric-validated."]
@@ -817,3 +817,5 @@ if __name__ == "__main__":
 
 
 # trigger: autonomous audit v63 second pass (UG chord-row parser + direct Cifra retry)
+
+# optimization: Cifra direct corroboration limited to >=85% UG lyric matches
