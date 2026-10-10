@@ -431,11 +431,30 @@ function parseSongContent(content,provider) {
     }
 
     if(provider==="ultimate-guitar" && /\[ch\]/i.test(raw)){
-      flushPendingAsSection();
       const parsed=parseInlineUg(raw);
-      if(!parsed.plain) continue;
+
+      // UG suele poner una línea completa de [ch]C[/ch] [ch]G[/ch]
+      // encima de la letra. Esa línea no es letra: se conserva para
+      // aplicarla a la siguiente línea textual.
+      if(!parsed.plain){
+        if(pending) flushPendingAsSection();
+        pending={raw:String(raw),tokens:parsed.anchors.slice()};
+        continue;
+      }
+
       const li=lyrics.length;
       lyrics.push(parsed.plain);
+
+      // Primero aplicar la línea de acordes separada, si existe.
+      if(pending){
+        pending.tokens.forEach(a=>{
+          const wi=nearestWordIndex(parsed.plain,a.column);
+          if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+        });
+        pending=null;
+      }
+
+      // Después aplicar acordes inline de la propia línea.
       parsed.anchors.forEach(a=>{
         const wi=nearestWordIndex(parsed.plain,a.column);
         if(wi>=0) chordData.words[li+":"+wi]=a.chord;
@@ -480,18 +499,64 @@ function parseSongContent(content,provider) {
   return {text,chordData,chordCount,lineCount:lyrics.length};
 }
 
+
+async function cifraDirectFallbackFromUg(ugResults) {
+  const seeds=(Array.isArray(ugResults)?ugResults:[]).slice(0,3);
+  const candidates=await Promise.all(seeds.map(async item=>{
+    const artist=slugWords(item.artist);
+    const title=slugWords(item.title);
+    if(!artist||!title) return null;
+    const url="https://www.cifraclub.com/"+artist+"/"+title+"/";
+    const printUrl=url+"imprimir.html";
+    try{
+      const r=await fetch(printUrl,{headers:{"User-Agent":SONG_SOURCE_UA,"Accept-Language":"es-ES,es;q=0.9,en;q=0.7"}});
+      if(!r.ok) return null;
+      const html=await r.text();
+      const content=extractCifraContent(html);
+      if(!content) return null;
+      const meta=cifraTitleArtist(html,url);
+      return {
+        source:"cifraclub",
+        id:url,
+        title:meta.title||item.title,
+        artist:meta.artist||item.artist,
+        key:"",
+        rating:0,
+        votes:0,
+        url,
+        inferred:true
+      };
+    }catch{
+      return null;
+    }
+  }));
+  return candidates.filter(Boolean);
+}
+
 async function searchInternetSongs(query) {
   const tasks=[
     cifraSearch(query).catch(error=>({error:String(error?.message||error),source:"cifraclub"})),
     ugSearch(query).catch(error=>({error:String(error?.message||error),source:"ultimate-guitar"}))
   ];
-  const [cifra,ug]=await Promise.all(tasks);
+  let [cifra,ug]=await Promise.all(tasks);
   const results=[];
   const errors=[];
-  for(const part of [cifra,ug]){
-    if(Array.isArray(part)) results.push(...part);
-    else if(part?.error) errors.push({source:part.source,error:part.error});
+
+  if(Array.isArray(ug)) results.push(...ug);
+  else if(ug?.error) errors.push({source:ug.source,error:ug.error});
+
+  if(Array.isArray(cifra) && cifra.length){
+    results.push(...cifra);
+  }else{
+    if(cifra?.error) errors.push({source:cifra.source,error:cifra.error});
+    // El buscador de CifraClub responde 403 a algunos centros de datos.
+    // Reutilizamos artista/título de UG para probar el slug directo.
+    if(Array.isArray(ug) && ug.length){
+      const direct=await cifraDirectFallbackFromUg(ug);
+      if(direct.length) results.push(...direct);
+    }
   }
+
   const seen=new Set();
   const unique=results.filter(r=>{
     const key=[r.source,String(r.title).toLowerCase(),String(r.artist).toLowerCase(),String(r.id)].join("|");
@@ -574,8 +639,8 @@ export default {
 
       const payload = {
         format: "quinto-elemento-cloud-export",
-        version: 69,
-        buildVersion: 73,
+        version: 70,
+        buildVersion: 74,
         createdAt: new Date().toISOString(),
         updatedAt: Number(row.updated_at || 0),
         storage
