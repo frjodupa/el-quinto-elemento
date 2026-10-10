@@ -76,16 +76,49 @@ jobs:
                   print('INTERNET_SEARCH=YES' if j.get('ok') else 'INTERNET_SEARCH=NO')
                   print('INTERNET_RESULTS='+str(len(results)))
                   print('INTERNET_SOURCES='+','.join(sorted({str(x.get('source')) for x in results if x.get('source')})))
+                  print('INTERNET_ERRORS='+json.dumps(j.get('errors') or [],ensure_ascii=False))
                   if results:
                       first=results[0]
                       print('FIRST_SOURCE='+str(first.get('source')))
                       print('FIRST_TITLE='+str(first.get('title')))
                       print('FIRST_ID='+str(first.get('id')))
                       print('FIRST_URL='+str(first.get('url')))
+                      pathlib.Path('/tmp/first-result.json').write_text(json.dumps(first),encoding='utf-8')
               except Exception as e:
                   print('INTERNET_SEARCH=NO')
                   print(type(e).__name__+': '+str(e))
           PY
+
+          echo "=== INTERNET FETCH ==="
+          if [ -f /tmp/first-result.json ]; then
+            python - <<'PY' >/tmp/song-fetch-body.json
+          import json
+          r=json.load(open('/tmp/first-result.json'))
+          print(json.dumps({"source":r.get("source"),"id":r.get("id"),"url":r.get("url")}))
+          PY
+            curl -fsSL -X POST "$URL/api/song-fetch" -H 'Content-Type: application/json' --data-binary @/tmp/song-fetch-body.json -o /tmp/song-fetch.json || true
+            python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('/tmp/song-fetch.json')
+          if not p.exists():
+              print('INTERNET_FETCH=MISSING')
+          else:
+              try:
+                  j=json.loads(p.read_text(encoding='utf-8'))
+                  s=j.get('song') or {}
+                  print('INTERNET_FETCH=YES' if j.get('ok') else 'INTERNET_FETCH=NO')
+                  print('FETCH_SOURCE='+str(s.get('source')))
+                  print('FETCH_TITLE='+str(s.get('title')))
+                  print('FETCH_LINES='+str(s.get('lineCount')))
+                  print('FETCH_CHORDS='+str(s.get('chordCount')))
+                  print('FETCH_HAS_TEXT='+('YES' if bool(s.get('text')) else 'NO'))
+                  d=s.get('chordData') or {}
+                  print('FETCH_HAS_STRUCTURE='+('YES' if all(k in d for k in ('lines','words','intro','instrumentals','references')) else 'NO'))
+              except Exception as e:
+                  print('INTERNET_FETCH=NO')
+                  print(type(e).__name__+': '+str(e))
+          PY
+          fi
 
           echo "=== EXPORT ENDPOINT ==="
           curl -fsSL -D /tmp/export_headers.txt "$URL/export?verify=$(date +%s)" -o /tmp/export.json || true
