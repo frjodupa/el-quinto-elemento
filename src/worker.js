@@ -489,7 +489,7 @@ function parseSongContent(content,provider) {
   }
   flushPendingAsSection();
 
-  if(introChords.length) chordData.intro=Array.from(new Set(introChords)).join(" · ");
+  if(introChords.length) chordData.intro=introChords.join(" · ");
   if(instrumentalChords.length) chordData.instrumentals[String(Math.max(0,lyrics.length-1))]=instrumentalChords.join(" · ");
 
   const text=compactText(lyrics.join("\n"));
