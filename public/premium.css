@@ -612,3 +612,201 @@ body.lightTheme .quickChordButtons .quickChordSave{background:#dfb85e;color:#1b1
   .directSongQuickActions .quickEditSongBtn{min-width:80px!important;padding:6px!important}
   .directSongQuickActions #settingsBtn{flex-basis:39px;min-width:39px!important;width:39px!important}
 }
+
+
+/* v78 - Corrected high-contrast light theme (2026-10-10)
+ * Independent color system for stage-readable daylight use.
+ * This changes presentation only: no modifications to chord positions,
+ * original lyrics, editing gestures, saved keys or offline behavior.
+ */
+body.lightTheme{
+  --accent:#73500d;
+  --premium-gold:#73500d;
+  --premium-gold-bright:#654514;
+  --premium-muted:#515b66;
+  --premium-border:rgba(89,75,49,.25);
+  --premium-border-strong:rgba(120,78,20,.52);
+  color:#20252c!important;
+  color-scheme:light;
+}
+
+/* Lyrics stay graphite on ivory; major labels and chords are dark amber.
+ * Force text-fill too, so iOS Safari doesn't render a pale WebKit label. */
+body.lightTheme #view.on #ly.lyrics,
+body.lightTheme #view.on #ly .lyricLine,
+body.lightTheme #view.on #ly .lineBody,
+body.lightTheme #view.on #ly .wordToken{
+  color:#20252c!important;
+  -webkit-text-fill-color:#20252c!important;
+  text-shadow:none!important;
+}
+body.lightTheme #view.on .title{
+  color:#694710!important;
+  -webkit-text-fill-color:#694710!important;
+  text-shadow:none!important;
+}
+body.lightTheme #view.on #ly .wordChord,
+body.lightTheme #view.on #ly .lineChord,
+body.lightTheme #view.on #ly .wordChordEditWrap .wordChord{
+  color:#73500d!important;
+  -webkit-text-fill-color:#73500d!important;
+  font-weight:900!important;
+  text-shadow:none!important;
+}
+
+/* INTRO / INSTRUMENTAL should not keep the dark-theme black cards. */
+body.lightTheme #view.on #ly .musicSection{
+  background:#fffaf0!important;
+  color:#22262d!important;
+  border:1px solid #b79a60!important;
+  box-shadow:0 2px 10px rgba(70,54,28,.06)!important;
+}
+body.lightTheme #view.on #ly .musicSectionTitle{
+  color:#68460f!important;
+  -webkit-text-fill-color:#68460f!important;
+  opacity:1!important;
+  font-weight:900!important;
+}
+body.lightTheme #view.on #ly .musicChordChip{
+  background:#f4e5be!important;
+  border:1px solid #b1904c!important;
+  color:#543815!important;
+  -webkit-text-fill-color:#543815!important;
+  text-shadow:none!important;
+  font-weight:900!important;
+}
+/* Highlighted edits must remain readable and visually distinct. */
+body.lightTheme #view.on #ly .wordChord.movableChord{
+  background:#faecd2!important;
+  border-radius:5px;
+  outline-color:#987339!important;
+}
+body.lightTheme #view.on #ly .wordWrap.movingChordSource .wordChord{
+  background:#c99d4a!important;
+  color:#1c160b!important;
+  -webkit-text-fill-color:#1c160b!important;
+  outline-color:#a87e2d!important;
+}
+body.lightTheme #view.on .lineChordBtn{
+  color:#654514!important;
+  background:#fff8e7!important;
+  border-color:#a78847!important;
+}
+
+/* Home: identity, metadata, actions and search hints all readable. */
+body.lightTheme .directHome .brand{
+  color:#242a34!important;
+  -webkit-text-fill-color:#242a34!important;
+  text-shadow:none!important;
+}
+body.lightTheme .directHome .uiVersion{color:#4d5d73!important}
+body.lightTheme .directMeta .count{color:#454950!important}
+body.lightTheme .directMeta .appStatus.online{color:#276b43!important}
+body.lightTheme .directMeta .appStatus.offline{color:#7a4b13!important}
+body.lightTheme .directMeta .offlineBadge{
+  background:#f8edcf!important;
+  color:#725016!important;
+  border:1px solid #bca66e!important;
+}
+body.lightTheme .directSearch::placeholder{
+  color:#536071!important;
+  opacity:1!important;
+}
+body.lightTheme .internetSearchHint,
+body.lightTheme .internetSummary{
+  color:#415773!important;
+  opacity:1!important;
+}
+body.lightTheme .directActions .directAction,
+body.lightTheme .directActions .directActionPrimary{
+  color:#503816!important;
+  -webkit-text-fill-color:#503816!important;
+  border:1px solid #b9995f!important;
+  background:linear-gradient(135deg,#fff7e5,#e9d6aa)!important;
+  box-shadow:0 2px 7px rgba(91,66,32,.10)!important;
+  text-shadow:none!important;
+}
+body.lightTheme .directActions .directAction:active,
+body.lightTheme .directActions .directActionPrimary:active{
+  background:#e1c58b!important;
+}
+body.lightTheme .directHome .directSettingsBtn{
+  background:#fff!important;
+  color:#273240!important;
+  border-color:#c6b89d!important;
+}
+
+/* Toolbar: original dark gold labels were illegible on white. */
+body.lightTheme .directSongBar,
+body.lightTheme .directSongBar .directSpeed{
+  background:#f8f5ee!important;
+  color:#27313c!important;
+  border-color:#c4b79b!important;
+}
+body.lightTheme .directSongBar button,
+body.lightTheme .directSongBar #back,
+body.lightTheme .directSongBar #settingsBtn{
+  background:#fffefa!important;
+  color:#26313f!important;
+  border-color:#cfc2a9!important;
+}
+body.lightTheme .directSongBar #prev,
+body.lightTheme .directSongBar #next,
+body.lightTheme .directSongTune #directTransposeDown,
+body.lightTheme .directSongTune #directTransposeUp{
+  background:#fff8e6!important;
+  color:#674712!important;
+  -webkit-text-fill-color:#674712!important;
+  border-color:#bda271!important;
+}
+body.lightTheme .directSongBar #autoScrollBtn{
+  background:#f8e9c5!important;
+  color:#503715!important;
+  -webkit-text-fill-color:#503715!important;
+  border-color:#b99c5b!important;
+}
+body.lightTheme .directSongBar #autoScrollBtn.active{
+  background:#674712!important;
+  color:#fffaf0!important;
+  -webkit-text-fill-color:#fffaf0!important;
+}
+body.lightTheme .directSpeed #autoScrollSpeedValue,
+body.lightTheme #autoScrollSpeedValue{
+  color:#674712!important;
+  -webkit-text-fill-color:#674712!important;
+}
+body.lightTheme .directSongBar .quickEditSongBtn{
+  color:#543815!important;
+  -webkit-text-fill-color:#543815!important;
+}
+
+/* Optional editor / advanced settings and online-search results. */
+body.lightTheme .internetSearchState,
+body.lightTheme .internetResult,
+body.lightTheme .internetSearchPrompt{
+  background:#fffbf1!important;
+  border-color:#c8b58a!important;
+  color:#25303e!important;
+}
+body.lightTheme .internetResultTitle{color:#243040!important}
+body.lightTheme .internetResultMeta{color:#4d5664!important}
+body.lightTheme .internetSource{color:#73500d!important}
+body.lightTheme .internetUseBtn{
+  color:#563c12!important;
+  background:#f4e3b8!important;
+  border-color:#b09257!important;
+}
+body.lightTheme .settingsContextHint,
+body.lightTheme .settingsBody label{
+  color:#4a5360!important;
+}
+body.lightTheme .settingsGroup h3{color:#68460f!important}
+body.lightTheme .settingsBody #transposeValue{color:#694710!important}
+body.lightTheme .settingsBody .transposeBox .transposeStatus{
+  color:#49515b!important;
+}
+body.lightTheme .settingsBody input::placeholder,
+body.lightTheme .passPanel input::placeholder{
+  color:#59616e!important;
+}
+/* Preserve alternate appearance: every new selector is under body.lightTheme. */

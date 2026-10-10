@@ -805,7 +805,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=81">
+<link rel="manifest" href="manifest.webmanifest?v=82">
 <link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=78">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -2173,7 +2173,7 @@ body.lightTheme .qeSemitoneActions #transposeStepOriginal{color:#846017!importan
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v77</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v78</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -2471,10 +2471,18 @@ function undoChordChange(){
 function splitSeq(v){return (v||'').split(/\s*·\s*|\s*,\s*/).map(function(x){return x.trim();}).filter(Boolean);}
 function seqText(items){return items.join(' · ');}
 function render(f){
-  f=f||'';grid.innerHTML='';var n=0;
-  songs.forEach(function(song,i){
-    var shownTitle=getSongTitle(i);
-    if(shownTitle.toLowerCase().indexOf(f.toLowerCase())<0)return;
+  // Alphabetical display only. Never reorder the songs array: IDs are used by
+  // chord data, edits, Cloudflare sync and saved setlists/pases.
+  f=String(f||'');grid.innerHTML='';var n=0;
+  var ordered=songs.map(function(song,i){
+    return {index:i,title:getSongTitle(i)};
+  }).sort(function(a,b){
+    var byTitle=a.title.localeCompare(b.title,'es',{sensitivity:'base',numeric:true});
+    return byTitle||a.index-b.index;
+  });
+  ordered.forEach(function(item){
+    var i=item.index,shownTitle=item.title;
+    if(shownTitle.toLocaleLowerCase('es').indexOf(f.toLocaleLowerCase('es'))<0)return;
     n++;
     var b=document.createElement('button');
     b.className='songBtn';
@@ -4740,7 +4748,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=81;
+const APP_VERSION=82;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4829,7 +4837,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=81',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=82',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6509,10 +6517,10 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=81");
+@import url("./premium.css?v=82");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
-<script defer src="./song-quick-edit.js?v=81"></script>
+<script defer src="./song-quick-edit.js?v=82"></script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -6641,8 +6649,8 @@ body.lightTheme .internetSearchLaunch{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:77,
-        buildVersion:81,
+        version:78,
+        buildVersion:82,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
