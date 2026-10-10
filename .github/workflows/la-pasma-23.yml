@@ -1,0 +1,27 @@
+name: Auditoría LA PASMA (NUEVA) - 23 canciones
+on:
+  push:
+    branches: [audit-la-pasma-23-20261010]
+    paths: [.github/workflows/la-pasma-23.yml]
+permissions:
+  contents: read
+jobs:
+  read-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Auditoría completa del pase, acordes y referencias de Cloudflare
+        run: |
+          python -m py_compile scripts/audit_la_pasma.py
+          python scripts/audit_la_pasma.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: LA-PASMA-NUEVA-auditoria-23-canciones
+          path: la_pasma_audit/*
+          retention-days: 14
+          if-no-files-found: warn
