@@ -1,0 +1,47 @@
+name: LA PASMA v75 - Verificar vista previa real
+on:
+  push:
+    branches: [verify-pasma-recovery-live-20261010]
+    paths: [.github/workflows/verify-pasma-recovery-live.yml]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Esperar versión v75 y comprobar que D1 admite recuperación segura
+        run: |
+          python3 - <<'PY'
+          import json,time,urllib.request
+          root="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          def get(path):
+              req=urllib.request.Request(root+path+("&" if "?" in path else "?")+"t="+str(time.time_ns()),headers={
+                  "User-Agent":"EQE-Pasma-Audit/1.0","Accept":"application/json","Cache-Control":"no-cache"
+              })
+              with urllib.request.urlopen(req,timeout=30) as r:return r.status,r.read()
+          for i in range(16):
+              _,body=get("/version.json")
+              version=json.loads(body)["version"]
+              print("CHECK_VERSION="+str(version),flush=True)
+              if version==79:break
+              time.sleep(10)
+          else:raise RuntimeError("v75 build 79 no publicado")
+          _,html=get("/")
+          if b'class="uiVersion">v75' not in html:raise RuntimeError("Interfaz pública anterior")
+          _,raw=get("/api/maintenance/la-pasma-recovery")
+          d=json.loads(raw)
+          summary={k:d.get(k) for k in ("ok","ready","backupId","updatedAt","originalCount","afterCount","sourceCount","recoveredCount","skippedArchiveDuplicateCount","passName","passId","passSongIds","fixedOtherPasses","preservedCurrentCustomTitles","changedKeys","action")}
+          print("PLAN="+json.dumps(summary,ensure_ascii=False),flush=True)
+          titles=[str(s["title"]) for s in d.get("restored",[])]
+          print("RESTORE_TITLES="+json.dumps(titles,ensure_ascii=False),flush=True)
+          assert d.get("ok") and d.get("ready")
+          assert d.get("originalCount")==72
+          assert d.get("recoveredCount")==14
+          assert d.get("afterCount")==86
+          assert d.get("sourceCount")==99
+          assert len(d.get("passSongIds",[]))==23
+          assert len(set(d["passSongIds"]))==23
+          assert "PERO A TU LADO" in d.get("preservedCurrentCustomTitles",[])
+          print("REAL_RECOVERY_PREVIEW=PASS",flush=True)
+          PY
