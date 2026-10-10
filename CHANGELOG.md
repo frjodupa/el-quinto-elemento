@@ -31,3 +31,12 @@
 - Exportación JSON alineada con interfaz v65.
 - Metadatos de exportación actualizados a versión 65 / build técnico 69.
 - Caché offline y version.json actualizados a 69.
+
+## v66 — 2026-10-10
+
+- Pantalla de canción optimizada para directo.
+- Barra superior reducida a Índice, anterior/siguiente, Scroll, velocidad, tonalidad ±1, tamaño de letra y Ajustes.
+- Tonalidad accesible directamente sin abrir Ajustes.
+- Cualquier canción se abre automáticamente en Modo directo.
+- Herramientas de edición y mantenimiento siguen disponibles desde Ajustes.
+- Interfaz v66 / build técnico PWA 70.
