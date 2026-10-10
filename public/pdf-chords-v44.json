@@ -2358,32 +2358,11 @@
             "RE"
           ]
         ]
-      ],
-      [
-        "( y sigue este esquema hasta el final)",
-        [
-          [
-            0,
-            "DO"
-          ],
-          [
-            4,
-            "RE"
-          ],
-          [
-            5,
-            "DO"
-          ]
-        ]
       ]
     ],
     "pattern": {
-      "sequence": [
-        "DO",
-        "RE"
-      ],
       "scope": "song",
-      "note": "El documento fuente indica que este esquema continúa hasta el final. Aplicar sin sustituir acordes ya editados."
+      "note": "El PDF aporta posiciones para el primer bloque (SOL/MIm7, SOL9/RE, DO/RE, SOL con bajo y MIm) e indica que el esquema continúa. No aplicar DO/RE indiscriminadamente: revisar estrofas no anotadas una por una."
     }
   },
   "BOLILLÓN": {
