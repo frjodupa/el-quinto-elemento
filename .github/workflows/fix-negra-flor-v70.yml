@@ -1,0 +1,30 @@
+name: Fix La Negra Flor exact source
+
+on:
+  push:
+    branches:
+      - audit-v70-repair-20261010
+    paths:
+      - ".github/workflows/fix-negra-flor-v70.yml"
+      - "scripts/fix_negra_flor_v70.py"
+
+permissions:
+  contents: read
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: audit-v70-repair-20261010
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: pip install requests
+      - name: Apply exact Radio Futura repair
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+        run: python scripts/fix_negra_flor_v70.py
