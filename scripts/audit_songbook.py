@@ -661,6 +661,8 @@ def main():
     mkdirs()
     storage, remote_info = load_remote_storage()
     songs = build_songbook(storage)
+    only_ids_raw = os.environ.get("ONLY_IDS", "").strip()
+    only_ids = {x.strip() for x in only_ids_raw.split(",") if x.strip()} if only_ids_raw else set()
 
     export_payload = {
         "format":"quinto-elemento-v62-export",
@@ -686,6 +688,16 @@ def main():
         print(f"[{idx}/{len(songs)}] {song['titulo']}", flush=True)
         current = normalize_chord_data(song["letraConAcordes"])
         before = count_chords(current)
+
+        if only_ids and sid not in only_ids:
+            corrected.append({
+                "id":sid,
+                "titulo":song["titulo"],
+                "artista":song["artista"],
+                "letraConAcordes":{"texto":song["texto"], **current}
+            })
+            continue
+
         source = try_source(song)
         model = source.get("model")
         sim = similarity(song["texto"], model["lyrics"]) if model else 0.0
@@ -819,3 +831,5 @@ if __name__ == "__main__":
 # trigger: autonomous audit v63 second pass (UG chord-row parser + direct Cifra retry)
 
 # optimization: Cifra direct corroboration limited to >=85% UG lyric matches
+
+# focused recheck support via ONLY_IDS
