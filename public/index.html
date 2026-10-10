@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=65">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=65">
+<link rel="manifest" href="manifest.webmanifest?v=68">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=68">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1542,7 +1542,229 @@ body.lightTheme .globalUndoBtn{
 #view .bar{gap:5px;flex-wrap:wrap}
 #view .bar #back,#view .bar #prev,#view .bar #next,#view .bar #settingsBtn,#view .bar #autoScrollBtn{min-height:42px}
 @media(max-width:650px){#view .bar #shareSongbook{display:none!important}#view .bar #autoScrollSpeedWrap{flex:1;min-width:110px}#view .bar #minus,#view .bar #plus{padding:8px}}
-</style></head><body>
+</style><style id="v63-export-styles">
+/* v63 · Exportación 1-click para iPhone */
+#quickExportV63{
+  position:fixed;
+  right:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index:165000;
+  min-height:46px;
+  padding:10px 14px;
+  border:1px solid #6d5b2e;
+  border-radius:12px;
+  background:#17150f;
+  color:#e6c36a;
+  font-weight:900;
+  font-size:.9rem;
+  line-height:1;
+  box-shadow:0 8px 22px rgba(0,0,0,.28);
+  touch-action:manipulation;
+}
+#quickExportV63:active{transform:translateY(1px)}
+body.lightTheme #quickExportV63{
+  background:#fff8e2;
+  color:#6a5317;
+  border-color:#c9b371;
+}
+body.concertMode #quickExportV63{display:none!important}
+@media(max-width:600px){
+  #quickExportV63{
+    right:12px;
+    bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+    min-height:44px;
+    padding:9px 12px;
+    font-size:.82rem;
+  }
+}
+</style>
+<style id="v65-direct-ui">
+/* v65 · portada optimizada para directo */
+#quickExportV63{display:none!important}
+.indexMaintenance{display:none!important}
+
+.directHome{
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 12px!important;
+  background:rgba(9,9,10,.97)!important;
+  border-bottom:1px solid #242429!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.22);
+}
+.directHomeHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.directIdentity{min-width:0;flex:1}
+.directHome .brand{
+  color:#f4f1e8;
+  font-size:.92rem!important;
+  line-height:1.1!important;
+  letter-spacing:.075em!important;
+  font-weight:900!important;
+}
+.uiVersion{
+  margin-left:5px;
+  color:#817a69;
+  font-size:.72em;
+  letter-spacing:.03em;
+  font-weight:800;
+}
+.directMeta{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px 10px;
+  margin-top:7px;
+}
+.directMeta .count,
+.directMeta .appStatus,
+.directMeta .offlineBadge{
+  margin:0!important;
+  font-size:.73rem!important;
+  line-height:1!important;
+}
+.directMeta .count{color:#a8a8ad!important}
+.directMeta .appStatus{font-weight:800}
+.directMeta .offlineBadge{
+  min-height:0!important;
+  padding:4px 7px!important;
+  border-radius:999px!important;
+  background:#15140f!important;
+  border-color:#4b4329!important;
+  color:#d8b85f!important;
+}
+.directSettingsBtn{
+  width:44px;
+  height:44px;
+  min-height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  margin:0!important;
+  padding:0!important;
+  border-radius:12px!important;
+  border:1px solid #313137!important;
+  background:#151518!important;
+  color:#e7e4dc!important;
+  font-size:1.15rem!important;
+  font-weight:700!important;
+}
+.directSearch{
+  margin-top:12px!important;
+  min-height:50px;
+  padding:11px 14px!important;
+  border-radius:13px!important;
+  border:1px solid #35353a!important;
+  background:#111114!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.02);
+  font-size:1rem!important;
+}
+.directSearch:focus{
+  outline:none;
+  border-color:#8d7740!important;
+  box-shadow:0 0 0 3px rgba(230,195,106,.09);
+}
+.directActions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:8px;
+  margin-top:9px;
+}
+.directAction{
+  min-height:46px!important;
+  margin:0!important;
+  padding:8px 11px!important;
+  border:1px solid #3a3830!important;
+  border-radius:12px!important;
+  background:#151515!important;
+  color:#dedbd2!important;
+  font-size:.9rem!important;
+  font-weight:850!important;
+  white-space:nowrap;
+}
+.directActionPrimary{
+  background:#201d13!important;
+  border-color:#66572f!important;
+  color:#e9c96d!important;
+}
+
+#index>.grid{
+  padding:10px 12px calc(24px + env(safe-area-inset-bottom,0px))!important;
+  gap:7px!important;
+  grid-template-columns:1fr!important;
+}
+#index .songBtn{
+  position:relative;
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  min-height:52px!important;
+  padding:10px 38px 10px 14px!important;
+  border-radius:12px!important;
+  border:1px solid #29292f!important;
+  background:#141417!important;
+  color:#f3f3f1!important;
+  font-size:.96rem!important;
+  line-height:1.16!important;
+  font-weight:630!important;
+  letter-spacing:.012em!important;
+  box-shadow:none!important;
+}
+#index .songBtn::after{
+  content:'›';
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-52%);
+  color:#625f57;
+  font-size:1.28rem;
+  font-weight:500;
+}
+#index .songBtn:active{
+  background:#1c1b18!important;
+  border-color:#65572f!important;
+  transform:scale(.995);
+}
+
+@media(min-width:700px){
+  .directHome{padding-left:20px!important;padding-right:20px!important}
+  .directHome .brand{font-size:1rem!important}
+  .directSearch{min-height:54px}
+  .directActions{grid-template-columns:minmax(180px,320px)}
+  #index>.grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    padding:12px 18px 28px!important;
+    gap:8px!important;
+  }
+  #index .songBtn{min-height:56px!important;font-size:1rem!important}
+}
+@media(min-width:1080px){
+  #index>.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+/* barra de canción: solo controles útiles durante el directo */
+#view:not(.editing) .bar #shareSongbook{display:none!important}
+#view:not(.editing) .bar{
+  gap:5px!important;
+  padding-bottom:7px!important;
+}
+#view:not(.editing) .bar button{
+  min-height:40px!important;
+  padding:7px 10px!important;
+}
+#view:not(.editing) #settingsBtn{
+  width:40px;
+  padding:0!important;
+}
+#view:not(.editing) #autoScrollSpeedWrap{
+  min-width:105px!important;
+  font-size:.72rem!important;
+}
+</style>
+</head><body>\n<button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
+
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
   <div class="passPanel small">
@@ -1560,7 +1782,7 @@ body.lightTheme .globalUndoBtn{
 
 <div id="passesModal" class="passModal" aria-hidden="true">
   <div class="passPanel">
-    <div class="passHead"><strong>PASES</strong><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="passesClose" type="button">Cerrar</button></div>
+    <div class="passHead"><strong>PASES</strong><button id="newPassFromManager" type="button">＋ Nuevo pase</button><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="passesClose" type="button">Cerrar</button></div>
     <div id="passesList" class="passesList"></div>
   </div>
 </div>
@@ -1720,12 +1942,15 @@ body.lightTheme .globalUndoBtn{
       </section>
 
       <section class="settingsGroup">
-        <h3>App</h3>
+        <h3>Mantenimiento</h3>
         <div class="settingsGrid">
+          <button id="settingsNewSong" type="button">＋ Nueva canción</button>
+          <button id="settingsQuickExport" type="button">⤓ Exportar JSON</button>
+          <button id="settingsShareAccess" type="button">👥 Compartir acceso</button>
+          <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsUpdate" type="button">⟳ Actualizar app</button>
           <button id="qeShareApp" type="button">↗ Compartir cancionero</button>
           <button id="qeGuideBtn" type="button">? Guía de uso</button>
-          <button id="settingsBackup" type="button">💾 Copia / Importar</button>
           <button id="settingsImportLaPasma" type="button">⬆ Cargar LA PASMA</button>
           <input id="laPasmaImportInput" type="file" accept="application/json,.json" style="display:none">
           <div id="laPasmaImportStatus" style="grid-column:1/-1;color:#e6c36a;font-weight:800;font-size:.84rem"></div>
@@ -1853,10 +2078,33 @@ body.lightTheme .globalUndoBtn{
 </div>
 
 <section id="index">
-  <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v62</span></div>
-    <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
-    <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="shareSongbookIndex" class="newSongBtn" type="button">↗ Compartir app</button><button id="shareAccessBtn" class="newSongBtn" type="button">👥 Compartir acceso</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
+  <div class="top directHome">
+    <div class="directHomeHead">
+      <div class="directIdentity">
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v65</span></div>
+        <div class="directMeta">
+          <span class="count" id="count"></span>
+          <span id="appStatus" class="appStatus">Comprobando…</span>
+          <span id="offlineBadge" class="offlineBadge">● Offline listo</span>
+        </div>
+      </div>
+      <button id="settingsIndexBtn" class="directSettingsBtn" type="button" aria-label="Abrir ajustes" title="Ajustes">⚙</button>
+    </div>
+
+    <input id="q" class="search directSearch" placeholder="Buscar canción…" autocomplete="off" inputmode="search">
+
+    <div class="directActions" aria-label="Acciones de directo">
+      <button id="managePassesBtn" class="directAction directActionPrimary" type="button">☷ Pases</button>
+    </div>
+
+    <div class="indexMaintenance" aria-hidden="true">
+      <button id="createPassBtn" class="newSongBtn" type="button">＋ Crear pase</button>
+      <button id="newSongBtn" class="newSongBtn" type="button">＋ Nueva canción</button>
+      <button id="themeToggleIndex" class="newSongBtn" type="button">☀ Tema claro</button>
+      <button id="backupBtn" class="newSongBtn" type="button">💾 Copia / Importar</button>
+      <button id="shareSongbookIndex" class="newSongBtn" type="button">↗ Compartir app</button>
+      <button id="shareAccessBtn" class="newSongBtn" type="button">👥 Compartir acceso</button>
+    </div>
   </div>
   
 <div id="passSelectionBar" class="passSelectionBar" aria-hidden="true">
@@ -3454,7 +3702,10 @@ buildPicker();render('');bindGlobalUndoButtons();
     settingsClearChords:'clearChords',
     settingsTheme:'themeToggleView',
     settingsUpdate:'appUpdateBtn',
-    settingsBackup:'backupBtn'
+    settingsBackup:'backupBtn',
+    settingsNewSong:'newSongBtn',
+    settingsShareAccess:'shareAccessBtn',
+    settingsQuickExport:'quickExportV63'
   };
   Object.keys(map).forEach(function(k){
     var el=document.getElementById(k);
@@ -3601,6 +3852,7 @@ buildPicker();render('');bindGlobalUndoButtons();
   var passesModal=document.getElementById('passesModal');
   var passesClose=document.getElementById('passesClose');
   var passesList=document.getElementById('passesList');
+  var newPassFromManager=document.getElementById('newPassFromManager');
 
   var detailModal=document.getElementById('passDetailModal');
   var detailClose=document.getElementById('passDetailClose');
@@ -3680,6 +3932,10 @@ buildPicker();render('');bindGlobalUndoButtons();
   };
 
   createBtn.addEventListener('click',beginSelection);
+  if(newPassFromManager)newPassFromManager.addEventListener('click',function(){
+    passesModal.classList.remove('on');
+    beginSelection();
+  });
   cancelSelection.addEventListener('click',endSelection);
   saveSelection.addEventListener('click',function(){
     if(!selection.length){
@@ -3890,6 +4146,9 @@ buildPicker();render('');bindGlobalUndoButtons();
     var p=getPass(currentPassId);
     if(!p || !p.songs || !p.songs.length)return;
     window.activePass={id:p.id,name:p.name,songs:p.songs.slice(),position:0};
+    document.body.classList.add('qeDirect');
+    var directModeBtn=document.getElementById('qeDirectMode');
+    if(directModeBtn)directModeBtn.textContent='✕ Salir de modo directo';
     detailModal.classList.remove('on');
     openSong(p.songs[0]);
     showActivePassBadge();
@@ -4265,7 +4524,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=65;
+const APP_VERSION=68;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4274,10 +4533,10 @@ const updateNowBtn=document.getElementById('updateNowBtn');
 function setConnectionStatus(){
   if(!appStatus)return;
   if(navigator.onLine){
-    appStatus.textContent='Online · v'+APP_VERSION;
+    appStatus.textContent='Online';
     appStatus.className='appStatus online';
   }else{
-    appStatus.textContent='Offline · v'+APP_VERSION;
+    appStatus.textContent='Sin conexión';
     appStatus.className='appStatus offline';
   }
 }
@@ -5177,6 +5436,176 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
       }catch(e){alert('No se pudo duplicar el pase.')}
     });
   });
+})();
+</script>
+<script id="v63-export-script">
+(function(){
+  var btn=document.getElementById('quickExportV63');
+  if(!btn)return;
+
+  function wantedStorageKey(key){
+    return /(canciones|cancionero|quinto)/i.test(String(key||''));
+  }
+
+  function collectLocalStorage(){
+    var out={};
+    try{
+      for(var i=0;i<localStorage.length;i++){
+        var key=localStorage.key(i);
+        if(key && wantedStorageKey(key)){
+          out[key]=localStorage.getItem(key);
+        }
+      }
+    }catch(e){}
+    return out;
+  }
+
+  function readStore(db,storeName){
+    return new Promise(function(resolve){
+      var rows=[];
+      try{
+        var tx=db.transaction(storeName,'readonly');
+        var store=tx.objectStore(storeName);
+        var req=store.openCursor();
+        req.onsuccess=function(){
+          var cursor=req.result;
+          if(!cursor)return;
+          rows.push({key:cursor.key,value:cursor.value});
+          cursor.continue();
+        };
+        tx.oncomplete=function(){resolve(rows)};
+        tx.onerror=function(){resolve(rows)};
+        tx.onabort=function(){resolve(rows)};
+      }catch(e){resolve(rows)}
+    });
+  }
+
+  async function collectIndexedDB(){
+    var out={};
+    if(!window.indexedDB)return out;
+    var infos=[];
+    try{
+      if(typeof indexedDB.databases==='function'){
+        infos=await indexedDB.databases();
+      }
+    }catch(e){infos=[]}
+
+    for(var i=0;i<infos.length;i++){
+      var info=infos[i]||{};
+      var name=info.name;
+      if(!name)continue;
+      try{
+        var db=await new Promise(function(resolve,reject){
+          var req=indexedDB.open(name);
+          req.onsuccess=function(){resolve(req.result)};
+          req.onerror=function(){reject(req.error||new Error('No se pudo abrir '+name))};
+          req.onblocked=function(){reject(new Error('Base bloqueada '+name))};
+        });
+
+        var stores={};
+        var names=Array.prototype.slice.call(db.objectStoreNames||[]);
+        for(var s=0;s<names.length;s++){
+          stores[names[s]]=await readStore(db,names[s]);
+        }
+        out[name]={version:db.version,stores:stores};
+        db.close();
+      }catch(e){
+        out[name]={error:String(e&&e.message||e)};
+      }
+    }
+    return out;
+  }
+
+  function currentSongbook(){
+    var out=[];
+    try{
+      if(typeof songs==='undefined' || !Array.isArray(songs))return out;
+      songs.forEach(function(song,i){
+        var data=typeof getChordData==='function'?getChordData(i):{};
+        out.push({
+          id:String(i),
+          titulo:typeof getSongTitle==='function'?getSongTitle(i):String(song&&song.title||''),
+          artista:String(song&&((song.artista||song.artist)||'')||''),
+          letraConAcordes:{
+            texto:typeof getSongText==='function'?getSongText(i):String(song&&song.text||''),
+            lines:data&&data.lines||{},
+            words:data&&data.words||{},
+            intro:data&&data.intro||'',
+            introText:data&&data.introText||'',
+            instrumentals:data&&data.instrumentals||{},
+            instrumentalsText:data&&data.instrumentalsText||{},
+            references:data&&Array.isArray(data.references)?data.references:[]
+          }
+        });
+      });
+    }catch(e){}
+    return out;
+  }
+
+  function jsonReplacer(key,value){
+    if(typeof value==='bigint')return String(value);
+    if(typeof Blob!=='undefined' && value instanceof Blob){
+      return {__type:'Blob',type:value.type||'',size:value.size||0};
+    }
+    return value;
+  }
+
+  async function exportSongbook(){
+    btn.disabled=true;
+    var oldText=btn.textContent;
+    btn.textContent='Preparando…';
+    try{
+      var local=collectLocalStorage();
+      var idb=await collectIndexedDB();
+      var cancionero=currentSongbook();
+
+      if(!cancionero.length && !Object.keys(local).length && !Object.keys(idb).length){
+        alert('No se encontró ningún cancionero para exportar.');
+        return;
+      }
+
+      var payload={
+        format:'quinto-elemento-v62-export',
+        version:63,
+        buildVersion:66,
+        createdAt:new Date().toISOString(),
+        source:location.href,
+        cancionero:cancionero,
+        localStorage:local,
+        indexedDB:idb
+      };
+
+      var jsonText=JSON.stringify(payload,jsonReplacer,2);
+      var file=new File([jsonText],'cancionero-v62-export.json',{type:'application/json'});
+
+      if(navigator.share){
+        var shareData={files:[file],title:'Cancionero El Quinto Elemento'};
+        if(!navigator.canShare || navigator.canShare(shareData)){
+          await navigator.share(shareData);
+          alert('Exportadas '+cancionero.length+' canciones');
+          return;
+        }
+      }
+
+      var url=URL.createObjectURL(file);
+      var a=document.createElement('a');
+      a.href=url;
+      a.download='cancionero-v62-export.json';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){URL.revokeObjectURL(url);a.remove()},1200);
+      alert('Exportadas '+cancionero.length+' canciones');
+    }catch(e){
+      if(!(e && e.name==='AbortError')){
+        alert('No se pudo exportar el cancionero: '+String(e&&e.message||e));
+      }
+    }finally{
+      btn.disabled=false;
+      btn.textContent=oldText;
+    }
+  }
+
+  btn.addEventListener('click',exportSongbook);
 })();
 </script>
 </body></html>
