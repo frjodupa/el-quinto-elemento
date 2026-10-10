@@ -31,11 +31,23 @@ jobs:
           else
             echo "DIRECT_UI=NO"
           fi
-          if grep -q 'class="uiVersion">v65' /tmp/index.html; then
-            echo "UI_V65=YES"
+          if grep -q 'class="uiVersion">v66' /tmp/index.html; then
+            echo "UI_V66=YES"
           else
-            echo "UI_V65=NO"
+            echo "UI_V66=NO"
           fi
+          echo "=== SONG DIRECT UI ==="
+          if grep -q 'class="bar directSongBar"' /tmp/index.html; then
+            echo "DIRECT_SONG_BAR=YES"
+          else
+            echo "DIRECT_SONG_BAR=NO"
+          fi
+          if grep -q 'id="directTransposeDown"' /tmp/index.html && grep -q 'id="directTransposeUp"' /tmp/index.html; then
+            echo "QUICK_TRANSPOSE=YES"
+          else
+            echo "QUICK_TRANSPOSE=NO"
+          fi
+
           echo "=== EXPORT ENDPOINT ==="
           curl -fsSL -D /tmp/export_headers.txt "$URL/export?verify=$(date +%s)" -o /tmp/export.json || true
           cat /tmp/export_headers.txt || true
@@ -60,15 +72,15 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v69" /tmp/sw.js; then
-            echo "SW_CACHE_69=YES"
+          if grep -q "quinto-elemento-v70" /tmp/sw.js; then
+            echo "SW_CACHE_70=YES"
           else
-            echo "SW_CACHE_69=NO"
+            echo "SW_CACHE_70=NO"
           fi
-          if grep -q '"version": 69' /tmp/version.json; then
-            echo "VERSION_JSON_69=YES"
+          if grep -q '"version": 70' /tmp/version.json; then
+            echo "VERSION_JSON_70=YES"
           else
-            echo "VERSION_JSON_69=NO"
+            echo "VERSION_JSON_70=NO"
           fi
 
           echo "=== LIVE D1 STATE ==="
