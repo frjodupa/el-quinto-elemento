@@ -13,13 +13,18 @@ jobs:
       - name: Esperar versión v75 y comprobar que D1 admite recuperación segura
         run: |
           python3 - <<'PY'
-          import json,time,urllib.request
+          import json,time,urllib.request,urllib.error
           root="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
           def get(path):
               req=urllib.request.Request(root+path+("&" if "?" in path else "?")+"t="+str(time.time_ns()),headers={
                   "User-Agent":"EQE-Pasma-Audit/1.0","Accept":"application/json","Cache-Control":"no-cache"
               })
-              with urllib.request.urlopen(req,timeout=30) as r:return r.status,r.read()
+              try:
+                  with urllib.request.urlopen(req,timeout=30) as r:return r.status,r.read()
+              except urllib.error.HTTPError as e:
+                  body=e.read()
+                  print("HTTP_ERROR="+str(e.code)+" BODY="+body.decode("utf-8","replace")[:1600],flush=True)
+                  raise
           for i in range(16):
               _,body=get("/version.json")
               version=json.loads(body)["version"]
