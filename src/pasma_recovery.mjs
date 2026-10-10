@@ -179,10 +179,15 @@ export function buildLaPasmaRecovery(current,archived) {
 
     // A more recent orphan may contain edits not present in backup 371.
     // Compare its original song ID against the archived song identity.
-    const currentOrphanTitle=current[PREFIX+"title.v1."+chosen.id];
+    // The first archived custom song was old ID 71, but CURRENT ID 71
+    // belongs to the user's new song «PERO A TU LADO». It is active,
+    // never an orphan, so only probe old IDs that are truly outside
+    // the CURRENT custom-song list.
+    const hasOrphan=chosen.id>=lowestOrphanId;
+    const currentOrphanTitle=hasOrphan?current[PREFIX+"title.v1."+chosen.id]:null;
     if(currentOrphanTitle && key(currentOrphanTitle)!==t)
       throw new Error("El título huérfano no corresponde a la copia: "+t);
-    const orphanLyric=current[PREFIX+"lyrics.v1."+chosen.id];
+    const orphanLyric=hasOrphan?current[PREFIX+"lyrics.v1."+chosen.id]:null;
     const differs=typeof orphanLyric==="string" && orphanLyric.trim() &&
        textFingerprint(orphanLyric)!==textFingerprint(chosen.lyric);
     if(differs) {
@@ -190,7 +195,7 @@ export function buildLaPasmaRecovery(current,archived) {
       // positions when its lyrics have changed.
       item.text=orphanLyric;
       next[PREFIX+"lyrics.v1."+newId]=orphanLyric;
-      const orphanChords=current[PREFIX+"chords.v2."+chosen.id];
+      const orphanChords=hasOrphan?current[PREFIX+"chords.v2."+chosen.id]:null;
       if(orphanChords){
         next[PREFIX+"chords.v2."+newId]=orphanChords;
         currentOrphanChordMapsUsed++;
@@ -203,7 +208,7 @@ export function buildLaPasmaRecovery(current,archived) {
         next[PREFIX+"lyrics.v1."+newId]=chosen.lyric;
       // The two lyric layouts match. Preserve newer user-added chord anchors,
       // while retaining source chords for any untouched slots.
-      const recent=parse(current[PREFIX+"chords.v2."+chosen.id],null);
+      const recent=hasOrphan?parse(current[PREFIX+"chords.v2."+chosen.id],null):null;
       const older=parse(archived[PREFIX+"chords.v2."+chosen.id],null);
       if(recent && typeof recent==="object" && !Array.isArray(recent)){
         const merged=deepCopy(older && typeof older==="object" && !Array.isArray(older)?older:{});
