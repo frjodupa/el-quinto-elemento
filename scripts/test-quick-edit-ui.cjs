@@ -1,0 +1,60 @@
+const {chromium}=require('playwright');
+const fs=require('node:fs');
+(async()=>{
+  const browser=await chromium.launch({headless:true});
+  fs.mkdirSync('ui-review',{recursive:true});
+  for(const [name,width,height] of [['iphone-375',375,812],['iphone-390',390,844],['ipad-820',820,1180],['desktop-1280',1280,800]]){
+    const context=await browser.newContext({viewport:{width,height},isMobile:width<900,hasTouch:width<900,serviceWorkers:'block'});
+    const page=await context.newPage();
+    const errors=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    page.on('dialog',async d=>d.dismiss());
+    await page.route('**/api/sync**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,data:{}})}));
+    await page.route('**/api/backups**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,backups:[]})}));
+    await page.route('**/api/song-search**',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({ok:true,results:[]})}));
+    await page.goto('http://127.0.0.1:4173/?quickEditQa='+name,{waitUntil:'domcontentloaded',timeout:30000});
+    await page.locator('#grid .songBtn').first().waitFor({timeout:12000});
+    await page.locator('#grid .songBtn').first().click();
+    await page.locator('#view.on').waitFor({timeout:8000});
+    const check=async(ok,msg)=>{if(!await ok)throw Error(name+': '+msg)};
+    const edit=page.locator('#quickEditSongBtn');
+    await check(edit.isVisible(),'main Edit button hidden');
+    await check(page.locator('#quickEditMenu').isHidden(),'Edit menu open by default');
+    await check(page.locator('#quickChordBar').isHidden(),'chord edit toolbar visible before editing');
+    const coords=await edit.boundingBox();
+    await check(Promise.resolve(coords && coords.x>=-1 && coords.x+coords.width<=width+2),'Edit button offscreen '+JSON.stringify(coords));
+    await page.screenshot({path:'ui-review/'+name+'-normal.png',fullPage:false});
+
+    await edit.click();
+    await check(page.locator('#quickEditMenu').isVisible(),'Edit submenu did not open');
+    const menu=await page.locator('#quickEditMenu').boundingBox();
+    await check(Promise.resolve(menu&&menu.x>=-1&&menu.x+menu.width<=width+2),'Edit submenu clipped '+JSON.stringify(menu));
+    await page.keyboard.press('Escape');
+    await check(page.locator('#quickEditMenu').isHidden(),'Escape did not close submenu');
+    await check(page.locator('#view.on').isVisible(),'Escape incorrectly closed song');
+    await edit.click();
+    await page.locator('#quickEditLyricsBtn').click();
+    await check(page.locator('#lyricEditorModal.on').isVisible(),'Existing lyric editor did not open');
+    await check(page.locator('#lyricEditorText').inputValue().then(t=>t.length>20),'Lyric editor empty');
+    await page.screenshot({path:'ui-review/'+name+'-lyrics.png',fullPage:false});
+    await page.locator('#lyricEditorCancel').click();
+    await check(page.locator('#lyricEditorModal').isHidden(),'Cancel failed');
+
+    await edit.click();
+    await page.locator('#quickEditChordsBtn').click();
+    await check(page.locator('#view.editing').isVisible(),'Existing chord editor did not activate');
+    await check(page.locator('#quickChordBar').isVisible(),'Chord edit quick tools hidden');
+    await check(page.locator('#quickChordSave').isVisible(),'Save & exit missing');
+    await page.screenshot({path:'ui-review/'+name+'-chords.png',fullPage:false});
+    await page.locator('#quickChordSave').click();
+    await check(page.locator('#quickChordBar').isHidden(),'Chord tools still showing after Save');
+    await check(page.locator('#view:not(.editing)').isVisible(),'Chord editor still active');
+    await check(edit.isVisible(),'Edit button lost after Save');
+    if(errors.length)throw Error(name+' JS errors: '+errors.join(' | '));
+    const horizontal=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
+    await check(Promise.resolve(horizontal.scroll<=width+4),'horizontal overflow '+JSON.stringify(horizontal));
+    console.log('PASS '+name+' edit launcher, menu, lyric editor, chord editor, save/exit, no JS errors');
+    await context.close();
+  }
+  await browser.close();
+})().catch(e=>{console.error(e.stack||String(e));process.exitCode=1});

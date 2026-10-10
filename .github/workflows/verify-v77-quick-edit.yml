@@ -1,0 +1,36 @@
+name: EQE v77 quick song editing QA
+on:
+  push:
+    branches: [release-v77-quick-song-editor-20261010]
+    paths: [.github/workflows/verify-v77-quick-edit.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax and Playwright
+        run: |
+          node --check public/song-quick-edit.js
+          node --check src/worker.js
+          node --check scripts/test-quick-edit-ui.cjs
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test iPhone, iPad and desktop editor behavior
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory public >/tmp/eqe-quick-editor.log 2>&1 &
+          sleep 2
+          node scripts/test-quick-edit-ui.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eqe-v77-quick-edit-screenshots
+          path: ui-review/
+          retention-days: 14
+          if-no-files-found: warn

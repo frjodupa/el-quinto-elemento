@@ -444,3 +444,171 @@ body.lightTheme .settingsBody textarea,body.lightTheme .settingsBody select{
 #view.on #ly.lyrics .wordWrap{margin-right:.36em!important;margin-inline-end:.36em!important}
 #view.on #ly.lyrics .wordWrap:last-child{margin-right:0!important;margin-inline-end:0!important}
 #view.on #ly.lyrics .wordToken{letter-spacing:0!important}
+
+/* v77 · Quick edit for live performance.
+ * Existing lyrics/chords editors remain the only writers of song data. */
+.directSongQuickActions{
+  grid-area:settings;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  position:relative;
+  justify-self:end;
+  min-width:0;
+}
+.directSongQuickActions #settingsBtn{
+  flex:0 0 43px;
+  width:43px!important;
+  min-width:43px!important;
+  margin:0!important;
+  padding:0!important;
+}
+.directSongBar .quickEditSongBtn{
+  display:inline-flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  white-space:nowrap;
+  padding:8px 11px!important;
+  min-height:43px!important;
+  height:43px!important;
+  border:1px solid rgba(232,194,108,.60)!important;
+  border-radius:11px!important;
+  background:linear-gradient(135deg,#4c3a1e,#292418)!important;
+  color:#ffe0a0!important;
+  font-weight:850!important;
+  font-size:.84rem!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07)!important;
+}
+.directSongBar .quickEditSongBtn.quickEditingActive{
+  background:linear-gradient(120deg,#ebcf86,#d0a550)!important;
+  color:#1b170f!important;
+  border-color:#edcd7b!important;
+}
+.quickEditSongBtn svg{width:18px;height:18px;pointer-events:none;flex:0 0 auto}
+.quickEditMenu{
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  width:min(310px,calc(100vw - 24px));
+  padding:10px;
+  display:grid;
+  gap:7px;
+  z-index:520;
+  background:linear-gradient(165deg,#1a2432,#111720);
+  border:1px solid rgba(235,200,116,.36);
+  border-radius:15px;
+  box-shadow:0 17px 48px rgba(0,0,0,.62);
+}
+.quickEditMenu[hidden],
+.quickChordBar[hidden]{display:none!important}
+.quickEditMenuTitle{
+  padding:3px 5px 7px;
+  color:#ebc778;
+  font-size:.73rem;
+  font-weight:900;
+  letter-spacing:.085em;
+  text-transform:uppercase;
+}
+.directSongBar .quickEditMenu button{
+  display:flex!important;
+  align-items:center;
+  min-height:48px!important;
+  height:auto!important;
+  line-height:1.3!important;
+  white-space:normal;
+  width:100%;
+  border:1px solid rgba(192,202,224,.20)!important;
+  border-radius:10px!important;
+  padding:9px 12px!important;
+  background:#26313e!important;
+  color:#f8f4ec!important;
+  font-size:.85rem!important;
+  font-weight:760!important;
+  text-align:left;
+}
+.directSongBar .quickEditMenu button:focus-visible{outline:2px solid #e9ca79!important}
+.quickChordBar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 12px;
+  align-items:center;
+  justify-content:space-between;
+  background:#1a1e26;
+  padding:9px 12px;
+  border-bottom:1px solid rgba(227,188,100,.3);
+  color:#dddfe8;
+  position:relative;
+  z-index:30;
+}
+.quickChordHint{
+  color:#d8c9a8;
+  font-size:.76rem;
+  line-height:1.25;
+  flex:1 1 195px;
+}
+.quickChordButtons{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+}
+.quickChordButtons button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:37px;
+  padding:7px 11px;
+  border:1px solid rgba(196,202,218,.26);
+  border-radius:9px;
+  color:#f5f3ed;
+  background:#292d35;
+  font-size:.79rem;
+  font-weight:760;
+  line-height:1.15;
+}
+.quickChordButtons .quickChordSave{
+  background:#e9c875;
+  border-color:#efca78;
+  color:#19150e;
+  font-weight:890;
+}
+.quickChordButtons button:disabled{opacity:.4}
+/* Replace the long legacy explanatory block with compact, actionable help. */
+#view.editing .chordHelp{display:none!important}
+body.lightTheme .directSongBar .quickEditSongBtn{
+  background:#fff6e4!important;color:#563e14!important;border-color:#ad8f4a!important
+}
+body.lightTheme .directSongBar .quickEditSongBtn.quickEditingActive{
+  background:#d6ad57!important;color:#16130e!important
+}
+body.lightTheme .quickEditMenu{
+  background:#faf7ef;border-color:#bda466;box-shadow:0 17px 48px #0003
+}
+body.lightTheme .quickEditMenuTitle{color:#745319}
+body.lightTheme .directSongBar .quickEditMenu button{
+  background:#f2ece0!important;color:#252321!important;border-color:#d3c8b7!important
+}
+body.lightTheme .quickChordBar{
+  background:#f3eee4!important;border-color:#d4c49e!important;color:#282724
+}
+body.lightTheme .quickChordHint{color:#69501c}
+body.lightTheme .quickChordButtons button{background:#fff;color:#302d25;border-color:#d0c3a9}
+body.lightTheme .quickChordButtons .quickChordSave{background:#dfb85e;color:#1b140a}
+@media(max-width:699px){
+  .directSongQuickActions .quickEditSongBtn{min-width:88px!important}
+  .quickChordButtons{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .quickChordButtons button{min-height:41px}
+}
+@media(min-width:700px) and (max-width:810px){
+  /* On narrow iPads, keep every control fully visible without lateral overflow. */
+  .directSongBar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"nav settings" "scroll tune"!important;
+  }
+}
+@media(max-width:375px){
+  .directSongQuickActions{gap:4px}
+  .directSongQuickActions .quickEditSongBtn{min-width:80px!important;padding:6px!important}
+  .directSongQuickActions #settingsBtn{flex-basis:39px;min-width:39px!important;width:39px!important}
+}
