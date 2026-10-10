@@ -1,0 +1,33 @@
+name: EQE - Inspeccionar calidad de copias (sin escribir)
+on:
+  push:
+    branches: [inspect-live-pasma-backups-20261010]
+    paths: [.github/workflows/inspect-pasma-backups.yml]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Leer metadatos no sensibles de copias del cancionero
+        run: |
+          python3 - <<'PY'
+          import json,time,urllib.request
+          base="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          for i in range(14):
+              req=urllib.request.Request(base+"/api/backups?t="+str(time.time_ns()),headers={"Cache-Control":"no-cache"})
+              with urllib.request.urlopen(req,timeout=25) as res:
+                  j=json.loads(res.read())
+              b=j.get("backups") or []
+              if b and b[0].get("songCount") is not None:
+                  print("BACKUP_QUALITY_READY=YES")
+                  break
+              print("WAITING_FOR_WORKER_RELEASE="+str(i+1),flush=True)
+              time.sleep(9)
+          else:raise RuntimeError("El Worker no ofrece todavía calidad de backups")
+          for entry in b:
+              print("BACKUP_STATS="+json.dumps(entry,ensure_ascii=False),flush=True)
+          full=[x for x in b if (x.get("songCount") or 0)>=99 and (x.get("pasmaBrokenRefs")==0)]
+          print("FULL_SNAPSHOTS="+json.dumps(full,ensure_ascii=False))
+          PY
