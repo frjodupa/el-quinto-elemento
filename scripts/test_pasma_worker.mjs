@@ -17,6 +17,7 @@ const source={
 };
 const current={
   "quintoElemento.customSongs.v1":JSON.stringify([{title:"PERO A TU LADO",text:"original del usuario"}]),
+"quintoElemento.title.v1.71":"PERO A TU LADO",
   "quintoElemento.passes.v1":JSON.stringify(passes),
 "quintoElemento.lyrics.v1.72":"Texto de prueba\notra línea de prueba",
 "quintoElemento.chords.v2.75":JSON.stringify({words:{"0:1":"SOL"},lines:{},intro:"",references:[]})
