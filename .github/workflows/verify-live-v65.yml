@@ -199,21 +199,26 @@ jobs:
           fi
 
           echo "=== PWA ICON VALIDATION ==="
+          for size in 180 192 512; do
+            case "$size" in
+              180) file=apple-touch-icon.png ;;
+              *) file=icon-$size.png ;;
+            esac
+            code=$(curl -L -sS -w "%{http_code}" -o "/tmp/eqe-icon-$size.png" "$URL/$file?v=75&verify=$(date +%s)" || true)
+            echo "ICON_${size}_HTTP=$code"
+          done
           python - <<'PY'
-          import json,urllib.request,struct
-          base="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
-          for file,want in (("apple-touch-icon.png",180),("icon-192.png",192),("icon-512.png",512)):
-              url=base+"/"+file+"?v=75"
-              try:
-                  with urllib.request.urlopen(url,timeout=15) as f: img=f.read()
-                  if img[:8] != bytes([137,80,78,71,13,10,26,10]):
-                      print("ICON_"+str(want)+"=NOT_PNG")
-                      continue
-                  w,h=struct.unpack(">II",img[16:24])
-                  print("ICON_"+str(want)+"="+("YES" if (w,h)==(want,want) else "WRONG_SIZE"))
-                  print("ICON_"+str(want)+"_BYTES="+str(len(img)))
-              except Exception as e:
-                  print("ICON_"+str(want)+"=ERROR:"+str(type(e).__name__))
+          import struct,pathlib
+          for size in (180,192,512):
+              p=pathlib.Path(f'/tmp/eqe-icon-{size}.png')
+              if not p.exists():
+                  print(f'ICON_{size}=MISSING')
+                  continue
+              raw=p.read_bytes()
+              ok=raw[:8]==bytes([137,80,78,71,13,10,26,10]) and len(raw)>=24
+              dims=struct.unpack('>II',raw[16:24]) if ok else (0,0)
+              print(f'ICON_{size}='+('YES' if dims==(size,size) else 'INVALID'))
+              print(f'ICON_{size}_BYTES={len(raw)}')
           PY
 
           echo "=== LIVE D1 STATE ==="
