@@ -1,3 +1,5 @@
+import { searchCifraClub, fetchCifraClubSong } from "./cifraclub.mjs";
+
 async function ensureSchema(env) {
   await env.DB.prepare(`
     CREATE TABLE IF NOT EXISTS app_state (
@@ -81,6 +83,30 @@ async function currentState(env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    if (url.pathname === "/api/song-search") {
+      if (request.method !== "GET") return new Response("Method Not Allowed", { status: 405 });
+      const q = String(url.searchParams.get("q") || "").trim().slice(0, 140);
+      if (q.length < 2) return json({ results: [] });
+      try {
+        const results = await searchCifraClub(q, 8);
+        return json({ ok: true, query: q, results });
+      } catch (error) {
+        return json({ ok: false, error: "No se pudo consultar la fuente de acordes.", detail: String(error?.message || error) }, 502);
+      }
+    }
+
+    if (url.pathname === "/api/song-fetch") {
+      if (request.method !== "GET") return new Response("Method Not Allowed", { status: 405 });
+      const sourceUrl = String(url.searchParams.get("url") || "").trim().slice(0, 700);
+      if (!sourceUrl) return json({ error: "Falta la URL de la canción" }, 400);
+      try {
+        const song = await fetchCifraClubSong(sourceUrl);
+        return json({ ok: true, song });
+      } catch (error) {
+        return json({ ok: false, error: "No se pudo extraer la letra con acordes.", detail: String(error?.message || error) }, 502);
+      }
+    }
 
     if (url.pathname === "/api/health") {
       try {

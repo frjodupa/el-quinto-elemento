@@ -805,7 +805,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=52">
+<link rel="manifest" href="manifest.webmanifest?v=64">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -1542,7 +1542,8 @@ body.lightTheme .globalUndoBtn{
 #view .bar{gap:5px;flex-wrap:wrap}
 #view .bar #back,#view .bar #prev,#view .bar #next,#view .bar #settingsBtn,#view .bar #autoScrollBtn{min-height:42px}
 @media(max-width:650px){#view .bar #shareSongbook{display:none!important}#view .bar #autoScrollSpeedWrap{flex:1;min-width:110px}#view .bar #minus,#view .bar #plus{padding:8px}}
-</style></head><body>
+</style><link rel="stylesheet" href="online-import.css?v=64">
+</head><body>
 
 <div id="passNameModal" class="passModal" aria-hidden="true">
   <div class="passPanel small">
@@ -1560,7 +1561,7 @@ body.lightTheme .globalUndoBtn{
 
 <div id="passesModal" class="passModal" aria-hidden="true">
   <div class="passPanel">
-    <div class="passHead"><strong>PASES</strong><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="passesClose" type="button">Cerrar</button></div>
+    <div class="passHead"><strong>PASES</strong><button id="passesNewBtn" type="button">＋ Nuevo pase</button><button class="globalUndoBtn" type="button">↶ Deshacer</button><button id="passesClose" type="button">Cerrar</button></div>
     <div id="passesList" class="passesList"></div>
   </div>
 </div>
@@ -1613,6 +1614,14 @@ body.lightTheme .globalUndoBtn{
           <button id="settingsPdfAllChords" type="button">♬ Completar acordes desde PDFs</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
         </div>
+      </section>
+
+      <section class="settingsGroup">
+        <h3>Letra y acordes desde Internet</h3>
+        <div class="settingsGrid">
+          <button id="settingsOnlineImport" type="button">⇩ Buscar versión online</button>
+        </div>
+        <div class="cloudSyncDetail">Busca por título y artista, muestra una vista previa y solo aplica el cambio cuando tú lo confirmas. Se conserva una versión anterior.</div>
       </section>
 
       <section class="settingsGroup">
@@ -1786,6 +1795,37 @@ body.lightTheme .globalUndoBtn{
 
 
 
+<div id="qeImportModal" class="qeImportModal" aria-hidden="true">
+  <div class="qeImportPanel" role="dialog" aria-modal="true" aria-labelledby="qeImportTitleHead">
+    <div class="qeImportHead">
+      <strong id="qeImportTitleHead">BUSCAR LETRA + ACORDES</strong>
+      <button id="qeImportClose" type="button">Cerrar</button>
+    </div>
+    <div class="qeImportBody">
+      <div class="qeImportFields">
+        <label>Título<input id="qeImportTitle" type="text" autocomplete="off" placeholder="TÍTULO DE LA CANCIÓN"></label>
+        <label>Artista<input id="qeImportArtist" type="text" autocomplete="off" placeholder="ARTISTA (RECOMENDADO)"></label>
+      </div>
+      <div class="qeImportSearchRow">
+        <button id="qeImportSearch" type="button">⌕ Buscar</button>
+        <div id="qeImportStatus">Nada se modifica hasta que elijas una versión y pulses Aplicar.</div>
+      </div>
+      <div id="qeImportResults" class="qeImportResults"></div>
+      <div id="qeImportPreview" class="qeImportPreview">
+        <div id="qeImportPreviewHead" class="qeImportPreviewHead"></div>
+        <pre id="qeImportPreviewText"></pre>
+      </div>
+      <div class="qeImportNote">Fuente de importación: Cifra Club. Los acordes que ya hayas colocado manualmente tienen prioridad. Antes de actualizar una canción existente se guarda una copia recuperable.</div>
+    </div>
+    <div class="qeImportActions">
+      <button id="qeImportRestore" class="restore" type="button">↶ Restaurar anterior</button>
+      <button id="qeImportCancel" type="button">Cancelar</button>
+      <button id="qeImportApply" class="primary" type="button" disabled>✓ Aplicar</button>
+    </div>
+  </div>
+</div>
+
+
 <div id="newSongModal" class="newSongModal" aria-hidden="true">
   <div class="newSongPanel">
     <div class="newSongHead"><span>Nueva canción</span><button class="globalUndoBtn" type="button">↶ Deshacer</button></div>
@@ -1853,9 +1893,9 @@ body.lightTheme .globalUndoBtn{
 
 <section id="index">
   <div class="top">
-    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v62</span></div>
+    <div class="brand">EL QUINTO ELEMENTO · CANCIONERO <span style="font-size:.7em;opacity:.55">v64</span></div>
     <div class="count" id="count"></div><div id="appStatus" class="appStatus">Comprobando versión…</div><div id="offlineBadge" class="offlineBadge">● Offline preparado</div>
-    <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn">＋ Nueva canción</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="settingsIndexBtn" class="newSongBtn">⚙ Ajustes</button><button id="shareSongbookIndex" class="newSongBtn" type="button">↗ Compartir app</button><button id="shareAccessBtn" class="newSongBtn" type="button">👥 Compartir acceso</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button><button id="managePassesBtn" class="newSongBtn">☷ Pases</button>
+    <input id="q" class="search" placeholder="Buscar canción…" autocomplete="off"><button id="newSongBtn" class="newSongBtn qePrimaryAction">＋ Canción</button><button id="onlineImportIndexBtn" class="newSongBtn qePrimaryAction" type="button">⇩ Internet</button><button id="managePassesBtn" class="newSongBtn qePrimaryAction">☷ Pases</button><button id="settingsIndexBtn" class="newSongBtn qePrimaryAction">⚙ Ajustes</button><button id="themeToggleIndex" class="newSongBtn">☀ Tema claro</button><button id="backupBtn" class="newSongBtn">💾 Copia / Importar</button><button id="shareSongbookIndex" class="newSongBtn" type="button">↗ Compartir app</button><button id="shareAccessBtn" class="newSongBtn" type="button">👥 Compartir acceso</button><button id="createPassBtn" class="newSongBtn">＋ Crear pase</button>
   </div>
   
 <div id="passSelectionBar" class="passSelectionBar" aria-hidden="true">
@@ -5150,4 +5190,5 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
   });
 })();
 </script>
+<script src="online-import.js?v=64"></script>
 </body></html>
