@@ -1,0 +1,122 @@
+name: EQE PRIORIDAD - contrastar canciones actuales con fuentes originales
+on:
+  push:
+    branches:
+      - audit-current-86-priority-20261010
+    paths:
+      - ".github/workflows/audit-full-readonly.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  full-inventory-and-source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 115
+    steps:
+      - name: Checkout fixed project snapshot
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+      - name: Prepare auditor dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4
+          mkdir -p eqe-current-source-audit /tmp/audit-node
+          git clone --depth 1 https://github.com/olimontes/setlive.git /tmp/setlive
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          git clone --depth 1 https://github.com/mfuentesg/capo.git /tmp/capo
+          test -f /tmp/setlive/backend/apps/repertoire/cifra_scraper.py
+          test -f /tmp/ultimate-guitar-scraper/pkg/ultimateguitar/search.go
+          test -f /tmp/capo/package.json
+          {
+            echo "setlive $(git -C /tmp/setlive rev-parse HEAD)"
+            echo "ultimate-guitar-scraper $(git -C /tmp/ultimate-guitar-scraper rev-parse HEAD)"
+            echo "capo $(git -C /tmp/capo rev-parse HEAD)"
+          } > eqe-current-source-audit/SCRAPER_REVISIONS.txt
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+          CAPO_VERSION=$(node -e "const p=require('/tmp/capo/package.json'); console.log(String(p.dependencies.chordsheetjs).replace(/^[^0-9]*/,''))")
+          npm install --prefix /tmp/audit-node --no-audit --no-fund "chordsheetjs@$CAPO_VERSION"
+      - name: Inspect ALL current songs before searching external sources
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+          from scripts import audit_songbook as a
+          storage,remote=a.load_remote_storage()
+          songs=a.build_songbook(storage)
+          if not 75 <= len(songs) <= 100: raise RuntimeError(f"Recuento inesperado {len(songs)}, no se audita una versión antigua")
+          result=[]
+          for s in songs:
+              content=s["texto"]
+              lyrics=[line for line in content.splitlines() if line.strip()]
+              chords=a.normalize_chord_data(s["letraConAcordes"])
+              chord_count=a.count_chords(chords)
+              words={int(k.split(':',1)[0]) for k,v in chords["words"].items() if v and ':' in k and k.split(':',1)[0].isdigit()}
+              lines={int(k) for k,v in chords["lines"].items() if v and str(k).isdigit()}
+              covered=len(words|lines)
+              result.append({"id":s["id"],"title":s["titulo"],"artist":s["artista"],
+                "lyricLines":len(lyrics),"chords":chord_count,"linesWithChords":covered,
+                "estimatedCoveragePct":round(100*covered/max(1,len(lyrics)),1),
+                "hasIntro":bool(chords["intro"] or chords["introText"]),
+                "hasInstrumentals":bool(chords["instrumentals"]),
+                "needsReview":(not content.strip() or chord_count==0 or covered<max(2,len(lyrics)*0.2))})
+          counts={"total":len(songs),"noLyrics":sum(not s["lyricLines"] for s in result),
+                  "zeroChords":sum(s["chords"]==0 for s in result),
+                  "lowCoverage":sum(s["needsReview"] for s in result),
+                  "missingArtists":sum(not s["artist"] for s in result)}
+          Path("eqe-current-source-audit/INVENTARIO_METADATOS.json").write_text(json.dumps({"counts":counts,"songs":result},ensure_ascii=False,indent=2),encoding="utf-8")
+          header=["# Estado actual de todas las canciones", "",f"Fuente: {remote['endpoint']}","", "## Resumen"]
+          header += [f"- {k}: **{v}**" for k,v in counts.items()]
+          header += ["","| ID | Canción | Artista | Líneas | Acordes | Cobertura aproximada | Revisión |","|---:|---|---|---:|---:|---:|---|"]
+          for s in result:
+              header.append(f"| {s['id']} | {s['title'].replace('|','/')} | {s['artist'].replace('|','/')} | {s['lyricLines']} | {s['chords']} | {s['estimatedCoveragePct']:.1f}% | {'PRIORITARIA' if s['needsReview'] else 'Pendiente de cotejo'} |")
+          Path("eqe-current-source-audit/INVENTARIO_ESTADO_ACTUAL.md").write_text("\n".join(header)+"\n",encoding="utf-8")
+          print("INVENTORY_COUNTS="+json.dumps(counts,ensure_ascii=False),flush=True)
+          print("INVENTORY_SOURCE="+remote["endpoint"],flush=True)
+          PY
+      - name: Run all songs against verified chord sources (NO WRITES)
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          SETLIVE_SCRAPER_PATH: "/tmp/setlive/backend/apps/repertoire/cifra_scraper.py"
+          UG_HELPER: "/tmp/ug-audit"
+          CHORDPRO_CONVERTER: "scripts/chordpro_convert.cjs"
+          NODE_PATH: "/tmp/audit-node/node_modules"
+          REQUEST_DELAY: "2"
+          APPLY_TO_LIVE: "0"
+          REPORT_ONLY: "1"
+          AUDIT_OUT: "eqe-current-source-audit"
+        run: |
+          python -m py_compile scripts/audit_songbook.py
+          python scripts/audit_songbook.py
+      - name: Publish metadata-only audit results (no lyrics / no private storage)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EQE-86-OriginalSources-ReadOnly
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            eqe-current-source-audit/INVENTARIO_METADATOS.json
+            eqe-current-source-audit/INVENTARIO_ESTADO_ACTUAL.md
+            eqe-current-source-audit/AUDITORIA_REPORT.md
+            eqe-current-source-audit/SOURCE_URLS.txt
+            eqe-current-source-audit/SCRAPER_REVISIONS.txt
+            eqe-current-source-audit/RUN_STATUS.json
+            eqe-current-source-audit/raw/*.json
+            eqe-current-source-audit/diff/*.md
