@@ -1,0 +1,105 @@
+{
+  "status": "source_candidates_not_applied",
+  "policy": "A title/artist URL alone does NOT authorize changing a song. Compare lyrics and arrangement, then preserve original chord data and make a backup before any update.",
+  "verifiedAt": "2026-10-10",
+  "sources": [
+    {
+      "id": 1,
+      "title": "A LA LUZ DEL LORENZO",
+      "artist": "Los Delinqüentes",
+      "url": "https://www.cifraclub.com/los-delinquentes/a-la-luz-del-lorenzo/",
+      "confidence": "verified_artist_and_title"
+    },
+    {
+      "id": 4,
+      "title": "ÁNGEL PARA UN FINAL",
+      "artist": "Silvio Rodríguez",
+      "url": "https://www.cifraclub.com/silvio-rodriguez/angel-para-un-final/pwtpwh.html",
+      "confidence": "verified_previous_original_source"
+    },
+    {
+      "id": 6,
+      "title": "AUNQUE TU NO LO SEPAS",
+      "artist": "Enrique Urquijo y Los Problemas",
+      "url": "https://www.cifraclub.com/enrique-urquijo/aunque-tu-no-lo-sepas/tjwsgj.html",
+      "confidence": "verified_previous_original_source"
+    },
+    {
+      "id": 7,
+      "title": "BOLILLÓN",
+      "artist": "No me pises que llevo chanclas",
+      "url": "https://chordify.net/chords/release-bolillon",
+      "confidence": "artist_title_only"
+    },
+    {
+      "id": 8,
+      "title": "BUEN ROLLITO",
+      "artist": "Amparanoia",
+      "url": "https://music.apple.com/es/song/1536002241",
+      "confidence": "artist_title_only"
+    },
+    {
+      "id": 10,
+      "title": "CARA LUNA",
+      "artist": "Bacilos",
+      "url": "https://www.cifraclub.com/bacilos/cara-luna/",
+      "confidence": "verified_artist_and_title"
+    },
+    {
+      "id": 11,
+      "title": "CARBÓN Y RAMAS SECAS",
+      "artist": "Manolo García",
+      "url": "https://www.cifraclub.com/manolo-garcia/carbon-y-ramas-secas/",
+      "confidence": "verified_artist_and_title"
+    },
+    {
+      "id": 26,
+      "title": "ESPALDAS MOJADAS",
+      "artist": "Tam Tam Go!",
+      "url": "https://www.cifraclub.com/tam-tam-go/espaldas-mojadas/",
+      "confidence": "verified_artist_and_title"
+    },
+    {
+      "id": 32,
+      "title": "LA FIESTA",
+      "artist": "Pedro Capó",
+      "url": "https://www.cifraclub.com/pedro-capo/la-fiesta/",
+      "confidence": "verified_artist_and_local_lyrics"
+    },
+    {
+      "id": 39,
+      "title": "LOS OLVIDADOS",
+      "artist": "Pedro Pastor",
+      "url": "https://acordesweb.com/cancion/pedro-pastor/los-olvidados",
+      "confidence": "verified_artist_and_local_lyrics"
+    },
+    {
+      "id": 40,
+      "title": "MACETAS DE COLORES",
+      "artist": "El Desván del Duende",
+      "url": "https://www.cifraclub.com/el-desvan-del-duende/macetas-de-colores/",
+      "confidence": "verified_artist_and_local_lyrics"
+    },
+    {
+      "id": 44,
+      "title": "MI GRAN NOCHE",
+      "artist": "Raphael",
+      "url": "https://www.cifraclub.com/raphael/mi-gran-noche/",
+      "confidence": "verified_artist_and_title"
+    },
+    {
+      "id": 59,
+      "title": "SUCEDE",
+      "artist": "Extremoduro",
+      "url": "https://www.cifraclub.com/extremoduro/sucede/",
+      "confidence": "verified_artist_and_title"
+    },
+    {
+      "id": 62,
+      "title": "TE SIGO SOÑANDO",
+      "artist": "Depedro",
+      "url": "https://www.cifraclub.com/depedro/te-sigo-sonando/",
+      "confidence": "verified_artist_and_local_lyrics"
+    }
+  ]
+}
