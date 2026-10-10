@@ -15,7 +15,25 @@ import requests
 from bs4 import BeautifulSoup
 import audit_songbook as a
 import strict_line_chords_86 as align
-from audit_repeated_chords_86 import validate_state, load_state
+from audit_repeated_chords_86 import load_state
+import audit_current_chord_coverage as coverage
+
+def validate_state(storage):
+    songs=a.build_songbook(storage)
+    if not 80<=len(songs)<=120:
+        raise RuntimeError("Unexpected song count: "+str(len(songs)))
+    titles=[coverage.norm(s["titulo"]) for s in songs]
+    if not all(titles) or len(set(titles))!=len(titles):
+        raise RuntimeError("Blank/duplicate titles; do not audit")
+    passes=coverage.parse(storage.get("quintoElemento.passes.v1","[]"),[])
+    pasma=[p for p in passes if coverage.norm(p.get("name"))==coverage.norm("LA PASMA (NUEVA)")]
+    if len(pasma)!=1 or len(pasma[0].get("songs",[]))!=23:
+        raise RuntimeError("Unexpected LA PASMA pass state")
+    for p in passes:
+        for idx in p.get("songs",[]):
+            if isinstance(idx,bool) or not isinstance(idx,int) or not 0<=idx<len(songs):
+                raise RuntimeError("Invalid pass reference")
+    return songs
 
 SONG_ID=62
 URL="https://acordesweb.com/cancion/depedro/te-sigo-sonando"
