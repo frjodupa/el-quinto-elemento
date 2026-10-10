@@ -1,0 +1,41 @@
+name: EQE prioridad - completar 3 canciones sin acordes con backup Cloudflare
+on:
+  push:
+    branches: [apply-86-priority-three-chords-20261010]
+    paths: ['.github/workflows/eqe-apply-three-verified-chords.yml']
+permissions:
+  contents: read
+jobs:
+  exact-source-patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-go@v5
+        with: {go-version: "1.23"}
+      - name: Build source-pinned Ultimate Guitar implementation
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Revalidate 98.5% lyric matches, backup live D1 and apply only safe chord positions
+        env:
+          LIVE_BASE: 'https://crimson-rice-1fe1.joseduqueparedes.workers.dev'
+          UG_HELPER: '/tmp/ug-audit'
+          REQUEST_DELAY: '2'
+          APPLY_SAFE_THREE_CHORDS: '1'
+        run: |
+          python -m py_compile scripts/audit_songbook.py scripts/strict_line_chords_86.py scripts/apply_safe_three_chords.py
+          python scripts/apply_safe_three_chords.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-86-three-songs-chord-patch-backup-and-verification
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            eqe-86-three-chord-patch/PREFLIGHT.json
+            eqe-86-three-chord-patch/APPLIED.json
