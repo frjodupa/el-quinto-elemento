@@ -206,7 +206,7 @@ jobs:
               url=base+"/"+file+"?v=75"
               try:
                   with urllib.request.urlopen(url,timeout=15) as f: img=f.read()
-                  if img[:8] != b"\\x89PNG\\r\\n\\x1a\\n":
+                  if img[:8] != bytes([137,80,78,71,13,10,26,10]):
                       print("ICON_"+str(want)+"=NOT_PNG")
                       continue
                   w,h=struct.unpack(">II",img[16:24])
