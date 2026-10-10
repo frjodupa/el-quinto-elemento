@@ -1,0 +1,19 @@
+name: EQE recovery safety tests
+on:
+  push:
+    branches: [recover-la-pasma-from-backup-20261010]
+    paths: [.github/workflows/test-pasma-recovery.yml, src/pasma_recovery.mjs, scripts/test_pasma_recovery.mjs]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run pure data recovery tests (no Cloudflare writes)
+        run: |
+          node scripts/test_pasma_recovery.mjs
