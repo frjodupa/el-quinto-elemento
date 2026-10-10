@@ -1,4 +1,4 @@
-name: EQE PRIORIDAD - auditoria real de 86 canciones y Pase La Pasma
+name: EQE PRIORIDAD - revisión posterior a 168 acordes y Pase La Pasma
 on:
   push:
     branches: [audit-current-86-priority-20261010]
