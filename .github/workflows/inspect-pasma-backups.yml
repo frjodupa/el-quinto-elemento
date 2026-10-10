@@ -16,7 +16,7 @@ jobs:
           import json,time,urllib.request
           base="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
           for i in range(14):
-              req=urllib.request.Request(base+"/api/backups?t="+str(time.time_ns()),headers={"Cache-Control":"no-cache"})
+              req=urllib.request.Request(base+"/api/backups?t="+str(time.time_ns()),headers={"Cache-Control":"no-cache","User-Agent":"EQE-Pasma-Audit/1.0","Accept":"application/json"})
               with urllib.request.urlopen(req,timeout=25) as res:
                   j=json.loads(res.read())
               b=j.get("backups") or []
