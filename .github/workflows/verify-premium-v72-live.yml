@@ -1,0 +1,65 @@
+name: Verify Cloudflare premium v72 published
+on:
+  push:
+    branches: [verify-live-v72-premium-20261010]
+    paths: [".github/workflows/verify-premium-v72-live.yml"]
+permissions:
+  contents: read
+jobs:
+  check-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Wait for premium production release and validate live assets
+        run: |
+          python - <<'PY'
+          import json,struct,time,urllib.request
+          from urllib.error import HTTPError,URLError
+          base="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          def get(path):
+            url=base+path+("?" if "?" not in path else "&")+"audit="+str(time.time_ns())
+            req=urllib.request.Request(url,headers={"Cache-Control":"no-cache","Pragma":"no-cache","User-Agent":"EQE-Premium-Verification/1.0"})
+            with urllib.request.urlopen(req,timeout=30) as resp:
+              return resp.read(),resp.headers.get("Content-Type","")
+          final=None
+          for attempt in range(1,21):
+            try:
+              html,_=get("/")
+              v,_=get("/version.json")
+              sw,_=get("/sw.js")
+              ex,_=get("/export")
+              data=json.loads(ex)
+              release=json.loads(v).get("version")
+              present=b'class="uiVersion">v72' in html and b'premium-icons.js?v=76' in html
+              build=release==76 and b"quinto-elemento-v76" in sw
+              export=data.get("version")==72 and data.get("buildVersion")==76
+              print(f"Attempt {attempt}: ui_v72={present}, build76={build}, export72_76={export}",flush=True)
+              if present and build and export:
+                final=data
+                break
+            except (HTTPError,URLError,TimeoutError,json.JSONDecodeError) as e:
+              print("Attempt",attempt,"public endpoint:",str(e)[:160],flush=True)
+            time.sleep(12)
+          if final is None:
+            raise SystemExit("FAIL: Cloudflare todavía no sirve v72 / build 76")
+          manifest,_=get("/manifest.webmanifest")
+          m=json.loads(manifest)
+          expected={"premium-icon-192.png?v=76":192,"premium-icon-512.png?v=76":512,"premium-icon-maskable-512.png?v=76":512}
+          found={x["src"]:int(x["sizes"].split("x")[0]) for x in m.get("icons",[])}
+          for name,size in expected.items():
+            assert found.get(name)==size,(name,found)
+          for name,size in [("premium-icon-180.png",180),("premium-icon-192.png",192),("premium-icon-512.png",512),("premium-icon-maskable-512.png",512)]:
+            b,ct=get("/"+name)
+            assert b.startswith(b"\x89PNG\r\n\x1a\n"),(name,ct)
+            width,height=struct.unpack(">II",b[16:24])
+            assert (width,height)==(size,size),(name,width,height)
+            print("ICON_OK",name,len(b),flush=True)
+          css,ctype=get("/premium.css")
+          js,jsct=get("/premium-icons.js")
+          assert b"premium-ink" in css and b"settingsPanel" in css
+          assert b"premium-svg" in js
+          assert "premium.css?v=76" in sw.decode()
+          assert "premium-icons.js?v=76" in sw.decode()
+          assert "premium-icon-180.png?v=76" in sw.decode()
+          print("LIVE_PREMIUM_V72_VERIFIED",json.dumps({"uiVersion":72,"technicalVersion":76,"manifestIcons":found,"cssBytes":len(css),"jsBytes":len(js),"exportFormat":final.get("format"),"storagePresent":isinstance(final.get("storage"),dict)},ensure_ascii=False),flush=True)
+          PY
