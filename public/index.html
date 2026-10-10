@@ -2880,7 +2880,8 @@ function ensureAunqueTuNoLoSepasChords(i,repair){
     var src=reference.filter(function(x){return x[0].test(norm(line))})[0];if(!src)return;
     var oldKeys=Object.keys(d.words||{}).filter(function(k){return k.indexOf(li+':')===0&&d.words[k]});
     var oldLine=String((d.lines||{})[li]||'').trim();
-    var generated=oldLine===''&&oldKeys.length===2&&d.words[li+':0']==='DO'&&d.words[li+':4']==='RE';
+    var previouslyGeneratedIndex=Math.min(4,Math.max(0,normalizeWords(line).length-1));
+    var generated=oldLine===''&&oldKeys.length===2&&d.words[li+':0']==='DO'&&d.words[li+':'+previouslyGeneratedIndex]==='RE';
     if(repair&&generated){
       if(backup===null){try{backup=localStorage.getItem(songKey(i))}catch(e){backup=''}}
       oldKeys.forEach(function(k){delete d.words[k]});corrected++;
@@ -2908,7 +2909,7 @@ async function shareWholeSongbook(){
 }
 var qeRepairAunque=document.getElementById('qeRepairAunque');
 if(qeRepairAunque)qeRepairAunque.onclick=function(){
-  if(current<0){alert('Abre primero «Aunque tú no lo sepas».');return}
+  if(current<0||String(getSongTitle(current)).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().indexOf('AUNQUE TU NO LO SEPAS')<0){alert('Abre primero «Aunque tú no lo sepas».');return}
   if(!confirm('¿Aplicar los acordes comprobados del PDF solo en líneas coincidentes? Se conservarán los acordes restantes y se guardará copia antes de corregir DO/RE automáticos.'))return;
   var result=ensureAunqueTuNoLoSepasChords(current,true);
   renderLyrics();alert('Añadidos: '+result.added+' · Líneas automáticas reparadas: '+result.corrected+'. Las demás estrofas siguen pendientes de comprobación.');
