@@ -1,0 +1,39 @@
+name: EQE verificar parche exacto 3 canciones sin acordes (NO ESCRIBE)
+on:
+  push:
+    branches: [audit-current-86-priority-20261010]
+    paths: ['.github/workflows/eqe-three-safe-preflight.yml']
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-go@v5
+        with: {go-version: "1.23"}
+      - name: Dependencies
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Validate candidate chords, original lyrics, source SHA, IDs and pass
+        env:
+          LIVE_BASE: 'https://crimson-rice-1fe1.joseduqueparedes.workers.dev'
+          UG_HELPER: '/tmp/ug-audit'
+          REQUEST_DELAY: '2'
+          APPLY_SAFE_THREE_CHORDS: '0'
+        run: |
+          python -m py_compile scripts/apply_safe_three_chords.py
+          python scripts/apply_safe_three_chords.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-three-chords-DRY-RUN-only
+          path: eqe-86-three-chord-patch/PREFLIGHT.json
+          retention-days: 21
+          if-no-files-found: warn
