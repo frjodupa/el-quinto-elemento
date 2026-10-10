@@ -1,0 +1,29 @@
+name: EQE - verificar 88 y acordes repetidos (solo lectura)
+on:
+  push:
+    branches: [audit-eqe-live-88-repeat-20261010]
+    paths: [".github/workflows/verify-eqe-88-current.yml"]
+permissions:
+  contents: read
+jobs:
+  verify-current:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install read-only dependencies
+        run: pip install requests beautifulsoup4
+      - name: Check 88 actual records, pass references, line-level chords and exact repeats
+        run: |
+          python -m py_compile scripts/audit_songbook.py scripts/audit_current_chord_coverage.py scripts/scan_eqe_88_current.py
+          python scripts/scan_eqe_88_current.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eqe-live-88-chord-coverage-exact-repeat-readonly
+          path: eqe-88-verification/CURRENT_88_AUDIT.json
+          retention-days: 21
+          if-no-files-found: warn
