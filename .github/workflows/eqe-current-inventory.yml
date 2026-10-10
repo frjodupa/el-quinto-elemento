@@ -1,0 +1,36 @@
+name: EQE PRIORIDAD - auditoria real de 86 canciones y Pase La Pasma
+on:
+  push:
+    branches: [audit-current-86-priority-20261010]
+    paths: ['.github/workflows/eqe-current-inventory.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot-line-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Prepare read-only parser dependencies
+        run: pip install requests beautifulsoup4
+      - name: Scan all live songs line by line, flag absent and displaced chords
+        run: |
+          python -m py_compile scripts/audit_songbook.py scripts/audit_current_chord_coverage.py scripts/audit_la_pasma.py
+          python scripts/audit_current_chord_coverage.py
+      - name: Validate all 23 songs in LA PASMA (NUEVA)
+        run: python scripts/audit_la_pasma.py
+      - name: Publish reports without lyrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: EQE-86-LineCoverage-and-LA-PASMA
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            eqe-current-audit/LINE_COVERAGE_FULL.json
+            eqe-current-audit/AUDITORIA_COBERTURA.md
+            la_pasma_audit/LA_PASMA_23_AUDIT.json
+            la_pasma_audit/LA_PASMA_23_AUDIT.md
