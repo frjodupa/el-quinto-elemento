@@ -1,0 +1,33 @@
+name: EQE - extraer propuestas verificables de la auditoría completa
+on:
+  push:
+    branches: [audit-current-86-priority-20261010]
+    paths: ['.github/workflows/eqe-list-source-candidates.yml']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  shortlist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Retrieve metadata-only original source audit artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -fLsS -H "Authorization: Bearer $GH_TOKEN" -H 'Accept: application/vnd.github+json' \
+            "https://api.github.com/repos/frjodupa/el-quinto-elemento/actions/artifacts/11667724455/zip" -o /tmp/full-audit.zip
+          mkdir -p /tmp/full-audit
+          unzip -qo /tmp/full-audit.zip -d /tmp/full-audit
+          python - <<'PY'
+          import pathlib,re,json
+          p=pathlib.Path('/tmp/full-audit/AUDITORIA_REPORT.md')
+          if not p.exists(): raise RuntimeError('Original audit report missing')
+          selected=[]
+          for line in p.read_text(encoding='utf-8').splitlines():
+              if line.startswith('| ') and 'acordes_enriquecidos' in line:
+                  cells=[c.strip() for c in line.strip('|').split('|')]
+                  selected.append({'title':cells[0], 'similarity':cells[1], 'chords':cells[2], 'source':cells[3],'action':cells[4]})
+          print('EQE_SHORTLIST='+json.dumps(selected,ensure_ascii=False),flush=True)
+          print('EQE_SHORTLIST_COUNT='+str(len(selected)),flush=True)
+          PY
