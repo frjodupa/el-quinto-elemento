@@ -1611,6 +1611,7 @@ body.lightTheme .globalUndoBtn{
           <button id="settingsReferenceText" type="button">◈ Marcar referencia</button>
           <button id="settingsClearReferences" type="button">✕ Borrar referencias</button>
           <button id="settingsPdfAllChords" type="button">♬ Completar acordes desde PDFs</button>
+          <button id="qeRepairAunque" type="button">♫ Reparar acordes de «Aunque tú no lo sepas»</button>
           <button id="settingsClearChords" type="button" class="danger">Borrar acordes</button>
         </div>
       </section>
@@ -2861,27 +2862,40 @@ function saveSongFontSize(){
   try{localStorage.setItem(songFontSizeKey(current),String(size))}catch(e){}
 }
 
-function ensureAunqueTuNoLoSepasChords(i){
-  try{
-    if(i<0 || pdfNorm(getSongTitle(i))!=='AUNQUE TU NO LO SEPAS')return;
-    var lines=getSongText(i).split('\n'),d=getChordData(i),changed=false;
-    lines.forEach(function(line,li){
-      var clean=String(line||'').trim();
-      if(!clean)return;
-      if(/^(INTRO|ESTROFA|ESTRIBILLO|PUENTE|SOLO|INSTRUMENTAL|FINAL|CODA|PRE[- ]?ESTRIBILLO)\b/i.test(clean))return;
-      var prefix=li+':',hasAny=false;
-      if(d.lines&&d.lines[li])hasAny=true;
-      Object.keys(d.words||{}).some(function(k){if(k.indexOf(prefix)===0&&d.words[k]){hasAny=true;return true}return false});
-      if(hasAny)return;
-      var words=normalizeWords(line);
-      if(!words.length)return;
-      d.words[li+':0']='DO';
-      var second=Math.min(4,words.length-1);
-      if(second>0)d.words[li+':'+second]='RE';
-      changed=true;
+function ensureAunqueTuNoLoSepasChords(i,repair){
+  if(i<0||String(getSongTitle(i)).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().indexOf('AUNQUE TU NO LO SEPAS')<0)return {added:0,corrected:0};
+  // Acordes cotejados con el PDF aportado. No inferir DO-RE indiscriminadamente.
+  var reference=[
+    [/^AUNQUE TU NO LO SEPAS[,.!?]?$/,[[0,'SOL'],[4,'MIm7']]],
+    [/^ME HE INVENTADO TU NOMBRE[,.!?]?$/,[[0,'SOL9'],[4,'RE']]],
+    [/^ME DROGUE SIN RECETA[,.!?]?$/,[[0,'SOL'],[3,'MIm7']]],
+    [/^Y HE DORMIDO EN LOS COCHES[,.!?]?$/,[[0,'SOL9'],[5,'RE']]],
+    [/^AUNQUE TU NO LO ENTIENDAS[,.!?]?$/,[[0,'DO'],[4,'RE']]],
+    [/^NUNCA ESCRIBO EL REMITE EN EL SOBRE[,.!?]?$/,[[0,'SOL'],[3,'SOL B/RE'],[6,'MIm']]],
+    [/^POR NO DEJAR MIS HUELLAS[,.!?]?$/,[[0,'DO'],[4,'RE']]]
+  ];
+  function norm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toUpperCase()}
+  var lines=getSongText(i).split('\n'),d=getChordData(i),added=0,corrected=0,backup=null;
+  lines.forEach(function(line,li){
+    var src=reference.filter(function(x){return x[0].test(norm(line))})[0];if(!src)return;
+    var oldKeys=Object.keys(d.words||{}).filter(function(k){return k.indexOf(li+':')===0&&d.words[k]});
+    var oldLine=String((d.lines||{})[li]||'').trim();
+    var generated=oldLine===''&&oldKeys.length===2&&d.words[li+':0']==='DO'&&d.words[li+':4']==='RE';
+    if(repair&&generated){
+      if(backup===null){try{backup=localStorage.getItem(songKey(i))}catch(e){backup=''}}
+      oldKeys.forEach(function(k){delete d.words[k]});corrected++;
+    }else if(oldKeys.length||oldLine)return;
+    src[1].forEach(function(a){
+      var words=normalizeWords(line),wi=Math.min(a[0],words.length-1);
+      if(wi<0)return;
+      if(!d.words[li+':'+wi]){d.words[li+':'+wi]=a[1];added++}
     });
-    if(changed)saveChordData(i,d);
-  }catch(e){}
+  });
+  if(added||corrected){
+    if(backup!==null){try{localStorage.setItem('quintoElemento.pdfChordRepairBackup.v1.'+i+'.'+Date.now(),backup)}catch(e){}}
+    saveChordData(i,d);
+  }
+  return {added:added,corrected:corrected};
 }
 
 function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;ensureAunqueTuNoLoSepasChords(i);if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
@@ -2892,6 +2906,13 @@ async function shareWholeSongbook(){
   var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:shareUrl};
   try{if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(shareUrl);alert('Enlace del cancionero copiado.')}else{prompt('Copia este enlace:',shareUrl)}}catch(e){}
 }
+var qeRepairAunque=document.getElementById('qeRepairAunque');
+if(qeRepairAunque)qeRepairAunque.onclick=function(){
+  if(current<0){alert('Abre primero «Aunque tú no lo sepas».');return}
+  if(!confirm('¿Aplicar los acordes comprobados del PDF solo en líneas coincidentes? Se conservarán los acordes restantes y se guardará copia antes de corregir DO/RE automáticos.'))return;
+  var result=ensureAunqueTuNoLoSepasChords(current,true);
+  renderLyrics();alert('Añadidos: '+result.added+' · Líneas automáticas reparadas: '+result.corrected+'. Las demás estrofas siguen pendientes de comprobación.');
+};
 var shareSongbook=document.getElementById('shareSongbook');
 var shareSongbookIndex=document.getElementById('shareSongbookIndex');
 if(shareSongbook)shareSongbook.onclick=shareWholeSongbook;
@@ -4238,7 +4259,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=63;
+const APP_VERSION=64;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
