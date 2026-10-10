@@ -1,0 +1,39 @@
+name: EQE - fuentes originales para siete canciones con acordes insuficientes
+on:
+  push:
+    branches: [audit-repeated-chord-lines-86-20261010]
+    paths: [.github/workflows/check-weak-chords-86.yml]
+permissions:
+  contents: read
+jobs:
+  source-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+      - name: Verified GitHub scraper
+        run: |
+          python -m pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ug-official
+          cp scripts/ug_audit.go /tmp/ug-official/ug_audit.go
+          (cd /tmp/ug-official && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Compare seven verified artists, original words and chords without D1 edits
+        env:
+          UG_HELPER: /tmp/ug-audit
+          REQUEST_DELAY: "2"
+        run: |
+          python -m py_compile scripts/verify_low_coverage_sources.py
+          python scripts/verify_low_coverage_sources.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: EQE-7-weakest-original-source-mapping
+          path: eqe-low-coverage-source-review/SOURCE_REVIEW.json
+          retention-days: 21
+          if-no-files-found: warn
