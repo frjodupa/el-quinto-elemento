@@ -25,6 +25,10 @@ const paired=parse("C       G\nHOLA    MUNDO","cifraclub");
 assert.equal(paired.text,"HOLA MUNDO");
 assert.ok(Object.keys(paired.chordData.words).length>0);
 
+const indented=parse("    C       G\\n    HOLA    MUNDO","cifraclub");
+assert.equal(indented.chordData.words["0:0"],"DO","Los espacios originales deben alinear el primer acorde");
+assert.equal(indented.chordData.words["0:1"],"SOL","Los espacios originales deben alinear el segundo acorde");
+
 const findings=[];
 const collision=parse("[ch]C[/ch][ch]G[/ch]HOLA MUNDO","ultimate-guitar");
 assert.equal(collision.chordData.words["0:0"],"DO · SOL","No se pueden perder acordes asociados a la misma palabra");
