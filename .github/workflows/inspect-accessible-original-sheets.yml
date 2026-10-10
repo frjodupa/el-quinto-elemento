@@ -1,0 +1,49 @@
+name: EQE - analizar formato de fuentes alternativas accesibles
+on:
+  push:
+    branches: [audit-repeated-chord-lines-86-20261010]
+    paths: [.github/workflows/inspect-accessible-original-sheets.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install requests beautifulsoup4
+      - name: Inspect pre tags without printing copyrighted lyric text
+        run: |
+          python - <<'PY'
+          import requests,re,json
+          from bs4 import BeautifulSoup
+          sources={
+            "Depedro":"https://acordesweb.com/cancion/depedro/te-sigo-sonando",
+            "Radio Futura":"https://www.losacordes.com/acordes/radio-futura/escuela-de-calor"
+          }
+          def chord_tokens(line):
+              parts=[x.strip("[](),.:;") for x in line.split() if x.strip()]
+              valid=[p for p in parts if re.fullmatch(r"(?:[A-G](?:#|b)?(?:m|maj|min|dim|sus|add)?[0-9]*(?:/[A-G](?:#|b)?)?|DO|RE|MI|FA|SOL|LA|SI)(?:m|M|7|9|sus4)?",p,re.I)]
+              return len(valid),len(parts),valid[:8]
+          for name,url in sources.items():
+              r=requests.get(url,timeout=20,headers={"User-Agent":"EQE Public Sheet Audit/1.0"})
+              print("SHEET_HTTP="+name+" "+str(r.status_code),flush=True)
+              r.raise_for_status()
+              s=BeautifulSoup(r.text,"html.parser")
+              blocks=s.find_all("pre")
+              print("SHEET_PRE_COUNT="+name+" "+str(len(blocks)),flush=True)
+              for n,p in enumerate(blocks):
+                  lines=p.get_text("\n",strip=False).replace("\r","").splitlines()
+                  stats=[]
+                  for li,line in enumerate(lines):
+                      if not line.strip():continue
+                      c,w,valid=chord_tokens(line)
+                      if c>=1 and c/max(1,w)>=.6:
+                          stats.append({"row":li,"chords":valid})
+                  print("PRE_META="+json.dumps({"artist":name,"index":n,"class":p.get("class"),"id":p.get("id"),
+                    "chars":len(p.get_text()),"lines":len(lines),"chordLikeRows":len(stats),
+                    "firstChordRows":stats[:8]},ensure_ascii=False),flush=True)
+          PY
