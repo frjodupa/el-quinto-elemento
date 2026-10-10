@@ -117,7 +117,7 @@ def main():
         "expected23Present":sum(bool(x["foundIDs"]) for x in songs),
         "expected23Missing":sum(not x["foundIDs"] for x in songs),
         "expected23ZeroChords":sum(not x["variants"] or all(v["chords"]==0 for v in x["variants"]) for x in songs),
-        "expected23Under50PctCoverage":sum(x["variants"] and max(v["coveragePct"] for v in x["variants"])<50 for x in songs),
+        "expected23Under50PctCoverage":sum(bool(x["variants"]) and max(v["coveragePct"] for v in x["variants"])<50 for x in songs),
         "duplicateTitleGroups":sum(len(items)>1 for items in byTitle.values()),
         "exportUpdatedAt":ex.get("updatedAt")}
     try:
