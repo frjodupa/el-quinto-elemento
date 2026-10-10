@@ -1,0 +1,41 @@
+name: EQE - buscar mejores acordes para todas las canciones incompletas
+on:
+  push:
+    branches: [audit-87-priority-completion-20261010]
+    paths: [.github/workflows/audit-weak-multi-sources.yml]
+permissions:
+  contents: read
+jobs:
+  multi-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23"
+      - name: Install verified scraper and Python dependencies
+        run: |
+          pip install requests beautifulsoup4
+          git clone --depth 1 https://github.com/Pilfer/ultimate-guitar-scraper.git /tmp/ultimate-guitar-scraper
+          cp scripts/ug_audit.go /tmp/ultimate-guitar-scraper/ug_audit.go
+          (cd /tmp/ultimate-guitar-scraper && go build -o /tmp/ug-audit ./ug_audit.go)
+      - name: Scan every weak song and verify multiple original versions (NO WRITES)
+        env:
+          LIVE_BASE: "https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          UG_HELPER: "/tmp/ug-audit"
+          REQUEST_DELAY: "2"
+          MAX_FETCHES_PER_SONG: "3"
+        run: |
+          python -m py_compile scripts/audit_multi_ug_low_coverage.py
+          python scripts/audit_multi_ug_low_coverage.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eqe-weak-songs-multiple-original-sources
+          path: eqe-ug-comparison/ALL_WEAK_SONG_SOURCES.json
+          retention-days: 14
+          if-no-files-found: warn
