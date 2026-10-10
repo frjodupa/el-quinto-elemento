@@ -403,6 +403,12 @@ function parseInlineUg(line) {
   return {plain,anchors};
 }
 
+function appendImportedWordChord(words,key,chord) {
+  // EQE uses ' · ' as the sequence separator, including during transposition.
+  // Never replace an earlier chord anchored to the same word.
+  words[key] = words[key] ? words[key] + " · " + chord : chord;
+}
+
 function parseSongContent(content,provider) {
   const chordData={lines:{},words:{},intro:"",introText:"",instrumentals:{},instrumentalsText:{},references:[]};
   const lyrics=[];
@@ -414,6 +420,13 @@ function parseSongContent(content,provider) {
     const seq=pending.tokens.map(x=>x.chord);
     if(/intro/i.test(section)) introChords.push(...seq);
     else if(/solo|instrumental/i.test(section)) instrumentalChords.push(...seq);
+    else if(seq.length){
+      // A standalone chord row separated by a blank line has no associated
+      // words. Preserve it as a line chord rather than silently discarding it.
+      const li=Math.min(lyrics.length, Math.max(0,lyrics.length-1));
+      chordData.lines[String(li)] = [chordData.lines[String(li)],...seq]
+        .filter(Boolean).join(" · ");
+    }
     pending=null;
   }
 
@@ -451,7 +464,7 @@ function parseSongContent(content,provider) {
       if(pending){
         pending.tokens.forEach(a=>{
           const wi=nearestWordIndex(parsed.plain,a.column);
-          if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+          if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
         });
         pending=null;
       }
@@ -459,7 +472,7 @@ function parseSongContent(content,provider) {
       // Después aplicar acordes inline de la propia línea.
       parsed.anchors.forEach(a=>{
         const wi=nearestWordIndex(parsed.plain,a.column);
-        if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+        if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
       });
       continue;
     }
@@ -470,26 +483,27 @@ function parseSongContent(content,provider) {
       continue;
     }
 
-    let lyric=stripHtml(trimmed)
+    // Preserve source indentation and internal spacing for column-based chord
+    // matching. The stored lyric stays normalized for existing EQE consumers.
+    const alignedLyric=stripHtml(String(raw))
       .replace(/\[\/?(?:tab|ch)\]/gi,"")
-      .replace(/\[[^\]]+\]/g,"")
-      .replace(/\s+/g," ")
-      .trim();
+      .replace(/\[[^\]]+\]/g,"");
+    let lyric=alignedLyric.replace(/\s+/g," ").trim();
     if(!lyric || looksChordLine(lyric) || isTabLine(lyric)) continue;
 
     const li=lyrics.length;
     lyrics.push(lyric);
     if(pending){
       pending.tokens.forEach(a=>{
-        const wi=nearestWordIndex(lyric,a.column);
-        if(wi>=0) chordData.words[li+":"+wi]=a.chord;
+        const wi=nearestWordIndex(alignedLyric,a.column);
+        if(wi>=0) appendImportedWordChord(chordData.words,li+":"+wi,a.chord);
       });
       pending=null;
     }
   }
   flushPendingAsSection();
 
-  if(introChords.length) chordData.intro=Array.from(new Set(introChords)).join(" · ");
+  if(introChords.length) chordData.intro=introChords.join(" · ");
   if(instrumentalChords.length) chordData.instrumentals[String(Math.max(0,lyrics.length-1))]=instrumentalChords.join(" · ");
 
   const text=compactText(lyrics.join("\n"));
