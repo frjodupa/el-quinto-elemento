@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev"
+    "dev": "wrangler dev",
+    "import:cifra": "node scripts/importar-cifra-online.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
