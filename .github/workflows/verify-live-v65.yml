@@ -55,3 +55,31 @@ jobs:
                   print('EXPORT_JSON=NO')
                   print(type(e).__name__+': '+str(e))
           PY
+
+          echo "=== LIVE D1 STATE ==="
+          curl -fsSL "$URL/api/sync?verify=$(date +%s)" -o /tmp/sync.json
+          python - <<'PY'
+          import json
+          j=json.load(open('/tmp/sync.json',encoding='utf-8'))
+          data=j.get('data') or {}
+          def count_chords(obj):
+              if not isinstance(obj,dict): return 0
+              def seq_count(v):
+                  if not isinstance(v,str) or not v.strip(): return 0
+                  return max(1,len([x for x in v.replace('·',' ').split() if x.strip()]))
+              n=0
+              for v in (obj.get('words') or {}).values():
+                  n += seq_count(v)
+              for v in (obj.get('lines') or {}).values():
+                  n += seq_count(v)
+              n += seq_count(obj.get('intro') or '')
+              for v in (obj.get('instrumentals') or {}).values():
+                  n += seq_count(v)
+              return n
+          for sid in ('4','6','73','78','87','92'):
+              raw=data.get(f'quintoElemento.chords.v2.{sid}','{}')
+              try: obj=json.loads(raw)
+              except Exception: obj={}
+              print(f'ID_{sid}_CHORDS={count_chords(obj)}')
+          print('SYNC_UPDATED_AT='+str(j.get('updatedAt')))
+          PY
