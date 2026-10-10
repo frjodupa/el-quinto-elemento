@@ -810,3 +810,75 @@ body.lightTheme .passPanel input::placeholder{
   color:#59616e!important;
 }
 /* Preserve alternate appearance: every new selector is under body.lightTheme. */
+
+/* v79 · editor rápido completo: no cortar opciones en Safari iPhone. */
+.directSongQuickActions{overflow:visible!important}
+.directSongBar{overflow:visible!important}
+.quickEditMenu{
+  width:min(340px,calc(100vw - 18px))!important;
+  max-height:min(460px,calc(100dvh - 115px))!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  gap:6px!important;
+  padding:10px!important;
+  z-index:900!important;
+}
+.quickEditMenuNote{
+  font-size:.76rem;
+  line-height:1.35;
+  padding:5px 6px;
+  color:#aebacd;
+}
+.quickEditMenu[hidden]{display:none!important}
+body.lightTheme .quickEditMenuNote{color:#515867}
+@media(max-width:699px){
+  .quickEditMenu{right:-5px!important;top:calc(100% + 5px)!important}
+  .quickEditMenu .quickEditMenuTitle{font-size:.72rem!important}
+  .directSongBar .quickEditMenu button{min-height:44px!important}
+}
+/* El editor de letra completa debe conservar espacio real para el texto
+   y controles Guardar/Cancelar aun con teclado virtual / barras de Safari. */
+@media(max-width:820px){
+  .lyricEditorModal.on{
+    height:100dvh!important;
+    padding:max(4px,env(safe-area-inset-top)) 4px max(4px,env(safe-area-inset-bottom))!important;
+    align-items:stretch!important;
+  }
+  .lyricEditorPanel{
+    height:100%!important;
+    max-height:100%!important;
+    min-height:0!important;
+    display:flex!important;
+    flex-direction:column!important;
+  }
+  .lyricEditorHead{flex:0 0 auto!important}
+  .lyricEditorBody{
+    display:flex!important;
+    flex-direction:column!important;
+    flex:1 1 0!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    padding:9px 11px!important;
+  }
+  #lyricEditorText{
+    display:block!important;
+    flex:1 1 0!important;
+    height:auto!important;
+    min-height:120px!important;
+    max-height:none!important;
+    overflow-y:auto!important;
+    font-size:16px!important;
+    resize:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .lyricEditorFoot{
+    flex:0 0 auto!important;
+    padding:8px 10px max(8px,env(safe-area-inset-bottom))!important;
+    position:relative!important;
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:7px!important;
+  }
+  .lyricEditorFoot button{min-height:44px!important;flex:1 1 auto!important}
+}

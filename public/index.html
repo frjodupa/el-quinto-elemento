@@ -805,7 +805,7 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=82">
+<link rel="manifest" href="manifest.webmanifest?v=83">
 <link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=78">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
@@ -2173,7 +2173,7 @@ body.lightTheme .qeSemitoneActions #transposeStepOriginal{color:#846017!importan
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v78</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v79</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -2238,9 +2238,13 @@ body.lightTheme .qeSemitoneActions #transposeStepOriginal{color:#846017!importan
       <button id="settingsBtn" class="directSongSettings" type="button" aria-label="Ajustes">⚙</button>
       <div id="quickEditMenu" class="quickEditMenu" role="group"
         aria-label="Qué quieres editar" hidden>
-        <div class="quickEditMenuTitle">Editar canción</div>
-        <button id="quickEditLyricsBtn" type="button">✎ Editar letra y título</button>
-        <button id="quickEditChordsBtn" type="button">♫ Editar acordes sobre las palabras</button>
+        <div class="quickEditMenuTitle">¿Qué necesitas editar?</div>
+        <button id="quickEditLyricsBtn" type="button">✎ Letra completa</button>
+        <button id="quickEditTitleBtn" type="button">▤ Título de la canción</button>
+        <button id="quickEditChordsBtn" type="button">♫ Acordes sobre las palabras</button>
+        <button id="quickEditIntroBtn" type="button">＋ Intro y acordes iniciales</button>
+        <button id="quickEditInstrumentalBtn" type="button">♫ Insertar Instrumental</button>
+        <div class="quickEditMenuNote">También puedes tocar ♫ junto a cada línea para editar sus acordes.</div>
       </div>
     </div>
 
@@ -2644,7 +2648,11 @@ function openLyricEditor(){stopAutoScroll();
   lyricEditorSongTitle.value=getSongTitle(current);
   lyricEditorText.value=normalizeMasterText(getSongText(current));
   lyricEditorModal.classList.add('on');lyricEditorModal.setAttribute('aria-hidden','false');
-  setTimeout(function(){lyricEditorText.focus()},50)
+  // Evitar apertura inmediata del teclado iOS, que comprimía el editor
+  // hasta mostrar solo título / botones y ocultar la letra.
+  if(window.matchMedia && window.matchMedia('(min-width:821px)').matches){
+    setTimeout(function(){lyricEditorText.focus({preventScroll:true})},50);
+  }
 }
 function closeLyricEditor(){lyricEditorModal.classList.remove('on');lyricEditorModal.setAttribute('aria-hidden','true')}
 editLyricsBtn.onclick=openLyricEditor;
@@ -4748,7 +4756,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=82;
+const APP_VERSION=83;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4837,7 +4845,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=82',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=83',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6517,10 +6525,10 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=82");
+@import url("./premium.css?v=83");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
-<script defer src="./song-quick-edit.js?v=82"></script>
+<script defer src="./song-quick-edit.js?v=83"></script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -6649,8 +6657,8 @@ body.lightTheme .internetSearchLaunch{
 
       var payload={
         format:'quinto-elemento-v62-export',
-        version:78,
-        buildVersion:82,
+        version:79,
+        buildVersion:83,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,

@@ -145,3 +145,11 @@
 - Nuevas canciones insertadas visualmente en orden alfabético (español) sin modificar sus ID internos, acordes ni referencias de pases.
 - Tema oscuro sin cambios. Sin alteraciones al editor de acordes, repertorio, claves guardadas ni datos D1.
 - Interfaz v78 y compilación PWA/caché 82.
+
+## v79 — 2026-10-10
+
+- Botón «Editar» con cinco acciones claras: letra completa, título, acordes, Intro e Instrumental.
+- Editor de letra en iPhone: se mantiene visible el campo de letra y los botones de Guardar y Cancelar. Se evita la apertura automática del teclado móvil.
+- Menú desplegable con scroll para que ninguna herramienta de edición quede cortada.
+- No se modifican letras, acordes, estructura, claves ni sincronización D1.
+- Interfaz 79, PWA/caché técnica 83.
