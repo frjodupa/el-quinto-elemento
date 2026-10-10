@@ -31,10 +31,10 @@ jobs:
           else
             echo "DIRECT_UI=NO"
           fi
-          if grep -q 'class="uiVersion">v68' /tmp/index.html; then
-            echo "UI_V68=YES"
+          if grep -q 'class="uiVersion">v69' /tmp/index.html; then
+            echo "UI_V69=YES"
           else
-            echo "UI_V68=NO"
+            echo "UI_V69=NO"
           fi
           echo "=== SONG DIRECT UI ==="
           if grep -q 'class="bar directSongBar"' /tmp/index.html; then
@@ -62,6 +62,31 @@ jobs:
             echo "DIRECT_PASS_UI=NO"
           fi
 
+          echo "=== INTERNET SEARCH ==="
+          curl -fsSL "$URL/api/song-search?q=corazon%20de%20neon&verify=$(date +%s)" -o /tmp/song-search.json || true
+          python - <<'PY'
+          import json, pathlib
+          p=pathlib.Path('/tmp/song-search.json')
+          if not p.exists():
+              print('INTERNET_SEARCH=MISSING')
+          else:
+              try:
+                  j=json.loads(p.read_text(encoding='utf-8'))
+                  results=j.get('results') or []
+                  print('INTERNET_SEARCH=YES' if j.get('ok') else 'INTERNET_SEARCH=NO')
+                  print('INTERNET_RESULTS='+str(len(results)))
+                  print('INTERNET_SOURCES='+','.join(sorted({str(x.get('source')) for x in results if x.get('source')})))
+                  if results:
+                      first=results[0]
+                      print('FIRST_SOURCE='+str(first.get('source')))
+                      print('FIRST_TITLE='+str(first.get('title')))
+                      print('FIRST_ID='+str(first.get('id')))
+                      print('FIRST_URL='+str(first.get('url')))
+              except Exception as e:
+                  print('INTERNET_SEARCH=NO')
+                  print(type(e).__name__+': '+str(e))
+          PY
+
           echo "=== EXPORT ENDPOINT ==="
           curl -fsSL -D /tmp/export_headers.txt "$URL/export?verify=$(date +%s)" -o /tmp/export.json || true
           cat /tmp/export_headers.txt || true
@@ -86,15 +111,15 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v72" /tmp/sw.js; then
-            echo "SW_CACHE_72=YES"
+          if grep -q "quinto-elemento-v73" /tmp/sw.js; then
+            echo "SW_CACHE_73=YES"
           else
-            echo "SW_CACHE_72=NO"
+            echo "SW_CACHE_73=NO"
           fi
-          if grep -q '"version": 72' /tmp/version.json; then
-            echo "VERSION_JSON_72=YES"
+          if grep -q '"version": 73' /tmp/version.json; then
+            echo "VERSION_JSON_73=YES"
           else
-            echo "VERSION_JSON_72=NO"
+            echo "VERSION_JSON_73=NO"
           fi
 
           echo "=== LIVE D1 STATE ==="
