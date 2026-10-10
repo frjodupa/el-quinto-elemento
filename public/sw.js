@@ -1,13 +1,13 @@
-const CACHE='quinto-elemento-v74';
+const CACHE='quinto-elemento-v75';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=74',
+  './manifest.webmanifest?v=75',
   './version.json',
   './pdf-chords-v44.json',
-  './icon-192.png',
-  './icon-512.png',
-  './apple-touch-icon.png'
+  './icon-192.png?v=75',
+  './icon-512.png?v=75',
+  './apple-touch-icon.png?v=75'
 ];
 
 self.addEventListener('install',event=>{
