@@ -60,15 +60,15 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v68" /tmp/sw.js; then
-            echo "SW_CACHE_68=YES"
+          if grep -q "quinto-elemento-v69" /tmp/sw.js; then
+            echo "SW_CACHE_69=YES"
           else
-            echo "SW_CACHE_68=NO"
+            echo "SW_CACHE_69=NO"
           fi
-          if grep -q '"version": 68' /tmp/version.json; then
-            echo "VERSION_JSON_68=YES"
+          if grep -q '"version": 69' /tmp/version.json; then
+            echo "VERSION_JSON_69=YES"
           else
-            echo "VERSION_JSON_68=NO"
+            echo "VERSION_JSON_69=NO"
           fi
 
           echo "=== LIVE D1 STATE ==="
