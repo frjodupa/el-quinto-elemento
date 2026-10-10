@@ -31,10 +31,10 @@ jobs:
           else
             echo "DIRECT_UI=NO"
           fi
-          if grep -q 'class="uiVersion">v67' /tmp/index.html; then
-            echo "UI_V67=YES"
+          if grep -q 'class="uiVersion">v68' /tmp/index.html; then
+            echo "UI_V68=YES"
           else
-            echo "UI_V67=NO"
+            echo "UI_V68=NO"
           fi
           echo "=== SONG DIRECT UI ==="
           if grep -q 'class="bar directSongBar"' /tmp/index.html; then
@@ -53,6 +53,13 @@ jobs:
             echo "CONTEXT_SETTINGS=YES"
           else
             echo "CONTEXT_SETTINGS=NO"
+          fi
+
+          echo "=== DIRECT PASS UI ==="
+          if grep -q 'class="passPanel directPassPanel"' /tmp/index.html && grep -q 'id="editPassBtn"' /tmp/index.html; then
+            echo "DIRECT_PASS_UI=YES"
+          else
+            echo "DIRECT_PASS_UI=NO"
           fi
 
           echo "=== EXPORT ENDPOINT ==="
@@ -79,15 +86,15 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v71" /tmp/sw.js; then
-            echo "SW_CACHE_71=YES"
+          if grep -q "quinto-elemento-v72" /tmp/sw.js; then
+            echo "SW_CACHE_72=YES"
           else
-            echo "SW_CACHE_71=NO"
+            echo "SW_CACHE_72=NO"
           fi
-          if grep -q '"version": 71' /tmp/version.json; then
-            echo "VERSION_JSON_71=YES"
+          if grep -q '"version": 72' /tmp/version.json; then
+            echo "VERSION_JSON_72=YES"
           else
-            echo "VERSION_JSON_71=NO"
+            echo "VERSION_JSON_72=NO"
           fi
 
           echo "=== LIVE D1 STATE ==="
