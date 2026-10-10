@@ -57,10 +57,16 @@ def candidate(song):
   if check["suspect"]:scaffold.append((idx,check["symbols"]))
  if len(scaffold)!=EXPECTED_SCAFFOLDS or sum(len(s) for _,s in scaffold)!=EXPECTED_HIDDEN_CHORDS:
   raise RuntimeError("Chord scaffold pattern has changed; no write")
- removed={i for i,_ in scaffold}
+ all_scaffold={i for i,_ in scaffold}
+ # Adjacent chord-only rows may represent a riff or independent instrumental.
+ # Keep ambiguous groups byte-for-byte; convert only one-to-one line anchors.
+ unsafe={i for i,_ in scaffold if i-1 in all_scaffold or i+1 in all_scaffold}
+ approved=[(i,s) for i,s in scaffold if i not in unsafe and i+1<len(old) and i+1 not in all_scaffold and old[i+1].strip()]
+ removed={i for i,_ in approved}
+ if len(approved)<26 or len(unsafe)>7:raise RuntimeError("Too many ambiguous chord rows")
  new_lines=[line for idx,line in enumerate(old) if idx not in removed]
  idx_map={old_i:new_i for new_i,old_i in enumerate(i for i in range(len(old)) if i not in removed)}
- if len(new_lines)!=45:raise RuntimeError("Expected 45 native lyric lines after formatting cleanup")
+ if len(new_lines)!=len(old)-len(approved):raise RuntimeError("Index mapping differs")
  new_data=copy.deepcopy(data)
  new_data["words"]={}
  for key,v in data["words"].items():
@@ -78,7 +84,7 @@ def candidate(song):
   new_data["lines"][str(idx_map[old_line])]=v
  imported=[]
  destination_indexes=set()
- for source_index,symbols in scaffold:
+ for source_index,symbols in approved:
   next_idx=source_index+1
   # Scaffolds must be directly followed by actual lyrics, not another
   # scaffold, section heading or an empty line.
@@ -95,23 +101,25 @@ def candidate(song):
   new_data["lines"][str(mapped)]=" · ".join(symbols)
   imported.append({"oldSourceLine":source_index,"originalTargetLine":next_idx,
     "newTargetLine":mapped,"symbols":symbols})
- if len(imported)!=33 or len(new_data["lines"])!=33:
+ if len(imported)!=len(approved) or len(new_data["lines"])!=len(approved):
   raise RuntimeError("Scaffolds not transferred one for one")
- if a.count_chords(new_data)!=EXPECTED_EXISTING_CHORDS+EXPECTED_HIDDEN_CHORDS:
-  raise RuntimeError("Chord-symbol count differs from original imported text")
+ approved_symbols=sum(len(s) for _,s in approved)
+ if a.count_chords(new_data)!=EXPECTED_EXISTING_CHORDS+approved_symbols:
+  raise RuntimeError("Chord-symbol count differs from transferred formatting")
  if new_data["intro"]!=data["intro"] or new_data["introText"]!=data["introText"]:
   raise RuntimeError("Intro altered")
  if new_data["references"]!=data["references"]:
   raise RuntimeError("References altered")
- if sum(bool(x.strip()) for x in new_lines)!=45:
+ if sum(bool(x.strip()) for x in new_lines)!=len(new_lines):
   raise RuntimeError("Unexpected blank lyrics following conversion")
  # Strong integrity property: removing inserted formatting lines from the
  # new lyric text reproduces all original non-scaffold lines byte-for-byte.
  original_only=[x for i,x in enumerate(old) if i not in removed]
  if new_lines!=original_only:raise RuntimeError("Unexpected lyric change")
  meta={"id":SID,"title":TITLE,"source":"existing_user_imported_chord_only_rows",
-  "readOnly":not APPLY,"oldPhysicalLines":78,"newActualLyricLines":45,
-  "removedFormattingOnlyRows":33,"chordSymbolsRecovered":99,
+  "readOnly":not APPLY,"oldPhysicalLines":78,"newPhysicalLines":len(new_lines),
+  "removedFormattingOnlyRows":len(approved),"chordSymbolsRecovered":approved_symbols,
+  "chordRowsLeftForManualReview":sorted(unsafe),
   "previouslyStoredNativeChords":6,
   "newNativeChordCount":a.count_chords(new_data),
   "lineChordSequences":len(imported),
