@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 
 import audit_songbook as a
 import strict_line_chords_86 as align
-from audit_repeated_chords_86 import validate_state,load_state
+from audit_repeated_chords_86 import load_state
 
 OUT=Path("eqe-alternative-sources")
 OUT.mkdir(exist_ok=True)
@@ -122,7 +122,10 @@ def audit(song,model,metadata):
 
 def main():
  storage,_=load_state()
- by_id={int(s["id"]):s for s in validate_state(storage)}
+ songs=a.build_songbook(storage)
+ if not (86<=len(songs)<=120):raise RuntimeError("Unexpected live inventory: "+str(len(songs)))
+ by_id={int(s["id"]):s for s in songs}
+ if len(by_id)!=len(songs):raise RuntimeError("Duplicate IDs in live inventory")
  result=[]
  for sid,(title,artist,url) in SOURCES.items():
   if align.normalize_label(by_id[sid]["titulo"])!=align.normalize_label(title):
