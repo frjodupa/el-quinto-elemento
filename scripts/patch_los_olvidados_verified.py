@@ -21,7 +21,8 @@ import audit_alternative_sources_86 as sources
 SID=39
 TITLE="LOS OLVIDADOS"
 URL="https://acordesweb.com/cancion/pedro-pastor/los-olvidados"
-SOURCE_SHA="b44823941f0ea6bfc3373658be20adb091cf7e2767381b1af6a096d125ff9dfe"
+HTML_SHA_PREVIOUS="b44823941f0ea6bfc3373658be20adb091cf7e2767381b1af6a096d125ff9dfe"
+PINNED_MUSICAL_SHA=""  # populated after independent double-fetch verification
 OUT=Path("eqe-los-olvidados-guarded")
 OUT.mkdir(exist_ok=True)
 APPLY=os.getenv("APPLY_VERIFIED_LOS_OLVIDADOS","0")=="1"
@@ -38,6 +39,12 @@ def snapshot():
  if align.normalize_label(songs[SID]["titulo"])!=align.normalize_label(TITLE):
   raise RuntimeError("Current ID 39 no longer matches Pedro Pastor title")
  return storage,songs[SID],meta
+
+def fingerprint(model):
+ # The HTML can change dynamically without any change to chords or source lyrics.
+ # Require a *canonical musical* digest, rechecked twice before preflight/write.
+ data={"lyrics":model["lines"],"placements":model["placements"]}
+ return hashlib.sha256(json.dumps(data,sort_keys=True,ensure_ascii=False,separators=(",",":")).encode()).hexdigest()
 
 def plan(song,model):
  old=a.normalize_chord_data(song["letraConAcordes"])
@@ -78,7 +85,7 @@ def plan(song,model):
   if updated[section]!=old[section]:raise RuntimeError("Protected section changed: "+section)
  for key,ch in old["words"].items():
   if updated["words"].get(key)!=ch:raise RuntimeError("Old chord changed")
- detail={"id":SID,"title":TITLE,"source":URL,"sourceSha256":SOURCE_SHA,
+ detail={"id":SID,"title":TITLE,"source":URL,"sourceHtmlPreviousSha256":HTML_SHA_PREVIOUS,
   "readOnly":not APPLY,"matchingLyricFragments":len(strong),
   "sourceAmbiguousChordPositionsExcluded":len(ambiguous),
   "oldChords":13,"addedChordPositions":len(eligible),"newChords":22,
@@ -95,9 +102,20 @@ def dump(filename,v):
 def main():
  storage,song,meta=snapshot()
  model,m=sources.fetch_sheet(URL)
- if m["htmlSha256"]!=SOURCE_SHA:
-  raise RuntimeError("Original external chord source changed: stop")
+ musical_hash=fingerprint(model)
+ # Two independent GET requests must deliver an identical chord+lyrics model.
+ model_second,m_second=sources.fetch_sheet(URL)
+ if fingerprint(model_second)!=musical_hash:
+  raise RuntimeError("Original source music changed between requests; stop")
+ if m["sourceChordLinks"]!=29 or len(model["placements"])!=29 or len(model["lines"])!=71:
+  raise RuntimeError("Unexpected source chord anchors/lyric lines: stop")
+ if APPLY and not PINNED_MUSICAL_SHA:
+  raise RuntimeError("Musical source SHA not yet pinned; no write permitted")
+ if PINNED_MUSICAL_SHA and musical_hash!=PINNED_MUSICAL_SHA:
+  raise RuntimeError("Pinned chord+lyric source does not match; stop")
  updated,detail=plan(song,model)
+ detail["sourceMusicalSha256"]=musical_hash
+ detail["htmlMayContainDynamicFields"]=True
  dump("PREVIEW.json",detail)
  if not APPLY:return
  # optimistic D1 concurrency lock - do not overwrite a more recent user edit.
