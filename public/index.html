@@ -2902,7 +2902,11 @@ function ensureAunqueTuNoLoSepasChords(i,repair){
 function openSong(i){stopAutoScroll();editingChords=false;placingInstrumental=false;instrumentAction=null;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null;current=i;ensureAunqueTuNoLoSepasChords(i);if(window.loadSongAutoScrollSpeed)window.loadSongAutoScrollSpeed();loadSongFontSize(i);st.textContent=getSongTitle(i);view.classList.add('on');window.scrollTo(0,0);renderLyrics();updateUndoChordButton()}
 function closeSong(){view.classList.remove('on');placingInstrumental=false;moveWordChordAction=null;referenceMarkMode=false;referenceStart=null}
 q.oninput=function(){render(q.value)};
+function confirmPublicShare(){
+  return confirm('ATENCIÓN: El Quinto Elemento utiliza una sincronización Cloudflare sin control de acceso. Si compartes este enlace, otros podrían consultar o modificar los datos sincronizados. No compartas datos privados. ¿Quieres compartirlo igualmente?');
+}
 async function shareWholeSongbook(){
+  if(!confirmPublicShare())return;
   var shareUrl=location.origin+location.pathname.replace(/[^/]*$/,'');
   var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:shareUrl};
   try{if(navigator.share){await navigator.share(data)}else if(navigator.clipboard){await navigator.clipboard.writeText(shareUrl);alert('Enlace del cancionero copiado.')}else{prompt('Copia este enlace:',shareUrl)}}catch(e){}
@@ -2920,8 +2924,9 @@ if(shareSongbook)shareSongbook.onclick=shareWholeSongbook;
 if(shareSongbookIndex)shareSongbookIndex.onclick=shareWholeSongbook;
 var shareAccessBtn=document.getElementById('shareAccessBtn');
 if(shareAccessBtn)shareAccessBtn.onclick=function(){
+  if(!confirmPublicShare())return;
   var url=location.origin+location.pathname;
-  var text='El Quinto Elemento · Cancionero Interactivo\n\nEnlace de acceso: '+url+'\n\nIMPORTANTE: este enlace abre la app. Los permisos de edición deben ser concedidos por el propietario dentro del cancionero; no compartas acceso de edición sin autorización.';
+  var text='El Quinto Elemento · Cancionero Interactivo\n\nEnlace de acceso: '+url+'\n\nIMPORTANTE: este enlace abre la app. La sincronización actual no tiene autenticación: quien acceda podría consultar o modificar los datos compartidos.';
   if(navigator.share){navigator.share({title:'Acceso · El Quinto Elemento',text:text,url:url}).catch(function(){})}
   else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){alert('Enlace de acceso copiado.')})}
   else{prompt('Copia este enlace:',url)}
@@ -5130,6 +5135,7 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     });
         var share=document.getElementById('qeShareApp');
     if(share)share.addEventListener('click',function(){
+      if(!confirmPublicShare())return;
       var data={title:'El Quinto Elemento · Cancionero Interactivo',text:'El Quinto Elemento · Cancionero Interactivo',url:location.origin+location.pathname};
       if(navigator.share){navigator.share(data).catch(function(){})}
       else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(data.url).then(function(){alert('Enlace del cancionero copiado.')})}
@@ -5137,6 +5143,7 @@ body.qeDirect .bar{position:sticky;top:0;z-index:20;background:#0b0b0c}
     });
         var share=document.getElementById('qeShare');
     if(share)share.addEventListener('click',function(){
+      if(!confirmPublicShare())return;
       var url=location.origin+location.pathname;
       if(navigator.share){navigator.share({title:'El Quinto Elemento · Cancionero Interactivo',text:'Accede al cancionero El Quinto Elemento',url:url}).catch(function(){})}
       else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(function(){alert('Enlace del cancionero copiado.')},function(){prompt('Copia el enlace:',url)})}
