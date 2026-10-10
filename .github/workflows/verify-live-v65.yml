@@ -31,10 +31,10 @@ jobs:
           else
             echo "DIRECT_UI=NO"
           fi
-          if grep -q 'class="uiVersion">v70' /tmp/index.html; then
-            echo "UI_V70=YES"
+          if grep -q 'class="uiVersion">v71' /tmp/index.html; then
+            echo "UI_V71=YES"
           else
-            echo "UI_V70=NO"
+            echo "UI_V71=NO"
           fi
           echo "=== SONG DIRECT UI ==="
           if grep -q 'class="bar directSongBar"' /tmp/index.html; then
@@ -187,16 +187,34 @@ jobs:
           curl -fsSL "$URL/version.json?verify=$(date +%s)" -o /tmp/version.json
           cat /tmp/version.json
           curl -fsSL "$URL/sw.js?verify=$(date +%s)" -o /tmp/sw.js
-          if grep -q "quinto-elemento-v74" /tmp/sw.js; then
-            echo "SW_CACHE_74=YES"
+          if grep -q "quinto-elemento-v75" /tmp/sw.js; then
+            echo "SW_CACHE_75=YES"
           else
-            echo "SW_CACHE_74=NO"
+            echo "SW_CACHE_75=NO"
           fi
-          if grep -q '"version": 74' /tmp/version.json; then
-            echo "VERSION_JSON_74=YES"
+          if grep -q '"version": 75' /tmp/version.json; then
+            echo "VERSION_JSON_75=YES"
           else
-            echo "VERSION_JSON_74=NO"
+            echo "VERSION_JSON_75=NO"
           fi
+
+          echo "=== PWA ICON VALIDATION ==="
+          python - <<'PY'
+          import json,urllib.request,struct
+          base="https://crimson-rice-1fe1.joseduqueparedes.workers.dev"
+          for file,want in (("apple-touch-icon.png",180),("icon-192.png",192),("icon-512.png",512)):
+              url=base+"/"+file+"?v=75"
+              try:
+                  with urllib.request.urlopen(url,timeout=15) as f: img=f.read()
+                  if img[:8] != b"\\x89PNG\\r\\n\\x1a\\n":
+                      print("ICON_"+str(want)+"=NOT_PNG")
+                      continue
+                  w,h=struct.unpack(">II",img[16:24])
+                  print("ICON_"+str(want)+"="+("YES" if (w,h)==(want,want) else "WRONG_SIZE"))
+                  print("ICON_"+str(want)+"_BYTES="+str(len(img)))
+              except Exception as e:
+                  print("ICON_"+str(want)+"=ERROR:"+str(type(e).__name__))
+          PY
 
           echo "=== LIVE D1 STATE ==="
           curl -fsSL "$URL/api/sync?verify=$(date +%s)" -o /tmp/sync.json
