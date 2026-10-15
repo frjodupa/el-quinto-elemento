@@ -2410,28 +2410,35 @@ function updateUndoChordButton(){
 }
 
 function fillExactRepeatedChords(i,d){
-  // Solo frases consecutivas idénticas: no inferir armonía de estrofas distintas.
-  var raw=getSongText(i).split('\n');
-  var norm=raw.map(function(line){return String(line||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es')});
-  var lineChords=d.lines||{}, wordChords=d.words||{};
-  function count(line){return (lineChords[line]?1:0)+Object.keys(wordChords).filter(function(k){return Number(k.split(':')[0])===line}).length}
+  // Solo bloques de letra idéntica. No alterar acordes ya existentes.
+  var norm=getSongText(i).split('\n').map(function(line){
+    return String(line||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');
+  });
+  var lines=d.lines||{},words=d.words||{},byLine={};
+  Object.keys(words).forEach(function(key){
+    var m=/^(\d+):(\d+)$/.exec(key);
+    if(m)(byLine[Number(m[1])]||(byLine[Number(m[1])]=[])).push({word:m[2],value:words[key]});
+  });
   for(var src=0;src<norm.length;src++){
-    if(!norm[src]||count(src)===0)continue;
+    if(!norm[src])continue;
     for(var dst=src+2;dst<norm.length;dst++){
-      if(!norm[dst]||norm[dst]!==norm[src])continue;
+      if(!norm[dst]||norm[src]!==norm[dst])continue;
       if(src>0&&dst>0&&norm[src-1]&&norm[src-1]===norm[dst-1])continue;
       var len=0;
       while(src+len<dst&&dst+len<norm.length&&norm[src+len]&&norm[src+len]===norm[dst+len])len++;
       if(len<2)continue;
-      for(var offset=0;offset<len;offset++){
-        var a=src+offset,b=dst+offset;
-        if(lineChords[a]&&!lineChords[b])lineChords[b]=lineChords[a];
-        Object.keys(wordChords).forEach(function(key){
-          var match=/^(\d+):(\d+)$/.exec(key);
-          if(match&&Number(match[1])===a){
-            var target=b+':'+match[2];
-            if(!Object.prototype.hasOwnProperty.call(wordChords,target))wordChords[target]=wordChords[key];
-          }
+      var sourceCount=0,targetCount=0;
+      for(var k=0;k<len;k++){
+        sourceCount+=(lines[src+k]?1:0)+(byLine[src+k]||[]).length;
+        targetCount+=(lines[dst+k]?1:0)+(byLine[dst+k]||[]).length;
+      }
+      // Un destino editado se deja intacto: no fusionar armonías incompatibles.
+      if(!sourceCount||targetCount)continue;
+      for(var off=0;off<len;off++){
+        var from=src+off,to=dst+off;
+        if(lines[from])lines[to]=lines[from];
+        (byLine[from]||[]).forEach(function(ch){
+          words[to+':'+ch.word]=ch.value;
         });
       }
     }
