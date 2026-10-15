@@ -22,7 +22,7 @@ self.addEventListener('install',event=>{
 self.addEventListener('activate',event=>{
   event.waitUntil(
     caches.keys()
-      .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+      .then(keys=>Promise.all(keys.filter(k=>k.startsWith('quinto-elemento-v') && k!==CACHE).map(k=>caches.delete(k))))
       .then(()=>self.clients.claim())
   );
 });
@@ -90,8 +90,10 @@ self.addEventListener('fetch',event=>{
     caches.match(req).then(cached=>{
       if(cached)return cached;
       return fetch(req).then(resp=>{
-        const copy=resp.clone();
-        caches.open(CACHE).then(cache=>cache.put(req,copy));
+        if(resp.ok){
+          const copy=resp.clone();
+          caches.open(CACHE).then(cache=>cache.put(req,copy));
+        }
         return resp;
       });
     })
