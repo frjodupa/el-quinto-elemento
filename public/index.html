@@ -2409,10 +2409,41 @@ function updateUndoChordButton(){
   });
 }
 
+function fillExactRepeatedChords(i,d){
+  // Solo frases consecutivas idénticas: no inferir armonía de estrofas distintas.
+  var raw=getSongText(i).split('\n');
+  var norm=raw.map(function(line){return String(line||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es')});
+  var lineChords=d.lines||{}, wordChords=d.words||{};
+  function count(line){return (lineChords[line]?1:0)+Object.keys(wordChords).filter(function(k){return Number(k.split(':')[0])===line}).length}
+  for(var src=0;src<norm.length;src++){
+    if(!norm[src]||count(src)===0)continue;
+    for(var dst=src+2;dst<norm.length;dst++){
+      if(!norm[dst]||norm[dst]!==norm[src])continue;
+      if(src>0&&dst>0&&norm[src-1]&&norm[src-1]===norm[dst-1])continue;
+      var len=0;
+      while(src+len<dst&&dst+len<norm.length&&norm[src+len]&&norm[src+len]===norm[dst+len])len++;
+      if(len<2)continue;
+      for(var offset=0;offset<len;offset++){
+        var a=src+offset,b=dst+offset;
+        if(lineChords[a]&&!lineChords[b])lineChords[b]=lineChords[a];
+        Object.keys(wordChords).forEach(function(key){
+          var match=/^(\d+):(\d+)$/.exec(key);
+          if(match&&Number(match[1])===a){
+            var target=b+':'+match[2];
+            if(!Object.prototype.hasOwnProperty.call(wordChords,target))wordChords[target]=wordChords[key];
+          }
+        });
+      }
+    }
+  }
+  return d;
+}
+
 function saveChordData(i,d){
   try{
     if(!window.localStorage)return;
     var key=songKey(i);
+    d=fillExactRepeatedChords(i,d);
     var next=JSON.stringify(d);
     var prev=localStorage.getItem(key);
     if(prev===next)return;
@@ -4798,7 +4829,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=87;
+const APP_VERSION=88;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4887,7 +4918,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=87',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=88',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6567,7 +6598,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=87");
+@import url("./premium.css?v=88");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
