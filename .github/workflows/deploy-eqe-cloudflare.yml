@@ -41,6 +41,7 @@ jobs:
           grep -q '"name": "crimson-rice-1fe1"' wrangler.jsonc
           grep -q '"binding": "DB"' wrangler.jsonc
           node scripts/test-pwa-version.cjs
+          node scripts/test-eqe-global-regressions.cjs
       - name: Verify Cloudflare credentials
         shell: bash
         env:
