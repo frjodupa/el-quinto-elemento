@@ -42,6 +42,7 @@ jobs:
           grep -q '"binding": "DB"' wrangler.jsonc
           node scripts/test-pwa-version.cjs
           node scripts/test-eqe-global-regressions.cjs
+          node scripts/test-repeated-chords.cjs
       - name: Verify Cloudflare credentials
         shell: bash
         env:
