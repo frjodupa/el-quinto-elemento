@@ -1,0 +1,15 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const html = fs.readFileSync('public/index.html','utf8');
+const sw = fs.readFileSync('public/sw.js','utf8');
+const json = JSON.parse(fs.readFileSync('public/version.json','utf8'));
+const app = Number(html.match(/const APP_VERSION=(\d+);/)?.[1]);
+const cache = Number(sw.match(/const CACHE='quinto-elemento-v(\d+)'/)?.[1]);
+const css = Number(html.match(/premium\.css\?v=(\d+)/)?.[1]);
+const offlineCss = Number(sw.match(/premium\.css\?v=(\d+)/)?.[1]);
+assert.ok(Number.isInteger(app) && app > 0, 'APP_VERSION missing');
+assert.equal(app, json.version, 'index.html and version.json differ');
+assert.equal(app, cache, 'service worker cache differs');
+assert.equal(app, css, 'HTML CSS version differs');
+assert.equal(app, offlineCss, 'offline CSS version differs');
+console.log('EQE PWA versions consistent: v' + app);
