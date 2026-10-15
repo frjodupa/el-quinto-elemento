@@ -1,0 +1,34 @@
+name: EQE - Publicar entorno de pruebas (manual)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: eqe-preview
+  cancel-in-progress: false
+jobs:
+  preview:
+    name: Publicar pruebas aisladas
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar que nunca apunte a producción
+        shell: bash
+        run: |
+          test -f wrangler.eqe-preview.jsonc
+          test -f src/worker-preview.js
+          node scripts/test-pwa-version.cjs
+          node scripts/test-repeated-chords.cjs
+          grep -q '"name": "eqe-acordes-v91-pruebas"' wrangler.eqe-preview.jsonc
+          ! grep -q 'crimson-rice-1fe1' wrangler.eqe-preview.jsonc
+          ! grep -q 'd1_databases' wrangler.eqe-preview.jsonc
+          ! grep -q 'DB.prepare' src/worker-preview.js
+      - name: Publicar Worker de pruebas independiente
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.EQE_CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.EQE_CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy --config wrangler.eqe-preview.jsonc
