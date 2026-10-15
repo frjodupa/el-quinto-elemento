@@ -4387,7 +4387,10 @@ buildPicker();render('');bindGlobalUndoButtons();
     var badge=document.createElement('span');
     badge.id='activePassBadge';
     badge.className='passActiveBadge';
-    badge.textContent='☷ '+window.activePass.name+' · '+(window.activePass.position+1)+'/'+window.activePass.songs.length;
+    var p=window.activePass;
+    var nextIndex=p.songs[p.position+1];
+    badge.textContent=nextIndex!==undefined && songs[nextIndex]?'SIGUIENTE: '+getSongTitle(nextIndex):'FIN DEL PASE';
+    badge.title=p.name+' · '+(p.position+1)+'/'+p.songs.length;
     var bar=document.querySelector('#view .bar');
     var settings=document.getElementById('settingsBtn');
     if(bar && settings)settings.insertAdjacentElement('afterend',badge);
@@ -4800,7 +4803,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=89;
+const APP_VERSION=90;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4889,7 +4892,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=89',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=90',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6569,7 +6572,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=89");
+@import url("./premium.css?v=90");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
