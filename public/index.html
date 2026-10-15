@@ -4085,7 +4085,14 @@ buildPicker();render('');bindGlobalUndoButtons();
     }catch(e){return []}
   }
   function savePasses(arr){
-    try{localStorage.setItem(passesKey(),JSON.stringify(arr))}catch(e){}
+    try{
+      localStorage.setItem(passesKey(),JSON.stringify(arr));
+      return true;
+    }catch(e){
+      console.error('No se pudo guardar el pase:',e);
+      alert('No se pudieron guardar los cambios del pase. No cierres la aplicación y exporta una copia de seguridad.');
+      return false;
+    }
   }
   function uniqueId(){
     return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
@@ -4783,7 +4790,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=84;
+const APP_VERSION=85;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4872,7 +4879,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=83',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=85',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6552,7 +6559,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=84");
+@import url("./premium.css?v=85");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
