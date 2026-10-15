@@ -2411,8 +2411,8 @@ function updateUndoChordButton(){
 
 function fillExactRepeatedChords(i,d){
   // Solo frases consecutivas idénticas: no inferir armonía de estrofas distintas.
-  var raw=getSongText(i).split('\\n');
-  var norm=raw.map(function(line){return String(line||'').trim().replace(/\\s+/g,' ').toLocaleUpperCase('es')});
+  var raw=getSongText(i).split('\n');
+  var norm=raw.map(function(line){return String(line||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es')});
   var lineChords=d.lines||{}, wordChords=d.words||{};
   function count(line){return (lineChords[line]?1:0)+Object.keys(wordChords).filter(function(k){return Number(k.split(':')[0])===line}).length}
   for(var src=0;src<norm.length;src++){
@@ -2427,7 +2427,7 @@ function fillExactRepeatedChords(i,d){
         var a=src+offset,b=dst+offset;
         if(lineChords[a]&&!lineChords[b])lineChords[b]=lineChords[a];
         Object.keys(wordChords).forEach(function(key){
-          var match=/^(\\d+):(\\d+)$/.exec(key);
+          var match=/^(\d+):(\d+)$/.exec(key);
           if(match&&Number(match[1])===a){
             var target=b+':'+match[2];
             if(!Object.prototype.hasOwnProperty.call(wordChords,target))wordChords[target]=wordChords[key];
