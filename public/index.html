@@ -3339,7 +3339,12 @@ if(shareAccessBtn)shareAccessBtn.onclick=function(){
   else if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){alert('Enlace de acceso copiado.')})}
   else{prompt('Copia este enlace:',url)}
 };
-document.getElementById('back').onclick=function(){if(window.clearActivePass)window.clearActivePass();closeSong()};
+document.getElementById('back').onclick=function(){
+  var returnToPass=window.qeReturnToPassIndex;
+  closeSong();
+  if(typeof returnToPass==='function' && returnToPass())return;
+  if(window.clearActivePass)window.clearActivePass();
+};
 document.getElementById('prev').onclick=function(){
   if(window.passPrevSong && window.passPrevSong())return;
   openSong((current-1+songs.length)%songs.length)
@@ -4222,6 +4227,7 @@ buildPicker();render('');bindGlobalUndoButtons();
       title.style.cssText='text-align:left;background:transparent;border:0;color:inherit;font:inherit;font-weight:800;padding:8px 4px;cursor:pointer';
       title.setAttribute('aria-label','Abrir '+getSongTitle(songIndex));
       title.onclick=function(){
+        window.qeSongPassOrigin={id:p.id,songIndex:songIndex,scrollTop:detailSongs.scrollTop};
         detailModal.classList.remove('on');
         window.activePass=null;
         openSong(songIndex);
@@ -4346,6 +4352,7 @@ buildPicker();render('');bindGlobalUndoButtons();
     var p=getPass(currentPassId);
     if(!p || !p.songs || !p.songs.length)return;
     window.activePass={id:p.id,name:p.name,songs:p.songs.slice(),position:0};
+    window.qeSongPassOrigin={id:p.id,songIndex:p.songs[0],scrollTop:detailSongs.scrollTop};
     document.body.classList.add('qeDirect');
     var directModeBtn=document.getElementById('qeDirectMode');
     if(directModeBtn)directModeBtn.textContent='✕ Salir de modo directo';
@@ -4383,6 +4390,24 @@ buildPicker();render('');bindGlobalUndoButtons();
     p.position++;
     openSong(p.songs[p.position]);
     showActivePassBadge();
+    return true;
+  };
+  window.qeReturnToPassIndex=function(){
+    var origin=window.qeSongPassOrigin;
+    if(!origin && window.activePass){
+      var active=window.activePass;
+      origin={id:active.id,songIndex:active.songs[active.position],scrollTop:0};
+    }
+    if(!origin)return false;
+    var pass=getPass(origin.id);
+    if(!pass){window.qeSongPassOrigin=null;return false}
+    window.qeSongPassOrigin=null;
+    if(window.clearActivePass)window.clearActivePass();
+    openPassDetail(pass.id);
+    var rows=Array.prototype.slice.call(detailSongs.querySelectorAll('.passSongRow'));
+    var position=(pass.songs||[]).indexOf(origin.songIndex);
+    if(position>=0 && rows[position])rows[position].scrollIntoView({block:'nearest'});
+    else detailSongs.scrollTop=origin.scrollTop||0;
     return true;
   };
   window.clearActivePass=function(){
