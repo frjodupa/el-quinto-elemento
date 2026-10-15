@@ -4394,7 +4394,7 @@ buildPicker();render('');bindGlobalUndoButtons();
   };
   window.qeReturnToPassIndex=function(){
     var origin=window.qeSongPassOrigin;
-    if(!origin && window.activePass){
+    if(window.activePass){
       var active=window.activePass;
       origin={id:active.id,songIndex:active.songs[active.position],scrollTop:0};
     }
