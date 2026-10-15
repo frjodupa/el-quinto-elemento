@@ -32,7 +32,8 @@ jobs:
           test -f public/sw.js
           grep -q '"name": "crimson-rice-1fe1"' wrangler.jsonc
           grep -q '"binding": "DB"' wrangler.jsonc
-          grep -q 'premium.css?v=84' public/index.html
+          node scripts/test-pwa-version.cjs
+          grep -q 'premium.css?v=85' public/index.html
       - name: Verify Cloudflare credentials
         shell: bash
         env:
