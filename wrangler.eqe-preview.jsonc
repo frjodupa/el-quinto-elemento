@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eqe-acordes-v91-pruebas",
+  "main": "./src/worker-preview.js",
+  "compatibility_date": "2026-09-20",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  }
+}
