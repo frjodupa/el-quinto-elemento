@@ -1,6 +1,14 @@
-name: EQE - Publicar PWA en Cloudflare (manual)
+name: EQE - Publicar PWA en Cloudflare
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+      - 'src/worker.js'
+      - 'wrangler.jsonc'
+      - 'scripts/test-pwa-version.cjs'
+      - '.github/workflows/deploy-eqe-cloudflare.yml'
   workflow_dispatch:
 
 permissions:
@@ -33,7 +41,6 @@ jobs:
           grep -q '"name": "crimson-rice-1fe1"' wrangler.jsonc
           grep -q '"binding": "DB"' wrangler.jsonc
           node scripts/test-pwa-version.cjs
-          grep -q 'premium.css?v=86' public/index.html
       - name: Verify Cloudflare credentials
         shell: bash
         env:
