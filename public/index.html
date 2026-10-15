@@ -2493,6 +2493,8 @@ function render(f){
     b.textContent=shownTitle;
     b.onclick=function(){
       if(window.passSelectionClick && window.passSelectionClick(i))return;
+      window.qeSongPassOrigin=null;
+      if(window.clearActivePass)window.clearActivePass();
       openSong(i)
     };
     if(window.decoratePassSongButton)window.decoratePassSongButton(b,i);
