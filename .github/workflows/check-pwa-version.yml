@@ -1,0 +1,21 @@
+name: EQE - PWA version consistency
+on:
+  pull_request:
+    paths:
+      - 'public/index.html'
+      - 'public/sw.js'
+      - 'public/version.json'
+      - 'scripts/test-pwa-version.cjs'
+      - '.github/workflows/check-pwa-version.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/test-pwa-version.cjs
