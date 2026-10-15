@@ -882,3 +882,53 @@ body.lightTheme .quickEditMenuNote{color:#515867}
   }
   .lyricEditorFoot button{min-height:44px!important;flex:1 1 auto!important}
 }
+
+
+/* v80 · Responsive touch controls. Presentation only; song and pass data untouched. */
+#view.on .directSongBar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1.1fr) auto;
+  grid-template-areas:"nav scroll tune settings";
+  align-items:center;
+  gap:8px!important;
+  overflow:visible!important;
+  white-space:normal!important;
+}
+#view.on .directSongNav{grid-area:nav;display:flex;align-items:center;gap:5px;min-width:0}
+#view.on .directSongScroll{grid-area:scroll;display:flex;align-items:center;gap:6px;min-width:0}
+#view.on .directSongTune{grid-area:tune;display:flex;align-items:center;gap:5px;min-width:0}
+#view.on .directSongQuickActions{grid-area:settings;min-width:0}
+#view.on .directSongBar .spacer{display:none}
+#view.on .directSongBar button{flex-shrink:0;white-space:nowrap}
+#view.on .directSpeed{flex:1 1 100px;min-width:72px!important;max-width:100%}
+#view.on .directSpeed input[type="range"]{min-width:35px;max-width:100%;width:100%}
+@media(max-width:1180px){
+  #view.on .directSongBar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"nav settings" "scroll tune"!important;
+  }
+  #view.on .directSongScroll{justify-self:stretch}
+  #view.on .directSongTune{justify-self:end}
+}
+@media(max-width:600px){
+  #view.on .directSongBar{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"nav settings" "scroll scroll" "tune tune"!important;
+  }
+  #view.on .directSongTune{justify-self:stretch;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  #view.on .directSongTune button{min-width:0!important;width:100%!important}
+  #view.on .directSongScroll{width:100%}
+}
+@media(max-width:480px){
+  #view.on .directSongBar{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"nav" "settings" "scroll" "tune"!important;
+  }
+  #view.on .directSongNav{justify-content:space-between}
+  #view.on .directSongQuickActions{justify-self:stretch;justify-content:flex-end}
+  #view.on .directSongScroll{justify-self:stretch}
+}
+/* Allow modal action rows to wrap instead of pushing buttons outside their panels. */
+.passHead,.passActions,.passDetailTop,.settingsHead{flex-wrap:wrap;min-width:0}
+.passHead strong,.settingsHeadTitle{min-width:0}
+.passPanel,.settingsPanel{max-width:100%;box-sizing:border-box}
