@@ -3757,31 +3757,38 @@ buildPicker();render('');bindGlobalUndoButtons();
   var btnIndex=document.getElementById('themeToggleIndex');
   var btnView=document.getElementById('themeToggleView');
 
+  var media=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+  var mode='system';
+
   function loadTheme(){
-    var theme='dark';
     try{
-      var saved=localStorage.getItem('quintoElemento.theme');
-      if(saved==='light' || saved==='dark') theme=saved;
+      var saved=localStorage.getItem('quintoElemento.themeMode');
+      if(saved==='system'||saved==='light'||saved==='dark')mode=saved;
     }catch(e){}
-    applyTheme(theme);
+    applyTheme();
   }
 
-  function applyTheme(theme){
-    var light=theme==='light';
-    body.classList.toggle('lightTheme',light);
-    var text=light?'🌙 Tema oscuro':'☀ Tema claro';
-    if(btnIndex) btnIndex.textContent=text;
-    if(btnView) btnView.textContent=text;
-    try{localStorage.setItem('quintoElemento.theme',light?'light':'dark')}catch(e){}
+  function applyTheme(){
+    var light=mode==='light'||(mode==='system'&&media&&!media.matches);
+    body.classList.toggle('lightTheme',!!light);
+    var text=mode==='system'?'◐ Tema automático':(mode==='light'?'☀ Tema claro':'🌙 Tema oscuro');
+    if(btnIndex)btnIndex.textContent=text;
+    if(btnView)btnView.textContent=text;
   }
 
   function toggleTheme(){
-    applyTheme(body.classList.contains('lightTheme')?'dark':'light');
+    mode=mode==='system'?'light':(mode==='light'?'dark':'system');
+    try{localStorage.setItem('quintoElemento.themeMode',mode)}catch(e){}
+    applyTheme();
   }
 
-  if(btnIndex) btnIndex.addEventListener('click',toggleTheme);
-  if(btnView) btnView.addEventListener('click',toggleTheme);
-
+  if(btnIndex)btnIndex.addEventListener('click',toggleTheme);
+  if(btnView)btnView.addEventListener('click',toggleTheme);
+  if(media){
+    var onSystemChange=function(){if(mode==='system')applyTheme()};
+    if(media.addEventListener)media.addEventListener('change',onSystemChange);
+    else if(media.addListener)media.addListener(onSystemChange);
+  }
   loadTheme();
 })();
 
@@ -4791,7 +4798,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=86;
+const APP_VERSION=87;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4880,7 +4887,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=86',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=87',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6560,7 +6567,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=86");
+@import url("./premium.css?v=87");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
