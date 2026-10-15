@@ -2450,7 +2450,6 @@ function saveChordData(i,d){
   try{
     if(!window.localStorage)return;
     var key=songKey(i);
-    d=fillExactRepeatedChords(i,d);
     var next=JSON.stringify(d);
     var prev=localStorage.getItem(key);
     if(prev===next)return;
@@ -4841,7 +4840,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=91;
+const APP_VERSION=92;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4930,7 +4929,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=91',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=92',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6610,7 +6609,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=91");
+@import url("./premium.css?v=92");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
