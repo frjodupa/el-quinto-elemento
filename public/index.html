@@ -2409,10 +2409,48 @@ function updateUndoChordButton(){
   });
 }
 
+function fillExactRepeatedChords(i,d){
+  // Solo bloques de letra idéntica. No alterar acordes ya existentes.
+  var norm=getSongText(i).split('\n').map(function(line){
+    return String(line||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');
+  });
+  var lines=d.lines||{},words=d.words||{},byLine={};
+  Object.keys(words).forEach(function(key){
+    var m=/^(\d+):(\d+)$/.exec(key);
+    if(m)(byLine[Number(m[1])]||(byLine[Number(m[1])]=[])).push({word:m[2],value:words[key]});
+  });
+  for(var src=0;src<norm.length;src++){
+    if(!norm[src])continue;
+    for(var dst=src+2;dst<norm.length;dst++){
+      if(!norm[dst]||norm[src]!==norm[dst])continue;
+      if(src>0&&dst>0&&norm[src-1]&&norm[src-1]===norm[dst-1])continue;
+      var len=0;
+      while(src+len<dst&&dst+len<norm.length&&norm[src+len]&&norm[src+len]===norm[dst+len])len++;
+      if(len<2)continue;
+      var sourceCount=0,targetCount=0;
+      for(var k=0;k<len;k++){
+        sourceCount+=(lines[src+k]?1:0)+(byLine[src+k]||[]).length;
+        targetCount+=(lines[dst+k]?1:0)+(byLine[dst+k]||[]).length;
+      }
+      // Un destino editado se deja intacto: no fusionar armonías incompatibles.
+      if(!sourceCount||targetCount)continue;
+      for(var off=0;off<len;off++){
+        var from=src+off,to=dst+off;
+        if(lines[from])lines[to]=lines[from];
+        (byLine[from]||[]).forEach(function(ch){
+          words[to+':'+ch.word]=ch.value;
+        });
+      }
+    }
+  }
+  return d;
+}
+
 function saveChordData(i,d){
   try{
     if(!window.localStorage)return;
     var key=songKey(i);
+    d=fillExactRepeatedChords(i,d);
     var next=JSON.stringify(d);
     var prev=localStorage.getItem(key);
     if(prev===next)return;
@@ -4803,7 +4841,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=90;
+const APP_VERSION=91;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4892,7 +4930,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=90',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=91',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6572,7 +6610,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=90");
+@import url("./premium.css?v=91");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
