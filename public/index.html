@@ -4237,9 +4237,10 @@ buildPicker();render('');bindGlobalUndoButtons();
       title.setAttribute('aria-label','Abrir '+getSongTitle(songIndex));
       title.onclick=function(){
         window.qeSongPassOrigin={id:p.id,songIndex:songIndex,scrollTop:detailSongs.scrollTop};
+        window.activePass={id:p.id,name:p.name,songs:p.songs.slice(),position:pos};
         detailModal.classList.remove('on');
-        window.activePass=null;
         openSong(songIndex);
+        showActivePassBadge();
       };
 
       var up=document.createElement('button');up.type='button';up.textContent='↑';
