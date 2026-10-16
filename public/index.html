@@ -2413,6 +2413,8 @@ function fillExactRepeatedChords(i,d,previous){
   // Solo propagar acordes recién introducidos; nunca modificar destinos con acordes.
   var before=previous||{lines:{},words:{}};
   var lines=d.lines||{},words=d.words||{};
+  // Trabajar sobre una copia evita que la sugerencia cambie el objeto activo antes del guardado.
+  lines=Object.assign({},lines); words=Object.assign({},words);
   var oldLines=before.lines||{},oldWords=before.words||{};
   var norm=getSongText(i).split('\n').map(function(line){
     return String(line||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');
@@ -2423,11 +2425,11 @@ function fillExactRepeatedChords(i,d,previous){
   }
   var changedLines={};
   Object.keys(lines).forEach(function(k){
-    if(lines[k]&&lines[k]!==oldLines[k])changedLines[Number(k)]=true;
+    if(lines[k]&&!Object.prototype.hasOwnProperty.call(oldLines,k))changedLines[Number(k)]=true;
   });
   Object.keys(words).forEach(function(k){
     var m=/^(\d+):(\d+)$/.exec(k);
-    if(m&&words[k]&&words[k]!==oldWords[k])changedLines[Number(m[1])]=true;
+    if(m&&words[k]&&!Object.prototype.hasOwnProperty.call(oldWords,k))changedLines[Number(m[1])]=true;
   });
   for(var src=0;src<norm.length;src++){
     if(!changedLines[src]||!norm[src])continue;
@@ -2453,7 +2455,7 @@ function fillExactRepeatedChords(i,d,previous){
       }
     }
   }
-  return d;
+  return Object.assign({},d,{lines:lines,words:words});
 }
 
 function saveChordData(i,d){
