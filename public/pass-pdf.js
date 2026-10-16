@@ -24,7 +24,7 @@ function createPdf(){
   var kids=[];
   pages.forEach(function(lines,pageIndex){
     var pageId=objs.length,contentId=pageId+1;kids.push(pageId+' 0 R');
-    objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents '+contentId+' 0 R >>');
+    objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents '+contentId+' 0 R >>');
     var ops=['BT','/F1 18 Tf','50 790 Td','('+pdfEsc(header)+') Tj','/F1 10 Tf','0 -24 Td','('+pdfEsc(subtitle)+') Tj','/F1 12 Tf','0 -33 Td'];
     lines.forEach(function(line){ops.push('('+pdfEsc(line)+') Tj');ops.push('0 -27 Td');});
     ops.push('/F1 9 Tf','('+pdfEsc('Página '+(pageIndex+1)+' de '+pages.length)+') Tj','ET');
