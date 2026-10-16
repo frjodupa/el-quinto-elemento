@@ -4618,6 +4618,10 @@ buildPicker();render('');bindGlobalUndoButtons();
     var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
 
     if(remote && remoteTs>localTs){
+      if(localStorage.getItem(META_DIRTY)==='1'){
+        setStatus('⚠ Cambios pendientes','Hay cambios locales sin subir. No se sustituirán con una descarga automática.');
+        return false;
+      }
       setStatus('☁ Recibiendo cambios…','Actualizando este dispositivo con la última versión.');
       applyState(remote);
       localStorage.setItem(META_REMOTE_TS,String(remoteTs));
@@ -4645,6 +4649,10 @@ buildPicker();render('');bindGlobalUndoButtons();
           var remoteTs=Number(remote.updatedAt||0);
           var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
           if(remoteTs>localTs){
+            if(localStorage.getItem(META_DIRTY)==='1'){
+              setStatus('⚠ Cambios pendientes','No se sustituyen tus cambios locales con otra versión.');
+              return;
+            }
             applyState(remote.data);
             localStorage.setItem(META_REMOTE_TS,String(remoteTs));
             localStorage.setItem(META_DIRTY,'0');
