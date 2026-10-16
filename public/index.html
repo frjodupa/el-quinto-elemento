@@ -2283,6 +2283,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
         <button id="quickEditPasteBtn" type="button">📋 Pegar letra desde portapapeles</button>
         <button id="quickEditTitleBtn" type="button">▤ Título de la canción</button>
         <button id="quickEditChordsBtn" type="button">♫ Acordes sobre las palabras</button>
+        <button id="quickEditDuplicateChordsBtn" type="button" onclick="startBlockDuplicate();document.getElementById('quickEditMenu').hidden=true;document.getElementById('quickEditSongBtn').setAttribute('aria-expanded','false');">⧉ Duplicar acordes</button>
         <button id="quickEditIntroBtn" type="button">＋ Intro y acordes iniciales</button>
         <button id="quickEditInstrumentalBtn" type="button">♫ Insertar Instrumental</button>
         <div class="quickEditMenuNote">También puedes tocar ♫ junto a cada línea para editar sus acordes.</div>
@@ -2323,7 +2324,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
     <div class="quickChordButtons">
       <button id="quickChordIntro" type="button">＋ Intro</button>
       <button id="quickChordInstrumental" type="button">♫ Instrumental</button>
-      <button id="quickChordCopy" type="button" onclick="startBlockDuplicate()">⧉ Copiar acordes</button>
+      <button id="quickChordCopy" type="button" onclick="startBlockDuplicate()">⧉ Duplicar acordes</button>
       <button id="quickChordLyrics" type="button" onclick="openLyricEditor()">✎ Letra</button>
       <button id="quickChordUndo" type="button" disabled>↶ Deshacer</button>
       <button id="quickChordSave" class="quickChordSave" type="button">✓ Guardar y salir</button>
@@ -2331,7 +2332,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
   </div>
   <h1 id="st" class="title"></h1>
   <div id="transposeBadge" class="transposeBadge" style="display:none"></div>
-  <div class="chordHelp"><b>Edición de acordes:</b> toca una palabra para poner un acorde. Usa <b>♫</b> para acordes de toda una línea. <b>Copiar acordes</b> permite seleccionar una estrofa y pegar únicamente sus acordes en otra, sin cambiar la letra. <b>Intro</b> crea una cabecera musical y <b>Instrumental</b> permite insertar una sección entre dos líneas.</div>
+  <div class="chordHelp"><b>Edición de acordes:</b> toca una palabra para poner un acorde. Usa <b>♫</b> para acordes de toda una línea. <b>Duplicar acordes</b> permite seleccionar una estrofa y pegar únicamente sus acordes en otra, sin cambiar la letra. <b>Intro</b> crea una cabecera musical y <b>Instrumental</b> permite insertar una sección entre dos líneas.</div>
   <div class="placingNote">Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.</div>
   <div id="ly" class="lyrics"></div>
   <button id="concertToggleControls" class="concertToggleControls" type="button" aria-label="Mostrar controles">•••</button>
@@ -4961,7 +4962,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=80;
+const APP_VERSION=81;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
