@@ -14,7 +14,7 @@ assert.equal(d.lines[3],undefined,'not allowed to duplicate existing unchanged c
 d=run(song,{lines:{0:'RE',1:'LA',3:'DO'},words:{}},{lines:{0:'RE',1:'LA',3:'DO'},words:{}});
 assert.equal(d.lines[3],'DO');assert.equal(d.lines[4],undefined);
 d=run(song,{lines:{0:'RE',1:'LA'},words:{}},{lines:{0:'DO'},words:{}});
-assert.equal(d.lines[3],'RE','newly modified chord used');assert.equal(d.lines[4],'LA');
+assert.equal(d.lines[3],undefined,'editing a preexisting chord must not generate other chords');assert.equal(d.lines[4],undefined);
 d=run('UNO\nDOS\nCAMBIO\nUNO\nOTRO',{lines:{0:'RE'},words:{}},{lines:{},words:{}});
 assert.equal(d.lines[3],undefined,'different lyrics never inferred');
 console.log('Safe chord edit-only test: 5 passes');
