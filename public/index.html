@@ -805,8 +805,8 @@ body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#c
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
 </style>
-<link rel="manifest" href="manifest.webmanifest?v=83">
-<link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=78">
+<link rel="manifest" href="manifest.webmanifest?v=94">
+<link rel="apple-touch-icon" sizes="180x180" href="premium-icon-180.png?v=94">
 <meta name="apple-mobile-web-app-title" content="El Quinto Elemento">
 <meta name="application-name" content="El Quinto Elemento">
 
@@ -1519,8 +1519,8 @@ body.lightTheme .globalUndoBtn{
 
 </style>
 
-<link rel="icon" type="image/png" sizes="192x192" href="premium-icon-192.png?v=78">
-<link rel="icon" type="image/png" sizes="512x512" href="premium-icon-512.png?v=78">
+<link rel="icon" type="image/png" sizes="192x192" href="premium-icon-192.png?v=94">
+<link rel="icon" type="image/png" sizes="512x512" href="premium-icon-512.png?v=94">
 <style>
 /* v60 · Vista original estructurada por defecto */
 #ly.qeOriginalView .lyricLine{margin:.12em 0}
@@ -4840,7 +4840,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=93;
+const APP_VERSION=94;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4929,7 +4929,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=93',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=94',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6609,7 +6609,7 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=93");
+@import url("./premium.css?v=94");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
 <script defer src="./song-quick-edit.js?v=83"></script>
