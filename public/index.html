@@ -1861,6 +1861,15 @@ body.lightTheme .instrumentActions button.danger{
 .view.blockDuplicateMode .lyricLine{cursor:pointer}
 .view.blockDuplicateMode .lyricLine:hover,
 .view.blockDuplicateMode .lyricLine:active{background:rgba(230,195,106,.10)}
+.view.blockDuplicateMode.blockPasteTarget .lyricLine:not(.duplicateSourceRange){
+  outline:1px dashed rgba(230,195,106,.28);
+  outline-offset:-2px;
+}
+.view.blockDuplicateMode.blockPasteTarget .lyricLine:not(.duplicateSourceRange):hover,
+.view.blockDuplicateMode.blockPasteTarget .lyricLine:not(.duplicateSourceRange):active{
+  outline-color:#e6c36a;
+  background:rgba(230,195,106,.14)!important;
+}
 .lyricLine.duplicateSourceRange{
   background:rgba(230,195,106,.10)!important;
   box-shadow:inset 4px 0 0 #d9b85e;
@@ -1944,7 +1953,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
           <button id="settingsEditLyrics" type="button">✎ Editar canción</button>
           <button id="settingsIntro" type="button">＋ Intro</button>
           <button id="settingsInstrumental" type="button">＋ Instrumental</button>
-          <button id="settingsDuplicateChordBlock" type="button">⧉ Duplicar bloque</button>
+          <button id="settingsDuplicateChordBlock" type="button">⧉ Copiar / pegar bloque</button>
           <button id="settingsDetectRepeats" type="button">⌕ Detectar repeticiones</button>
           <button id="settingsReferenceText" type="button">◈ Marcar referencia</button>
           <button id="settingsClearReferences" type="button">✕ Borrar referencias</button>
@@ -2842,18 +2851,20 @@ function updateDuplicateChordBanner(){
     b.style.display='none';
     b.innerHTML='';
     view.classList.remove('blockDuplicateMode');
+    view.classList.remove('blockPasteTarget');
     return;
   }
   view.classList.add('blockDuplicateMode');
+  view.classList.toggle('blockPasteTarget',blockDuplicateStart!==null&&blockDuplicateEnd!==null);
   b.style.display='block';
   var msg='';
   if(blockDuplicateStart===null){
-    msg='1/3 · <strong>SELECCIONAR BLOQUE:</strong> toca la PRIMERA línea que contiene los acordes que quieres copiar.';
+    msg='1/3 · <strong>SELECCIONAR ESTROFA / BLOQUE:</strong> toca la PRIMERA línea de lo que quieres copiar.';
   }else if(blockDuplicateEnd===null){
-    msg='2/3 · <strong>SELECCIONAR BLOQUE:</strong> toca la ÚLTIMA línea. Quedará marcado todo el bloque.';
+    msg='2/3 · <strong>SELECCIONAR ESTROFA / BLOQUE:</strong> toca la ÚLTIMA línea. Todo lo incluido entre ambas quedará seleccionado.';
   }else{
     var total=blockDuplicateEnd-blockDuplicateStart+1;
-    msg='3/3 · <strong>BLOQUE COPIADO ('+total+' línea'+(total===1?'':'s')+').</strong> Desplázate hasta el destino y toca la PRIMERA línea donde quieres PEGAR los acordes.';
+    msg='3/3 · <strong>ACORDES COPIADOS ('+total+' línea'+(total===1?'':'s')+').</strong> Desplázate y toca la PRIMERA línea de la estrofa o bloque donde quieres PEGARLOS.';
   }
   b.innerHTML='<span>'+msg+'</span><button id="cancelBlockDuplicate" type="button">Cancelar</button>';
   var cancel=document.getElementById('cancelBlockDuplicate');
@@ -4891,7 +4902,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=97;
+const APP_VERSION=98;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
