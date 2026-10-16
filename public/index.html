@@ -1833,6 +1833,43 @@ body.lightTheme .qeSemitoneActions button{background:#f7f4eb!important;color:#20
 body.lightTheme .qeSemitoneActions #transposeStepOriginal{color:#846017!important}
 @media(max-width:420px){.qeSemitonePanel{padding:9px}.qeSemitoneActions{gap:4px}.qeSemitoneActions button{font-size:.76rem!important}}
 </style>
+<style id="v96-block-copy-and-instrument-contrast">
+/* v96 · Instrumentales: contraste legible también en tema claro */
+.instrumentActions button,
+body.lightTheme .instrumentActions button{
+  background:#17191e!important;
+  color:#f7f4ea!important;
+  border-color:#6f6240!important;
+  opacity:1!important;
+  -webkit-text-fill-color:#f7f4ea!important;
+}
+.instrumentActions button:active,
+body.lightTheme .instrumentActions button:active{
+  background:#d9b85e!important;
+  color:#17130a!important;
+  -webkit-text-fill-color:#17130a!important;
+}
+.instrumentActions button.danger,
+body.lightTheme .instrumentActions button.danger{
+  background:#2a1717!important;
+  color:#ffb9b9!important;
+  border-color:#a45555!important;
+  -webkit-text-fill-color:#ffb9b9!important;
+}
+
+/* v96 · Copiar / pegar bloques de acordes */
+.view.blockDuplicateMode .lyricLine{cursor:pointer}
+.view.blockDuplicateMode .lyricLine:hover,
+.view.blockDuplicateMode .lyricLine:active{background:rgba(230,195,106,.10)}
+.lyricLine.duplicateSourceRange{
+  background:rgba(230,195,106,.10)!important;
+  box-shadow:inset 4px 0 0 #d9b85e;
+}
+.lyricLine.duplicateSourceStart{border-top-left-radius:9px;border-top-right-radius:9px}
+.lyricLine.duplicateSourceEnd{border-bottom-left-radius:9px;border-bottom-right-radius:9px}
+.duplicateChordBanner strong{color:#fff}
+body.lightTheme .duplicateChordBanner strong{color:#332606}
+</style>
 </head><body>
 <button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
 
@@ -2809,9 +2846,14 @@ function updateDuplicateChordBanner(){
   view.classList.add('blockDuplicateMode');
   b.style.display='block';
   var msg='';
-  if(blockDuplicateStart===null)msg='1/3 · Toca el botón ♫ de la PRIMERA línea del bloque que ya tiene acordes.';
-  else if(blockDuplicateEnd===null)msg='2/3 · Toca el botón ♫ de la ÚLTIMA línea del bloque.';
-  else msg='3/3 · Toca el botón ♫ de la PRIMERA línea donde quieres duplicar el bloque.';
+  if(blockDuplicateStart===null){
+    msg='1/3 · <strong>SELECCIONAR BLOQUE:</strong> toca la PRIMERA línea que contiene los acordes que quieres copiar.';
+  }else if(blockDuplicateEnd===null){
+    msg='2/3 · <strong>SELECCIONAR BLOQUE:</strong> toca la ÚLTIMA línea. Quedará marcado todo el bloque.';
+  }else{
+    var total=blockDuplicateEnd-blockDuplicateStart+1;
+    msg='3/3 · <strong>BLOQUE COPIADO ('+total+' línea'+(total===1?'':'s')+').</strong> Desplázate hasta el destino y toca la PRIMERA línea donde quieres PEGAR los acordes.';
+  }
   b.innerHTML='<span>'+msg+'</span><button id="cancelBlockDuplicate" type="button">Cancelar</button>';
   var cancel=document.getElementById('cancelBlockDuplicate');
   if(cancel)cancel.onclick=cancelBlockDuplicate;
@@ -2889,11 +2931,11 @@ function handleBlockDuplicateLine(li){
     });
   }
 
-  var msg='Duplicar '+count+' línea'+(count===1?'':'s')+
-    ' desde '+(start+1)+'–'+(end+1)+
-    ' hacia '+(dest+1)+'–'+(dest+count)+'.';
+  var msg='Pegar los acordes del bloque copiado ('+count+' línea'+(count===1?'':'s')+')'+
+    '\nOrigen: '+(start+1)+'–'+(end+1)+
+    '\nDestino: '+(dest+1)+'–'+(dest+count)+'.';
   if(mismatch)msg+='\n\nAviso: '+mismatch+' línea'+(mismatch===1?' tiene':'s tienen')+' distinto número de palabras. Revisa visualmente los acordes después.';
-  if(existing)msg+='\n\nEl destino ya contiene acordes y se sustituirán por los del bloque.';
+  if(existing)msg+='\n\nEl destino ya contiene acordes. Solo se sustituirán los acordes de esas líneas; la letra no se modifica.';
   msg+='\n\n¿Continuar?';
 
   if(!confirm(msg))return true;
@@ -2932,7 +2974,7 @@ function handleBlockDuplicateLine(li){
   blockDuplicateEnd=null;
   renderLyrics();
   showSavedToast();
-  if(mismatch)alert('Bloque duplicado. Hay '+mismatch+' línea'+(mismatch===1?'':'s')+' con distinta longitud: revisa que los acordes hayan quedado en el punto correcto.');
+  if(mismatch)alert('Acordes pegados. Hay '+mismatch+' línea'+(mismatch===1?'':'s')+' con distinta longitud: revisa que los acordes hayan quedado en el punto correcto.');
   return true;
 }
 
@@ -3151,8 +3193,16 @@ function renderLyrics(){
     row.classList.add('qeSourceLine');
     if(line==='')row.classList.add('qeBlank');
     else if(/^(INTRO|ESTROFA|ESTRIBILLO|PUENTE|SOLO|INSTRUMENTAL|FINAL|CODA|PRE[- ]?ESTRIBILLO)\b/i.test(String(line).trim()))row.classList.add('qeHeading');
+    if(blockDuplicateMode&&blockDuplicateStart!==null&&blockDuplicateEnd!==null&&li>=blockDuplicateStart&&li<=blockDuplicateEnd)row.classList.add('duplicateSourceRange');
     if(blockDuplicateMode&&li===blockDuplicateStart)row.classList.add('duplicateSourceStart');
     if(blockDuplicateMode&&li===blockDuplicateEnd)row.classList.add('duplicateSourceEnd');
+    // En modo Copiar bloque, se puede tocar cualquier punto de la línea, no solo el pequeño botón ♫.
+    row.addEventListener('click',function(e){
+      if(!blockDuplicateMode)return;
+      e.preventDefault();
+      e.stopPropagation();
+      handleBlockDuplicateLine(li);
+    },true);
     var lineEdit=document.createElement('button');lineEdit.className='lineEditBtn';lineEdit.textContent='♫';lineEdit.title='Editar acordes de esta línea';
     var lc=d.lines[li]||'';lineEdit.onclick=function(){if(handleBlockDuplicateLine(li))return;openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};row.appendChild(lineEdit);
     var body=document.createElement('div');body.className='lineBody';
@@ -4840,7 +4890,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=95;
+const APP_VERSION=96;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
