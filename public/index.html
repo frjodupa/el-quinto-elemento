@@ -2315,10 +2315,11 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
     </div>
   </div>
   <div id="quickChordBar" class="quickChordBar" aria-label="Herramientas de edición de acordes" hidden>
-    <span class="quickChordHint">Toca una palabra para añadir o corregir un acorde.</span>
+    <span class="quickChordHint">Edita acordes y letra sin salir de la canción.</span>
     <div class="quickChordButtons">
       <button id="quickChordIntro" type="button">＋ Intro</button>
       <button id="quickChordInstrumental" type="button">♫ Instrumental</button>
+      <button id="quickChordLyrics" type="button" onclick="openLyricEditor()">✎ Letra</button>
       <button id="quickChordUndo" type="button" disabled>↶ Deshacer</button>
       <button id="quickChordSave" class="quickChordSave" type="button">✓ Guardar y salir</button>
     </div>
@@ -4890,7 +4891,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=96;
+const APP_VERSION=97;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
