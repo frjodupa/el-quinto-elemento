@@ -2854,39 +2854,20 @@ function updateDuplicateChordBanner(){
   }
   view.classList.add('blockDuplicateMode');
   b.style.display='block';
-  var msg='',buttons='';
+  var msg='';
   if(blockDuplicateStart===null){
-    msg='1/3 · <strong>COPIAR ACORDES:</strong> toca la PRIMERA línea del bloque.';
+    msg='<strong>COPIAR:</strong> toca la primera línea del bloque y después la última.';
   }else if(!blockDuplicateArmedForPaste){
     var last=(blockDuplicateEnd===null?blockDuplicateStart:blockDuplicateEnd);
     var total=last-blockDuplicateStart+1;
-    msg='2/3 · <strong>SELECCIÓN: líneas '+(blockDuplicateStart+1)+'–'+(last+1)+' ('+total+').</strong> Toca cualquier línea posterior para ampliar o reducir el final. Cuando esté completo, pulsa <b>Copiar este bloque</b>.';
-    buttons='<button id="confirmBlockDuplicate" type="button">✓ Copiar este bloque</button><button id="selectBlockToEnd" type="button">Hasta el final</button>';
+    msg='<strong>Seleccionadas líneas '+(blockDuplicateStart+1)+'–'+(last+1)+' ('+total+').</strong> Ajusta tocando otra línea y, cuando esté correcto, pulsa <b>PEGAR</b> en la barra superior.';
   }else{
     var total2=blockDuplicateEnd-blockDuplicateStart+1;
-    msg='3/3 · <strong>ACORDES COPIADOS ('+total2+' línea'+(total2===1?'':'s')+').</strong> Ahora toca la PRIMERA línea donde quieres pegarlos. La letra no se modifica.';
+    msg='<strong>Bloque copiado: '+total2+' línea'+(total2===1?'':'s')+'.</strong> Toca ahora la primera línea de la estrofa o estribillo de destino.';
   }
-  b.innerHTML='<span>'+msg+'</span>'+buttons+'<button id="cancelBlockDuplicate" type="button">Cancelar</button>';
+  b.innerHTML='<span>'+msg+'</span><button id="cancelBlockDuplicate" type="button">Cancelar</button>';
   var cancel=document.getElementById('cancelBlockDuplicate');
   if(cancel)cancel.onclick=cancelBlockDuplicate;
-  var confirmBtn=document.getElementById('confirmBlockDuplicate');
-  if(confirmBtn)confirmBtn.onclick=function(){
-    if(blockDuplicateStart===null)return;
-    if(blockDuplicateEnd===null)blockDuplicateEnd=blockDuplicateStart;
-    blockDuplicateArmedForPaste=true;
-    updateDuplicateChordBanner();
-    renderLyrics();
-  };
-  var toEnd=document.getElementById('selectBlockToEnd');
-  if(toEnd)toEnd.onclick=function(){
-    if(blockDuplicateStart===null)return;
-    var lines=getSongText(current).split('\n');
-    var end=lines.length-1;
-    while(end>blockDuplicateStart && String(lines[end]||'').trim()==='')end--;
-    blockDuplicateEnd=end;
-    updateDuplicateChordBanner();
-    renderLyrics();
-  };
 }
 
 function cancelBlockDuplicate(){
