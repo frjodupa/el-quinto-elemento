@@ -51,7 +51,7 @@
       if(typeof blockDuplicateMode!=="undefined"){
         copy.classList.toggle("active",!!blockDuplicateMode&&!blockDuplicateArmedForPaste);
         paste.classList.toggle("active",!!blockDuplicateMode&&!!blockDuplicateArmedForPaste);
-        paste.disabled=!(blockDuplicateMode&&blockDuplicateStart!==null);
+        paste.disabled=!blockDuplicateMode;
       }
       if(menu)menu.hidden=true;
     }
