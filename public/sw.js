@@ -1,13 +1,13 @@
-const CACHE='quinto-elemento-v81';
+const CACHE='quinto-elemento-v82';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=81',
+  './manifest.webmanifest?v=82',
   './version.json',
   './pdf-chords-v44.json',
-  './premium.css?v=96',
+  './premium.css?v=97',
   './premium-icons.js?v=77',
-  './song-quick-edit.js?v=83',
+  './song-quick-edit.js?v=97',
   './premium-icon-192.png?v=77',
   './premium-icon-512.png?v=77',
   './premium-icon-maskable-512.png?v=77',
