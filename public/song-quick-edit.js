@@ -10,6 +10,7 @@
     var lyrics=document.getElementById("quickChordLyrics");
     var copy=document.getElementById("quickChordCopy");
     var paste=document.getElementById("quickChordPaste");
+    var duplicate=document.getElementById("quickChordDuplicate");
     var undo=document.getElementById("quickChordUndo");
     var done=document.getElementById("quickChordSave");
 
@@ -51,7 +52,7 @@
       if(typeof blockDuplicateMode!=="undefined"){
         copy.classList.toggle("active",!!blockDuplicateMode&&!blockDuplicateArmedForPaste);
         paste.classList.toggle("active",!!blockDuplicateMode&&!!blockDuplicateArmedForPaste);
-        paste.disabled=!blockDuplicateMode;
+        paste.disabled=!(blockDuplicateMode && blockDuplicateStart!==null && !blockDuplicateArmedForPaste);
       }
       if(menu)menu.hidden=true;
     }
@@ -81,11 +82,16 @@
       sync();
     });
 
+    if(duplicate)duplicate.addEventListener("click",function(){
+      enterEdit();
+      if(typeof startBlockDuplicate==="function")startBlockDuplicate();
+      sync();
+    });
     copy.addEventListener("click",function(){
       enterEdit();
       if(typeof startBlockDuplicate!=="function")return;
       startBlockDuplicate();
-      paste.disabled=false;
+      paste.disabled=true;
       copy.classList.add("active");
       paste.classList.remove("active");
       sync();
@@ -103,7 +109,7 @@
       if(typeof renderLyrics==="function")renderLyrics();
       copy.classList.remove("active");
       paste.classList.add("active");
-      paste.disabled=false;
+      paste.disabled=true;
       sync();
     });
 
@@ -135,7 +141,7 @@
     if(settings){
       ["settingsDetectRepeats","settingsReferenceText","settingsClearReferences",
        "settingsPdfAllChords","qeRepairAunque","settingsClearChords",
-       "settingsDuplicateChordBlock"].forEach(function(id){
+       "].forEach(function(id){
         var item=document.getElementById(id);
         if(item)item.hidden=true;
       });
