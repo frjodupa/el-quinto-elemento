@@ -6928,6 +6928,37 @@ body.lightTheme .internetSearchLaunch{
         meta.textContent=Array.isArray(pass.songs)?pass.songs.length+' canciones':'Revisar pase';
         title.append(name,meta);
         row.appendChild(title);
+        if(Array.isArray(pass.songs)){
+          var detail=document.createElement('div');
+          detail.style.display='none';
+          detail.style.padding='8px 14px';
+          pass.songs.forEach(function(index,pos){
+            var entry=document.createElement('button');
+            entry.type='button';
+            entry.className='songBtn';
+            entry.style.display='block';
+            entry.style.width='100%';
+            entry.style.marginTop='6px';
+            entry.textContent=(pos+1)+'. '+(window.songs&&window.songs[index]&&window.songs[index].title||'Canción');
+            entry.addEventListener('click',function(){
+              if(typeof window.openSong==='function'){
+                modal.classList.remove('on');
+                window.openSong(index);
+              }else{
+                alert('Esta versión no puede abrir la canción desde aquí. El pase sigue guardado.');
+              }
+            });
+            detail.appendChild(entry);
+          });
+          var toggle=document.createElement('button');
+          toggle.type='button';
+          toggle.textContent='Ver canciones';
+          toggle.addEventListener('click',function(){
+            detail.style.display=detail.style.display==='none'?'block':'none';
+          });
+          row.appendChild(toggle);
+          row.appendChild(detail);
+        }
         list.appendChild(row);
       });
       modal.classList.add('on');
