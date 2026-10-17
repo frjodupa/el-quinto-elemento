@@ -2322,11 +2322,11 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
   <div id="quickChordBar" class="quickChordBar" aria-label="Herramientas de edición de acordes" hidden>
     <span class="quickChordHint">Edita acordes y letra sin salir de la canción.</span>
     <div class="quickChordButtons">
-      <button id="quickChordIntro" type="button">＋ Intro</button>
-      <button id="quickChordInstrumental" type="button">♫ Instrumental</button>
-      <button id="quickChordCopy" type="button" onclick="startBlockDuplicate()">⧉ Duplicar acordes</button>
-      <button id="quickChordLyrics" type="button" onclick="openLyricEditor()">✎ Letra</button>
-      <button id="quickChordUndo" type="button" disabled>↶ Deshacer</button>
+      <button id="quickChordChords" type="button">♫ Acordes</button>
+      <button id="quickChordLyrics" type="button">✎ Letra</button>
+      <button id="quickChordCopy" type="button">⧉ Copiar</button>
+      <button id="quickChordPaste" type="button" disabled>▣ Pegar</button>
+      <button id="quickChordUndo" type="button" disabled aria-label="Deshacer">↶</button>
       <button id="quickChordSave" class="quickChordSave" type="button">✓ Guardar y salir</button>
     </div>
   </div>
@@ -2334,6 +2334,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
   <div id="transposeBadge" class="transposeBadge" style="display:none"></div>
   <div class="chordHelp"><b>Edición de acordes:</b> toca una palabra para poner un acorde. Usa <b>♫</b> para acordes de toda una línea. <b>Duplicar acordes</b> permite seleccionar una estrofa y pegar únicamente sus acordes en otra, sin cambiar la letra. <b>Intro</b> crea una cabecera musical y <b>Instrumental</b> permite insertar una sección entre dos líneas.</div>
   <div class="placingNote">Selecciona el punto entre dos líneas donde quieres insertar el INSTRUMENTAL.</div>
+  <div id="duplicateChordBanner" class="duplicateChordBanner" style="display:none" aria-live="polite"></div>
   <div id="ly" class="lyrics"></div>
   <button id="concertToggleControls" class="concertToggleControls" type="button" aria-label="Mostrar controles">•••</button>
   <div id="concertControls" class="concertControls" aria-hidden="true">
@@ -4962,7 +4963,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=81;
+const APP_VERSION=82;
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -5051,7 +5052,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=95',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=82',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6731,10 +6732,10 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=95");
+@import url("./premium.css?v=97");
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
-<script defer src="./song-quick-edit.js?v=83"></script>
+<script defer src="./song-quick-edit.js?v=97"></script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
