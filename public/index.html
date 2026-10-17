@@ -6887,4 +6887,53 @@ body.lightTheme .internetSearchLaunch{
   btn.addEventListener('click',exportSongbook);
 })();
 </script>
+
+<script>
+/* GITOP: apertura de emergencia de Pases, solo lectura, sin alterar datos.
+   Actúa únicamente cuando el controlador normal no ha abierto el modal. */
+(function(){
+  var button=document.getElementById('managePassesBtn');
+  var modal=document.getElementById('passesModal');
+  var list=document.getElementById('passesList');
+  if(!button||!modal||!list)return;
+  button.addEventListener('click',function(){
+    setTimeout(function(){
+      if(modal.classList.contains('on'))return;
+      var passes;
+      try {
+        var raw=localStorage.getItem('quintoElemento.passes.v1');
+        passes=raw?JSON.parse(raw):[];
+        if(!Array.isArray(passes))throw new Error('Formato de pases inválido');
+      }catch(error){
+        alert('No se pueden leer los pases guardados. No borres los datos de la aplicación.');
+        return;
+      }
+      list.replaceChildren();
+      if(!passes.length){
+        var empty=document.createElement('div');
+        empty.style.padding='22px';
+        empty.textContent='No aparecen pases en este dispositivo. No se han borrado ni sobrescrito datos. Revisa la sincronización y las copias.';
+        list.appendChild(empty);
+      }
+      passes.forEach(function(pass){
+        var row=document.createElement('div');
+        row.className='passRow';
+        var title=document.createElement('div');
+        title.className='passRowMain';
+        var name=document.createElement('div');
+        name.className='passRowTitle';
+        name.textContent=String(pass.name||'Pase sin nombre');
+        var meta=document.createElement('div');
+        meta.className='passRowMeta';
+        meta.textContent=Array.isArray(pass.songs)?pass.songs.length+' canciones':'Revisar pase';
+        title.append(name,meta);
+        row.appendChild(title);
+        list.appendChild(row);
+      });
+      modal.classList.add('on');
+      modal.setAttribute('aria-hidden','false');
+    },0);
+  });
+})();
+</script>
 </body></html>
