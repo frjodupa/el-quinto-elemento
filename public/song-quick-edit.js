@@ -10,6 +10,7 @@
     var lyrics=document.getElementById("quickChordLyrics");
     var copy=document.getElementById("quickChordCopy");
     var paste=document.getElementById("quickChordPaste");
+    var duplicate=document.getElementById("quickChordDuplicate");
     var undo=document.getElementById("quickChordUndo");
     var done=document.getElementById("quickChordSave");
 
@@ -51,7 +52,7 @@
       if(typeof blockDuplicateMode!=="undefined"){
         copy.classList.toggle("active",!!blockDuplicateMode&&!blockDuplicateArmedForPaste);
         paste.classList.toggle("active",!!blockDuplicateMode&&!!blockDuplicateArmedForPaste);
-        paste.disabled=!blockDuplicateMode;
+        paste.disabled=!(blockDuplicateMode && blockDuplicateStart!==null && !blockDuplicateArmedForPaste);
       }
       if(menu)menu.hidden=true;
     }
@@ -81,6 +82,11 @@
       sync();
     });
 
+    if(duplicate)duplicate.addEventListener("click",function(){
+      enterEdit();
+      if(typeof startBlockDuplicate==="function")startBlockDuplicate();
+      sync();
+    });
     copy.addEventListener("click",function(){
       enterEdit();
       if(typeof startBlockDuplicate!=="function")return;
@@ -93,7 +99,7 @@
 
     paste.addEventListener("click",function(){
       enterEdit();
-      if(typeof blockDuplicateStart==="undefined"||blockDuplicateStart===null){
+      if(typeof blockDuplicateMode==="undefined"||!blockDuplicateMode||typeof blockDuplicateStart==="undefined"||blockDuplicateStart===null){
         alert("Primero pulsa Copiar y selecciona la primera y la última línea del bloque.");
         return;
       }
@@ -103,7 +109,7 @@
       if(typeof renderLyrics==="function")renderLyrics();
       copy.classList.remove("active");
       paste.classList.add("active");
-      paste.disabled=false;
+      paste.disabled=true;
       sync();
     });
 
@@ -128,6 +134,20 @@
     observer.observe(view,{attributes:true,attributeFilter:["class"]});
     var undoObserver=new MutationObserver(sync);
     undoObserver.observe(nativeUndo,{attributes:true,attributeFilter:["disabled"]});
+    view.addEventListener("click",function(){
+      if(typeof blockDuplicateMode!=="undefined" && blockDuplicateMode)setTimeout(sync,0);
+    },true);
+    var settings=document.getElementById("settingsModal");
+    if(settings){
+      ["settingsDetectRepeats","settingsReferenceText","settingsClearReferences",
+       "settingsPdfAllChords","qeRepairAunque","settingsClearChords"].forEach(function(id){
+        var item=document.getElementById(id);
+        if(item)item.hidden=true;
+      });
+      var style=document.createElement("style");
+      style.textContent="#settingsModal .settingsGrid button[hidden]{display:none!important}";
+      document.head.appendChild(style);
+    }
     document.addEventListener("click",function(){
       if(menu)menu.hidden=true;
     });

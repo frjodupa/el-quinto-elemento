@@ -2324,6 +2324,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
     <div class="quickChordButtons">
       <button id="quickChordChords" type="button">♫ Acordes</button>
       <button id="quickChordLyrics" type="button">✎ Letra</button>
+      <button id="quickChordDuplicate" type="button">⧉ Duplicar acordes</button>
       <button id="quickChordCopy" type="button">⧉ Copiar</button>
       <button id="quickChordPaste" type="button" disabled>▣ Pegar</button>
       <button id="quickChordUndo" type="button" disabled aria-label="Deshacer">↶</button>
@@ -2954,31 +2955,24 @@ function handleBlockDuplicateLine(li){
 
   if(!confirm(msg))return true;
 
-  // Limpiar destino para que sea una copia exacta.
-  for(var j=0;j<count;j++){
-    delete d.lines[dest+j];
+  // Capture the source before touching the destination. This also protects
+  // overlapping source/destination blocks from being erased while copying.
+  var sourceLines=[];
+  var sourceWords=[];
+  for(var off=0;off<count;off++){
+    sourceLines.push(d.lines[start+off]||'');
   }
+  Object.keys(d.words||{}).forEach(function(k){
+    var parts=String(k).split(':'),ln=Number(parts[0]),wi=Number(parts[1]);
+    if(ln>=start&&ln<=end)sourceWords.push({off:ln-start,wi:wi,val:d.words[k]});
+  });
+  for(var j=0;j<count;j++)delete d.lines[dest+j];
   Object.keys(d.words||{}).forEach(function(k){
     var ln=Number(String(k).split(':')[0]);
     if(ln>=dest&&ln<dest+count)delete d.words[k];
   });
-
-  // Copiar acordes de línea.
-  for(var off=0;off<count;off++){
-    var srcLine=start+off,target=dest+off;
-    if(d.lines[srcLine])d.lines[target]=d.lines[srcLine];
-  }
-
-  // Copiar acordes por palabra manteniendo posición relativa.
-  var wordCopies=[];
-  Object.keys(d.words||{}).forEach(function(k){
-    var parts=String(k).split(':');
-    var ln=Number(parts[0]),wi=Number(parts[1]);
-    if(ln>=start&&ln<=end){
-      wordCopies.push({off:ln-start,wi:wi,val:d.words[k]});
-    }
-  });
-  wordCopies.forEach(function(item){
+  sourceLines.forEach(function(val,off){if(val)d.lines[dest+off]=val;});
+  sourceWords.forEach(function(item){
     d.words[(dest+item.off)+':'+item.wi]=item.val;
   });
 
