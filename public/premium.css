@@ -932,3 +932,87 @@ body.lightTheme .quickEditMenuNote{color:#515867}
 .passHead,.passActions,.passDetailTop,.settingsHead{flex-wrap:wrap;min-width:0}
 .passHead strong,.settingsHeadTitle{min-width:0}
 .passPanel,.settingsPanel{max-width:100%;box-sizing:border-box}
+
+/* v82 · Controles globales simplificados + barra de edición en una sola línea */
+.directHome button,
+.directSongBar button,
+.quickChordButtons button,
+.settingsBody button,
+.passPanel button,
+.lyricEditorModal button,
+.chordPanel button,
+.newSongModal button{
+  border-radius:8px!important;
+  min-height:38px!important;
+  padding:6px 9px!important;
+  font-size:.78rem!important;
+  line-height:1.05!important;
+  box-shadow:none!important;
+}
+.directSongBar{
+  gap:5px!important;
+}
+.quickChordBar{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  gap:6px!important;
+  overflow-x:auto!important;
+  -webkit-overflow-scrolling:touch;
+  padding:7px 10px!important;
+  scrollbar-width:none;
+}
+.quickChordBar::-webkit-scrollbar{display:none}
+.quickChordHint{display:none!important}
+.quickChordButtons{
+  width:100%!important;
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  gap:6px!important;
+}
+.quickChordButtons button{
+  flex:0 0 auto!important;
+  white-space:nowrap!important;
+  min-height:38px!important;
+}
+.quickChordButtons #quickChordChords,
+.quickChordButtons #quickChordLyrics,
+.quickChordButtons #quickChordCopy,
+.quickChordButtons #quickChordPaste{min-width:88px!important}
+.quickChordButtons #quickChordUndo{min-width:42px!important;width:42px!important;padding-left:0!important;padding-right:0!important}
+.quickChordButtons .quickChordSave{margin-left:auto!important;min-width:128px!important}
+.quickChordButtons button.active{
+  background:#d9b45b!important;
+  border-color:#d9b45b!important;
+  color:#17130c!important;
+}
+#duplicateChordBanner{
+  position:sticky!important;
+  top:0!important;
+  z-index:25!important;
+  max-width:none!important;
+  margin:0!important;
+  border-radius:0!important;
+  padding:8px 12px!important;
+  font-size:.78rem!important;
+}
+#duplicateChordBanner button{
+  min-height:34px!important;
+  padding:5px 9px!important;
+  border-radius:7px!important;
+}
+.lyricLine.duplicateSourceRange{
+  background:rgba(217,180,91,.10)!important;
+}
+@media(max-width:760px){
+  .directHome button,.directSongBar button,.quickChordButtons button,.settingsBody button,.passPanel button{
+    min-height:36px!important;
+    padding:5px 7px!important;
+    font-size:.74rem!important;
+  }
+  .quickChordButtons #quickChordChords,
+  .quickChordButtons #quickChordLyrics,
+  .quickChordButtons #quickChordCopy,
+  .quickChordButtons #quickChordPaste{min-width:78px!important}
+  .quickChordButtons .quickChordSave{min-width:116px!important}
+}
