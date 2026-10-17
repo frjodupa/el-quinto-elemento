@@ -1,125 +1,136 @@
-/* EQE v79 · editor completo por canción; reutiliza los editores existentes. */
+/* EQE v82 · edición directa y simple dentro de la canción. */
 (function(){
   "use strict";
   function init(){
     var view=document.getElementById("view");
     var launcher=document.getElementById("quickEditSongBtn");
     var menu=document.getElementById("quickEditMenu");
-    var lyricsBtn=document.getElementById("quickEditLyricsBtn");
-    var titleBtn=document.getElementById("quickEditTitleBtn");
-    var chordsBtn=document.getElementById("quickEditChordsBtn");
-    var introBtn=document.getElementById("quickEditIntroBtn");
-    var instrumentalBtn=document.getElementById("quickEditInstrumentalBtn");
     var editBar=document.getElementById("quickChordBar");
-    var done=document.getElementById("quickChordSave");
+    var chords=document.getElementById("quickChordChords");
+    var lyrics=document.getElementById("quickChordLyrics");
+    var copy=document.getElementById("quickChordCopy");
+    var paste=document.getElementById("quickChordPaste");
     var undo=document.getElementById("quickChordUndo");
-    var intro=document.getElementById("quickChordIntro");
-    var instrumental=document.getElementById("quickChordInstrumental");
-    if(!view||!launcher||!menu||!lyricsBtn||!titleBtn||!chordsBtn||!introBtn||!instrumentalBtn||!editBar||!done)return;
+    var done=document.getElementById("quickChordSave");
 
     var nativeChord=document.getElementById("chordMode");
     var nativeSave=document.getElementById("saveChordEdit");
     var nativeLyrics=document.getElementById("editLyrics");
     var nativeUndo=document.getElementById("undoChordBtn");
-    var nativeIntro=document.getElementById("introTool");
-    var nativeInstrumental=document.getElementById("instrumentTool");
-    if(!nativeChord||!nativeSave||!nativeLyrics||!nativeUndo||!nativeIntro||!nativeInstrumental)return;
+
+    if(!view||!launcher||!editBar||!chords||!lyrics||!copy||!paste||!undo||!done||
+       !nativeChord||!nativeSave||!nativeLyrics||!nativeUndo)return;
 
     function isActive(){
       return view.classList.contains("on")&&view.classList.contains("editing");
     }
-    function closeMenu(){
-      menu.hidden=true;
+    function enterEdit(){
+      if(!view.classList.contains("on"))return;
+      if(!isActive())nativeChord.click();
+      if(menu)menu.hidden=true;
       launcher.setAttribute("aria-expanded","false");
+      sync();
+    }
+    function resetCopyPaste(){
+      try{
+        if(typeof cancelBlockDuplicate==="function" && window.blockDuplicateMode)cancelBlockDuplicate();
+      }catch(e){}
+      paste.disabled=true;
+      copy.classList.remove("active");
+      paste.classList.remove("active");
     }
     function sync(){
       var active=isActive();
       editBar.hidden=!active;
       launcher.classList.toggle("quickEditingActive",active);
       launcher.setAttribute("aria-pressed",active?"true":"false");
-      launcher.setAttribute("aria-label",active?"Editar canción (edición de acordes activa)":"Editar letra y acordes");
-      chordsBtn.textContent=active?"✓ Guardar y salir de acordes":"♫ Editar acordes sobre las palabras";
+      launcher.setAttribute("aria-expanded","false");
+      launcher.querySelector("span").textContent=active?"Editando":"Editar";
+      chords.classList.toggle("active",active);
       undo.disabled=nativeUndo.disabled;
-      intro.disabled=!active;
-      instrumental.disabled=!active;
-      if(!view.classList.contains("on"))closeMenu();
-    }
-    function saveAndExit(){
-      if(isActive())nativeSave.click();
-      closeMenu();
-      sync();
-    }
-    function selectLyrics(){
-      closeMenu();
-      if(isActive())saveAndExit();
-      nativeLyrics.click();
-      sync();
-    }
-    function selectTitle(){
-      selectLyrics();
-      var title=document.getElementById("lyricEditorSongTitle");
-      if(title){
-        title.focus();
-        title.select();
+      if(typeof blockDuplicateMode!=="undefined"){
+        copy.classList.toggle("active",!!blockDuplicateMode&&!blockDuplicateArmedForPaste);
+        paste.classList.toggle("active",!!blockDuplicateMode&&!!blockDuplicateArmedForPaste);
+        paste.disabled=!(blockDuplicateMode&&blockDuplicateStart!==null);
       }
-    }
-    function selectChords(){
-      closeMenu();
-      if(isActive()){saveAndExit();return;}
-      nativeChord.click();
-      sync();
-    }
-    function selectIntro(){
-      closeMenu();
-      if(!isActive())nativeChord.click();
-      sync();
-      nativeIntro.click();
-    }
-    function selectInstrumental(){
-      closeMenu();
-      if(!isActive())nativeChord.click();
-      sync();
-      nativeInstrumental.click();
-    }
-    function trigger(native){
-      if(!isActive())return;
-      native.click();
-      sync();
+      if(menu)menu.hidden=true;
     }
 
     launcher.addEventListener("click",function(e){
-      e.stopPropagation();
-      if(!view.classList.contains("on"))return;
-      menu.hidden=!menu.hidden;
-      launcher.setAttribute("aria-expanded",String(!menu.hidden));
-      if(!menu.hidden)lyricsBtn.focus();
-    });
-    lyricsBtn.addEventListener("click",selectLyrics);
-    titleBtn.addEventListener("click",selectTitle);
-    chordsBtn.addEventListener("click",selectChords);
-    introBtn.addEventListener("click",selectIntro);
-    instrumentalBtn.addEventListener("click",selectInstrumental);
-    done.addEventListener("click",saveAndExit);
-    undo.addEventListener("click",function(){trigger(nativeUndo);});
-    intro.addEventListener("click",function(){trigger(nativeIntro);});
-    instrumental.addEventListener("click",function(){trigger(nativeInstrumental);});
-
-    document.addEventListener("click",function(event){
-      if(!menu.hidden&&!event.target.closest(".directSongQuickActions"))closeMenu();
-    });
-    // Capture prevents the legacy Escape shortcut from closing the song when
-    // the quick menu is the thing being dismissed.
-    document.addEventListener("keydown",function(event){
-      if(event.key==="Escape"&&!menu.hidden){
-        event.preventDefault();event.stopImmediatePropagation();closeMenu();
-        launcher.focus();
-      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      enterEdit();
     },true);
 
-    var viewObserver=new MutationObserver(sync);
-    viewObserver.observe(view,{attributes:true,attributeFilter:["class"]});
+    chords.addEventListener("click",function(){
+      enterEdit();
+      try{
+        blockDuplicateMode=false;
+        blockDuplicateArmedForPaste=false;
+        blockDuplicateStart=null;
+        blockDuplicateEnd=null;
+        if(typeof updateDuplicateChordBanner==="function")updateDuplicateChordBanner();
+        if(typeof renderLyrics==="function")renderLyrics();
+      }catch(e){}
+      sync();
+    });
+
+    lyrics.addEventListener("click",function(){
+      enterEdit();
+      nativeLyrics.click();
+      sync();
+    });
+
+    copy.addEventListener("click",function(){
+      enterEdit();
+      if(typeof startBlockDuplicate!=="function")return;
+      startBlockDuplicate();
+      paste.disabled=true;
+      copy.classList.add("active");
+      paste.classList.remove("active");
+      sync();
+    });
+
+    paste.addEventListener("click",function(){
+      enterEdit();
+      if(typeof blockDuplicateStart==="undefined"||blockDuplicateStart===null){
+        alert("Primero pulsa Copiar y selecciona la primera y la última línea del bloque.");
+        return;
+      }
+      if(blockDuplicateEnd===null)blockDuplicateEnd=blockDuplicateStart;
+      blockDuplicateArmedForPaste=true;
+      if(typeof updateDuplicateChordBanner==="function")updateDuplicateChordBanner();
+      if(typeof renderLyrics==="function")renderLyrics();
+      copy.classList.remove("active");
+      paste.classList.add("active");
+      paste.disabled=false;
+      sync();
+    });
+
+    undo.addEventListener("click",function(){
+      if(!nativeUndo.disabled)nativeUndo.click();
+      sync();
+    });
+
+    done.addEventListener("click",function(){
+      try{
+        blockDuplicateMode=false;
+        blockDuplicateArmedForPaste=false;
+        blockDuplicateStart=null;
+        blockDuplicateEnd=null;
+      }catch(e){}
+      if(isActive())nativeSave.click();
+      if(menu)menu.hidden=true;
+      sync();
+    });
+
+    var observer=new MutationObserver(sync);
+    observer.observe(view,{attributes:true,attributeFilter:["class"]});
     var undoObserver=new MutationObserver(sync);
     undoObserver.observe(nativeUndo,{attributes:true,attributeFilter:["disabled"]});
+    document.addEventListener("click",function(){
+      if(menu)menu.hidden=true;
+    });
     sync();
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
