@@ -85,7 +85,7 @@
       enterEdit();
       if(typeof startBlockDuplicate!=="function")return;
       startBlockDuplicate();
-      paste.disabled=true;
+      paste.disabled=false;
       copy.classList.add("active");
       paste.classList.remove("active");
       sync();
@@ -93,7 +93,7 @@
 
     paste.addEventListener("click",function(){
       enterEdit();
-      if(typeof blockDuplicateStart==="undefined"||blockDuplicateStart===null){
+      if(typeof blockDuplicateMode==="undefined"||!blockDuplicateMode||typeof blockDuplicateStart==="undefined"||blockDuplicateStart===null){
         alert("Primero pulsa Copiar y selecciona la primera y la última línea del bloque.");
         return;
       }
@@ -128,6 +128,21 @@
     observer.observe(view,{attributes:true,attributeFilter:["class"]});
     var undoObserver=new MutationObserver(sync);
     undoObserver.observe(nativeUndo,{attributes:true,attributeFilter:["disabled"]});
+    view.addEventListener("click",function(){
+      if(typeof blockDuplicateMode!=="undefined" && blockDuplicateMode)setTimeout(sync,0);
+    },true);
+    var settings=document.getElementById("settingsModal");
+    if(settings){
+      ["settingsDetectRepeats","settingsReferenceText","settingsClearReferences",
+       "settingsPdfAllChords","qeRepairAunque","settingsClearChords",
+       "settingsDuplicateChordBlock"].forEach(function(id){
+        var item=document.getElementById(id);
+        if(item)item.hidden=true;
+      });
+      var style=document.createElement("style");
+      style.textContent="#settingsModal .settingsGrid button[hidden]{display:none!important}";
+      document.head.appendChild(style);
+    }
     document.addEventListener("click",function(){
       if(menu)menu.hidden=true;
     });
