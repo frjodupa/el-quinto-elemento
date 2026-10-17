@@ -4381,46 +4381,7 @@ buildPicker();render('');bindGlobalUndoButtons();
     }).join('');
     var date=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
     var backUrl=escapeHtml(location.href);
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}.printTools{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.printTools button{padding:12px 16px;border:1px solid #aaa;border-radius:9px;background:#f5f5f5;color:#111;font-size:16px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}.printTools{display:none!important}}</style></head><body><nav class="printTools"><button type="button" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}else if(history.length>1){history.back()}else{window.location.href=this.dataset.backUrl}" data-back-url="'+backUrl+'">← Volver al cancionero</button><button type="button" id="savePdfBtn">Guardar PDF</button><button type="button" id="sharePdfBtn">Compartir PDF</button><button type="button" id="printNativeBtn">Imprimir</button></nav><h1>'+escapeHtml(p.name)+'</h1><p class="printMeta">'+(p.songs||[]).length+' canciones · El Quinto Elemento · Fecha de impresión: '+date+'</p><ol>'+items+'</ol><script src="'+escapeHtml(new URL('./pass-pdf.js?v=93',location.href).href)+'"><\/script><script>
-(function(){
-  async function qePasteIntoLyrics(openEditorFirst){
-    if(typeof current==='undefined'||current<0){alert('Abre una canción primero.');return}
-    if(openEditorFirst && typeof openLyricEditor==='function')openLyricEditor();
-    var box=document.getElementById('lyricEditorText');
-    if(!box)return;
-    try{
-      if(navigator.clipboard && navigator.clipboard.readText){
-        var txt=await navigator.clipboard.readText();
-        if(!txt){box.focus();alert('El portapapeles está vacío.');return}
-        var start=typeof box.selectionStart==='number'?box.selectionStart:box.value.length;
-        var end=typeof box.selectionEnd==='number'?box.selectionEnd:start;
-        var before=box.value.slice(0,start),after=box.value.slice(end);
-        var needsBreak=before && !/\n$/.test(before) && txt && !/^\n/.test(txt);
-        box.value=before+(needsBreak?'\n':'')+txt+after;
-        var pos=(before+(needsBreak?'\n':'')+txt).length;
-        box.setSelectionRange(pos,pos);box.focus();
-        return;
-      }
-    }catch(e){}
-    box.focus();
-    box.setSelectionRange(box.value.length,box.value.length);
-    alert('Safari no ha dado acceso automático al portapapeles. Mantén pulsado dentro de la letra y toca “Pegar”.');
-  }
-  window.addEventListener('load',function(){
-    var p=document.getElementById('lyricEditorPaste');
-    if(p)p.addEventListener('click',function(){qePasteIntoLyrics(false)});
-    var qp=document.getElementById('quickEditPasteBtn');
-    if(qp)qp.addEventListener('click',function(){
-      var menu=document.getElementById('quickEditMenu');
-      var trigger=document.getElementById('quickEditSongBtn');
-      if(menu)menu.hidden=true;
-      if(trigger)trigger.setAttribute('aria-expanded','false');
-      qePasteIntoLyrics(true);
-    });
-  });
-})();
-</script>
-</body></html>';
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}.printTools{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.printTools button{padding:12px 16px;border:1px solid #aaa;border-radius:9px;background:#f5f5f5;color:#111;font-size:16px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}.printTools{display:none!important}}</style></head><body><nav class="printTools"><button type="button" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}else if(history.length>1){history.back()}else{window.location.href=this.dataset.backUrl}" data-back-url="'+backUrl+'">← Volver al cancionero</button><button type="button" id="savePdfBtn">Guardar PDF</button><button type="button" id="sharePdfBtn">Compartir PDF</button><button type="button" id="printNativeBtn">Imprimir</button></nav><h1>'+escapeHtml(p.name)+'</h1><p class="printMeta">'+(p.songs||[]).length+' canciones · El Quinto Elemento · Fecha de impresión: '+date+'</p><ol>'+items+'</ol><script src="'+escapeHtml(new URL('./pass-pdf.js?v=93',location.href).href)+'"><\/script></body></html>';
   }
     function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
   var sharePassBtn=document.getElementById('sharePassBtn');
