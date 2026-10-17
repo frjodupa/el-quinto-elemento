@@ -140,8 +140,7 @@
     var settings=document.getElementById("settingsModal");
     if(settings){
       ["settingsDetectRepeats","settingsReferenceText","settingsClearReferences",
-       "settingsPdfAllChords","qeRepairAunque","settingsClearChords",
-       "].forEach(function(id){
+       "settingsPdfAllChords","qeRepairAunque","settingsClearChords"].forEach(function(id){
         var item=document.getElementById(id);
         if(item)item.hidden=true;
       });
