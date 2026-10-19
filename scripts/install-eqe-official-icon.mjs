@@ -5,8 +5,13 @@
 import {readFile,copyFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
+import {execFileSync} from 'node:child_process';
 const source=process.argv[2];
 if(!source)throw Error('Provide official icons directory');
+const branch=execFileSync('git',['branch','--show-current'],{encoding:'utf8'}).trim();
+if(branch!=='gitop/eqe-sync-ipad-foreground-20261019')throw Error('Refusing to modify branch '+branch);
+const dirty=execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim();
+if(dirty)throw Error('Working tree must be clean before staging official icons');
 const names=['apple-touch-icon.png','premium-icon-180.png','premium-icon-192.png','premium-icon-512.png','premium-icon-maskable-512.png'];
 const expected={
 'apple-touch-icon.png':'df01cfe72fa75587ca66e1fc822e8143c09e3d78',
@@ -26,9 +31,10 @@ const swPath='public/sw.js';
 let manifest=JSON.parse(await readFile(manifestPath,'utf8'));
 let html=await readFile(indexPath,'utf8'),sw=await readFile(swPath,'utf8');
 if(!html.includes('apple-touch-icon.png')||!sw.includes('premium-icon-192.png'))throw Error('Unexpected PWA layout');
-const version=Number((await readFile('public/version.json','utf8') && JSON.parse(await readFile('public/version.json','utf8')).version));
+const version=Number(JSON.parse(await readFile('public/version.json','utf8')).version);
 if(!Number.isInteger(version))throw Error('Invalid version');
 const next=version+1;
+if(!/const APP_VERSION=\\d+;/.test(html)||!/const CACHE='quinto-elemento-v\\d+';/.test(sw))throw Error('Unexpected app version markers');
 for(const name of names) await copyFile(path.join(source,name),path.join('public',name));
 for(const icon of manifest.icons||[])icon.src=icon.src.replace(/\?v=\d+/,'?v='+next);
 await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
