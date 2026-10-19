@@ -4830,7 +4830,11 @@ buildPicker();render('');bindGlobalUndoButtons();
     syncNow(false);
     clearInterval(pollingTimer);
     pollingTimer=setInterval(function(){
-      if(navigator.onLine && localStorage.getItem(META_DIRTY)!=='1'){
+      if(!navigator.onLine)return;
+      if(localStorage.getItem(META_DIRTY)==='1'){
+        // Retry unsent local edits after a transient network/server failure.
+        syncNow(false);
+      }else{
         pullRemote(false);
       }
     },30000);
