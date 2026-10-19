@@ -4594,6 +4594,45 @@ buildPicker();render('');bindGlobalUndoButtons();
   var statusEl=null;
   var detailEl=null;
   var buttonEl=null;
+  var pendingRemote=null;
+  var deferredRemoteTs=0;
+
+  function offerCloudUpdate(remote,remoteTs){
+    if(!remote || localStorage.getItem(META_DIRTY)==='1')return false;
+    pendingRemote={data:remote,updatedAt:remoteTs};
+    if(remoteTs===deferredRemoteTs)return true;
+    var modal=document.getElementById('eqeCloudUpdateNotice');
+    if(!modal){
+      modal=document.createElement('div');
+      modal.id='eqeCloudUpdateNotice';
+      modal.setAttribute('role','dialog');
+      modal.setAttribute('aria-modal','false');
+      modal.setAttribute('aria-labelledby','eqeCloudUpdateTitle');
+      modal.style.cssText='position:fixed;z-index:2147483000;left:12px;right:12px;bottom:max(18px,env(safe-area-inset-bottom));max-width:440px;margin:auto;padding:18px;border:1px solid #8f783e;border-radius:16px;background:#18181a;color:#f6f6f3;box-shadow:0 12px 42px #0009;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif';
+      modal.innerHTML='<div id="eqeCloudUpdateTitle" style="font-size:19px;font-weight:750;margin-bottom:8px">Actualización pendiente</div><div style="line-height:1.45;margin-bottom:14px">Hay cambios nuevos en el cancionero guardados desde otro dispositivo.</div><div style="display:flex;gap:10px;flex-wrap:wrap"><button id="eqeCloudUpdateApply" type="button" style="background:#e6c36a;color:#151515;border:0;border-radius:10px;min-height:44px;padding:10px 15px;font-weight:700">Actualizar ahora</button><button id="eqeCloudUpdateLater" type="button" style="background:#303034;color:white;border:1px solid #555;border-radius:10px;min-height:44px;padding:10px 15px">Más tarde</button></div>';
+      document.body.appendChild(modal);
+      document.getElementById('eqeCloudUpdateApply').addEventListener('click',function(){
+        if(!pendingRemote)return;
+        if(syncInFlight || localStorage.getItem(META_DIRTY)==='1'){
+          setStatus('⚠ Cambios locales pendientes','Guarda tus cambios antes de recibir la actualización.');
+          return;
+        }
+        // Check the server again; do not apply a snapshot that may have gone stale.
+        modal.hidden=true;
+        deferredRemoteTs=0;
+        pendingRemote=null;
+        syncNow(false,true);
+      });
+      document.getElementById('eqeCloudUpdateLater').addEventListener('click',function(){
+        deferredRemoteTs=pendingRemote?pendingRemote.updatedAt:0;
+        modal.hidden=true;
+        setStatus('☁ Actualización pendiente','Puedes actualizar cuando termines de trabajar.');
+      });
+    }
+    modal.hidden=false;
+    setStatus('☁ Actualización disponible','Hay cambios nuevos procedentes de otro dispositivo.');
+    return true;
+  }
 
   function byId(id){return document.getElementById(id)}
   function setStatus(text,detail){
@@ -4722,6 +4761,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 
     if(remote && remoteTs>localTs){
       setStatus('☁ Recibiendo cambios…','Actualizando este dispositivo con la última versión.');
+      if(offerCloudUpdate(remote,remoteTs))return true;
       applyState(remote);
       localStorage.setItem(META_REMOTE_TS,String(remoteTs));
       localStorage.setItem(META_DIRTY,'0');
@@ -4734,7 +4774,7 @@ buildPicker();render('');bindGlobalUndoButtons();
     }finally{syncInFlight=false}
   }
 
-  async function syncNow(manual){
+  async function syncNow(manual,applyConfirmed){
     if(syncInFlight)return;
     if(!navigator.onLine){
       setStatus('☁ Sin conexión','Los cambios se guardan aquí y se sincronizarán cuando vuelva internet.');
@@ -4752,10 +4792,15 @@ buildPicker();render('');bindGlobalUndoButtons();
           var remoteTs=Number(remote.updatedAt||0);
           var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
           if(remoteTs>localTs){
+            if(!applyConfirmed && offerCloudUpdate(remote.data,remoteTs))return;
+            if(applyConfirmed && localStorage.getItem(META_DIRTY)==='1')return;
             applyState(remote.data);
             localStorage.setItem(META_REMOTE_TS,String(remoteTs));
             localStorage.setItem(META_DIRTY,'0');
             refreshAfterCloudPull();
+            pendingRemote=null;
+            var notice=document.getElementById('eqeCloudUpdateNotice');
+            if(notice)notice.hidden=true;
             setStatus('☁ Sincronizado','Datos recibidos sin recargar la app.');
             return;
           }
