@@ -4599,15 +4599,17 @@ buildPicker();render('');bindGlobalUndoButtons();
 
   // Share one notification surface for both library changes and app releases.
   window.eqeShowAppRelease=function(version,apply){
-    var modal=document.getElementById('eqeCloudUpdateNotice');
+    var modal=document.getElementById('eqeAppReleaseNotice');
     if(!modal){
       modal=document.createElement('div');
-      modal.id='eqeCloudUpdateNotice';
+      modal.id='eqeAppReleaseNotice';
       modal.setAttribute('role','dialog');
       modal.setAttribute('aria-modal','false');
       modal.style.cssText='position:fixed;z-index:2147483000;left:12px;right:12px;bottom:max(18px,env(safe-area-inset-bottom));max-width:440px;margin:auto;padding:18px;border:1px solid #8f783e;border-radius:16px;background:#18181a;color:#f6f6f3;box-shadow:0 12px 42px #0009;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif';
       document.body.appendChild(modal);
     }
+    var cloudNotice=document.getElementById('eqeCloudUpdateNotice');
+    if(cloudNotice)cloudNotice.hidden=true;
     modal.dataset.kind='app';
     modal.innerHTML='<div style="font-size:19px;font-weight:750;margin-bottom:8px">Actualización pendiente · v'+Number(version)+'</div><div style="line-height:1.45;margin-bottom:14px">Hay mejoras disponibles para el cancionero. Tus canciones y pases se conservarán.</div><div style="display:flex;gap:10px;flex-wrap:wrap"><button id="eqeReleaseApply" type="button" style="background:#e6c36a;color:#151515;border:0;border-radius:10px;min-height:44px;padding:10px 15px;font-weight:700">Actualizar ahora</button><button id="eqeReleaseLater" type="button" style="background:#303034;color:white;border:1px solid #555;border-radius:10px;min-height:44px;padding:10px 15px">Más tarde</button></div>';
     document.getElementById('eqeReleaseApply').onclick=apply;
@@ -4619,8 +4621,8 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(!remote || localStorage.getItem(META_DIRTY)==='1')return false;
     pendingRemote={data:remote,updatedAt:remoteTs};
     if(remoteTs===deferredRemoteTs)return true;
-    var existing=document.getElementById('eqeCloudUpdateNotice');
-    if(existing && existing.dataset.kind==='app' && !existing.hidden)return true;
+    var existing=document.getElementById('eqeAppReleaseNotice');
+    if(existing && !existing.hidden)return true;
     var modal=document.getElementById('eqeCloudUpdateNotice');
     if(!modal){
       modal=document.createElement('div');
