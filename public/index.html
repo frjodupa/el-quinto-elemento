@@ -4369,19 +4369,22 @@ buildPicker();render('');bindGlobalUndoButtons();
   }
 
   function passPlainText(p){
+    // Pass ownership is distinct from the hosting songbook.
+    var passGroup=/^LA PASMA(?:\s|\(|$)/i.test(String(p.name||'').trim())?'La Pasma':'El Quinto Elemento';
     var out=[p.name,''];
     (p.songs||[]).forEach(function(songIndex,pos){if(songs[songIndex])out.push((pos+1)+'. '+getSongTitle(songIndex))});
-    out.push('','El Quinto Elemento · Cancionero');
+    out.push('',passGroup+' · Repertorio');
     return out.join('\n');
   }
   function passPrintHtml(p){
+    var passGroup=/^LA PASMA(?:\s|\(|$)/i.test(String(p.name||'').trim())?'La Pasma':'El Quinto Elemento';
     var items=(p.songs||[]).map(function(songIndex){
       if(!songs[songIndex])return '';
       return '<li><strong>'+escapeHtml(getSongTitle(songIndex))+'</strong></li>';
     }).join('');
     var date=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
     var backUrl=escapeHtml(location.href);
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}.printTools{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.printTools button{padding:12px 16px;border:1px solid #aaa;border-radius:9px;background:#f5f5f5;color:#111;font-size:16px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}.printTools{display:none!important}}</style></head><body><nav class="printTools"><button type="button" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}else if(history.length>1){history.back()}else{window.location.href=this.dataset.backUrl}" data-back-url="'+backUrl+'">← Volver al cancionero</button><button type="button" id="savePdfBtn">Guardar PDF</button><button type="button" id="sharePdfBtn">Compartir PDF</button><button type="button" id="printNativeBtn">Imprimir</button></nav><h1>'+escapeHtml(p.name)+'</h1><p class="printMeta">'+(p.songs||[]).length+' canciones · El Quinto Elemento · Fecha de impresión: '+date+'</p><ol>'+items+'</ol><script src="'+escapeHtml(new URL('./pass-pdf.js?v=93',location.href).href)+'"><\/script><script>
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}.printTools{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.printTools button{padding:12px 16px;border:1px solid #aaa;border-radius:9px;background:#f5f5f5;color:#111;font-size:16px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}.printTools{display:none!important}}</style></head><body><nav class="printTools"><button type="button" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}else if(history.length>1){history.back()}else{window.location.href=this.dataset.backUrl}" data-back-url="'+backUrl+'">← Volver al cancionero</button><button type="button" id="savePdfBtn">Guardar PDF</button><button type="button" id="sharePdfBtn">Compartir PDF</button><button type="button" id="printNativeBtn">Imprimir</button></nav><h1>'+escapeHtml(p.name)+'</h1><p class="printMeta">'+(p.songs||[]).length+' canciones · '+escapeHtml(passGroup)+' · Fecha de impresión: '+date+'</p><ol>'+items+'</ol><script src="'+escapeHtml(new URL('./pass-pdf.js?v=93',location.href).href)+'"><\/script><script>
 (function(){
   async function qePasteIntoLyrics(openEditorFirst){
     if(typeof current==='undefined'||current<0){alert('Abre una canción primero.');return}
