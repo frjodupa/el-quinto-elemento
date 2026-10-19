@@ -1,0 +1,23 @@
+name: EQE chord import integrity diagnostics
+on:
+  pull_request:
+    paths:
+      - 'src/worker.js'
+      - 'scripts/test-song-import-integrity.cjs'
+      - 'scripts/audit-base-repertoire.cjs'
+      - 'public/index.html'
+      - 'public/pdf-chords-v44.json'
+      - '.github/workflows/check-song-import-integrity.yml'
+  workflow_dispatch:
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run read-only parser diagnostics
+        run: node scripts/test-song-import-integrity.cjs
+      - name: Audit repository repertoire (no writes)
+        run: node scripts/audit-base-repertoire.cjs
