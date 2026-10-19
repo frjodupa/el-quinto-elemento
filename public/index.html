@@ -4775,6 +4775,24 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
   };
 
+  // Revalidate cloud state when the PWA resumes on iPad/Safari.
+  // Never overwrite local edits awaiting upload; syncNow handles conflicts.
+  var resumeSyncRunning=false;
+  async function syncOnResume(){
+    if(resumeSyncRunning || !navigator.onLine)return;
+    resumeSyncRunning=true;
+    try{await syncNow(false)}finally{resumeSyncRunning=false}
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible')syncOnResume();
+  });
+  window.addEventListener('pageshow',function(event){
+    if(event.persisted)syncOnResume();
+  });
+  window.addEventListener('focus',function(){
+    if(document.visibilityState==='visible')syncOnResume();
+  });
+
   window.addEventListener('online',function(){syncNow(false)});
   window.addEventListener('offline',function(){
     setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
