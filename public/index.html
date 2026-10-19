@@ -4665,9 +4665,16 @@ buildPicker();render('');bindGlobalUndoButtons();
     var snapshot=collectState();
     var res=await apiPut(snapshot,expected);
     // Edits performed while the request was pending must never be marked synced.
-    if(JSON.stringify(collectState())===JSON.stringify(snapshot))localStorage.setItem(META_DIRTY,'0');
+    var changedDuringUpload=JSON.stringify(collectState())!==JSON.stringify(snapshot);
     localStorage.setItem(META_REMOTE_TS,String(res.updatedAt||0));
-    setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
+    localStorage.setItem(META_DIRTY,changedDuringUpload?'1':'0');
+    if(changedDuringUpload){
+      setStatus('☁ Cambios pendientes','Se ha editado durante el guardado; se enviará la versión más reciente.');
+      clearTimeout(syncTimer);
+      syncTimer=setTimeout(function(){syncNow(false)},900);
+    }else{
+      setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
+    }
     return true;
   }
 
