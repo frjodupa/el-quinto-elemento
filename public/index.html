@@ -4590,6 +4590,7 @@ buildPicker();render('');bindGlobalUndoButtons();
   var applyingRemote=false;
   var syncTimer=0;
   var pollingTimer=0;
+  var syncInFlight=false;
   var statusEl=null;
   var detailEl=null;
   var buttonEl=null;
@@ -4661,8 +4662,10 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(!navigator.onLine)return false;
     setStatus('☁ Guardando en la nube…','Enviando cambios de este dispositivo.');
     var expected=Number(localStorage.getItem(META_REMOTE_TS)||0);
-    var res=await apiPut(collectState(),expected);
-    localStorage.setItem(META_DIRTY,'0');
+    var snapshot=collectState();
+    var res=await apiPut(snapshot,expected);
+    // Edits performed while the request was pending must never be marked synced.
+    if(JSON.stringify(collectState())===JSON.stringify(snapshot))localStorage.setItem(META_DIRTY,'0');
     localStorage.setItem(META_REMOTE_TS,String(res.updatedAt||0));
     setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
     return true;
@@ -4701,7 +4704,11 @@ buildPicker();render('');bindGlobalUndoButtons();
 
   async function pullRemote(allowReload){
     if(!navigator.onLine)return false;
+    if(syncInFlight || localStorage.getItem(META_DIRTY)==='1')return false;
+    syncInFlight=true;
+    try{
     var res=await apiGet();
+    if(localStorage.getItem(META_DIRTY)==='1')return false;
     var remote=res && res.data ? res.data : null;
     var remoteTs=Number(res && res.updatedAt || 0);
     var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
@@ -4717,19 +4724,23 @@ buildPicker();render('');bindGlobalUndoButtons();
     }
     setStatus('☁ Sincronizado','Este dispositivo está al día.');
     return false;
+    }finally{syncInFlight=false}
   }
 
   async function syncNow(manual){
+    if(syncInFlight)return;
     if(!navigator.onLine){
       setStatus('☁ Sin conexión','Los cambios se guardan aquí y se sincronizarán cuando vuelva internet.');
       return;
     }
+    syncInFlight=true;
     try{
       var dirty=localStorage.getItem(META_DIRTY)==='1';
       if(dirty){
         await pushLocal();
       }else{
         var remote=await apiGet();
+        if(localStorage.getItem(META_DIRTY)==='1')return;
         if(remote && remote.data){
           var remoteTs=Number(remote.updatedAt||0);
           var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
@@ -4753,7 +4764,7 @@ buildPicker();render('');bindGlobalUndoButtons();
       }else{
         setStatus('☁ Sincronización pendiente','No se pudo conectar con Cloudflare. Se reintentará automáticamente.');
       }
-    }
+    }finally{syncInFlight=false}
   }
 
   function schedulePush(){
