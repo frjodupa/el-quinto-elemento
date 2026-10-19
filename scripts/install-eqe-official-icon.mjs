@@ -17,7 +17,7 @@ const expected={
 };
 for(const name of names){
  const buf=await readFile(path.join(source,name));
- const hash=createHash('sha1').update(Buffer.from('blob '+buf.length+'\\0')).update(buf).digest('hex');
+ const hash=createHash('sha1').update(Buffer.concat([Buffer.from('blob '+buf.length),Buffer.from([0])])).update(buf).digest('hex');
  if(hash!==expected[name])throw Error('Icon hash mismatch: '+name);
 }
 const manifestPath='public/manifest.webmanifest';
@@ -30,16 +30,16 @@ const version=Number((await readFile('public/version.json','utf8') && JSON.parse
 if(!Number.isInteger(version))throw Error('Invalid version');
 const next=version+1;
 for(const name of names) await copyFile(path.join(source,name),path.join('public',name));
-for(const icon of manifest.icons||[])icon.src=icon.src.replace(/\\?v=\\d+/,'?v='+next);
-await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\\n');
-html=html.replace(/(manifest\\.webmanifest\\?v=)\\d+/g,'$1'+next).replace(/(apple-touch-icon\\.png\\?v=)\\d+/g,'$1'+next)
- .replace(/(premium-icon-(?:192|512)\\.png\\?v=)\\d+/g,'$1'+next)
- .replace(/const APP_VERSION=\\d+;/,'const APP_VERSION='+next+';')
- .replace(/(sw\\.js\\?v=)\\d+/g,'$1'+next);
+for(const icon of manifest.icons||[])icon.src=icon.src.replace(/\?v=\d+/,'?v='+next);
+await writeFile(manifestPath,JSON.stringify(manifest,null,2)+'\n');
+html=html.replace(/(manifest\.webmanifest\?v=)\d+/g,'$1'+next).replace(/(apple-touch-icon\.png\?v=)\d+/g,'$1'+next)
+ .replace(/(premium-icon-(?:192|512)\.png\?v=)\d+/g,'$1'+next)
+ .replace(/const APP_VERSION=\d+;/,'const APP_VERSION='+next+';')
+ .replace(/(sw\.js\?v=)\d+/g,'$1'+next);
 await writeFile(indexPath,html);
-sw=sw.replace(/const CACHE='quinto-elemento-v\\d+';/,`const CACHE='quinto-elemento-v${next}';`)
- .replace(/(manifest\\.webmanifest\\?v=)\\d+/g,'$1'+next)
- .replace(/(premium-icon-(?:180|192|512|maskable-512)\\.png\\?v=)\\d+/g,'$1'+next);
+sw=sw.replace(/const CACHE='quinto-elemento-v\d+';/,`const CACHE='quinto-elemento-v${next}';`)
+ .replace(/(manifest\.webmanifest\?v=)\d+/g,'$1'+next)
+ .replace(/(premium-icon-(?:180|192|512|maskable-512)\.png\?v=)\d+/g,'$1'+next);
 await writeFile(swPath,sw);
-await writeFile('public/version.json',JSON.stringify({version:next},null,2)+'\\n');
+await writeFile('public/version.json',JSON.stringify({version:next},null,2)+'\n');
 console.log('Official EQE icons staged. Version',next,'- DO NOT DEPLOY until regression tests pass.');
