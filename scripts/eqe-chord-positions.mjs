@@ -46,6 +46,12 @@ export function copyChordLines(data, sourceStart, count, destination, lyricsLine
     }
   }
   // Explicit replace only; never touches lyrics, intro, passes, references or instrumentals.
+  // Positional chords must land within the target line. Abort instead of silently shifting them.
+  for (let offset=0;offset<count;offset++){
+    const targetLength=Math.max(1,characterCount(lyricsLines[destination+offset]));
+    if(snapshot[offset].positions.some(p=>!Number.isSafeInteger(p.offset)||p.offset<0||p.offset>=targetLength))
+      throw new Error('DESTINATION_POSITION_OUT_OF_RANGE');
+  }
   for (let offset=0;offset<count;offset++){
     const to=destination+offset;
     delete next.lines[to];
