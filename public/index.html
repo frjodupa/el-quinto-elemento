@@ -804,6 +804,13 @@ body.lightTheme .transposeControls button{background:#fff;color:#6a5317;border-c
 body.lightTheme .transposeBadge{background:#fffaf0;color:#6a5317;border-color:#cdb86e}
 @media(max-width:520px){.transposeControls{grid-template-columns:1fr 1fr 1fr}.transposeControls button{padding:8px 5px;font-size:.92rem}}
 
+
+/* GITOP experimental: persistent editing toolbar on iPad and desktop. */
+#view .quickChordBar:not([hidden]){display:flex!important;position:sticky;top:var(--eqe-edit-top,64px);z-index:60;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 12px;background:#17181c;border-bottom:1px solid #53545b;box-shadow:0 3px 10px #0005}
+#view .quickChordBar .quickChordButtons{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#view .quickChordBar button{min-height:44px;padding:8px 12px;touch-action:manipulation}
+#view .quickChordBar button:disabled{opacity:.5}
+@media(max-width:800px){#view .quickChordBar .quickChordHint{display:none}#view .quickChordBar .quickChordButtons{width:100%;justify-content:space-between}#view .quickChordBar button{flex:1 1 auto}}
 </style>
 <link rel="manifest" href="manifest.webmanifest?v=95">
 <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=95">
@@ -7053,4 +7060,33 @@ body.lightTheme .internetSearchLaunch{
   btn.addEventListener('click',exportSongbook);
 })();
 </script>
-</body></html>
+<script>
+/* GITOP experimental: activate the persistent toolbar when Edit is tapped. */
+(function(){
+  var bar=document.getElementById('quickChordBar');
+  if(!bar)return;
+  function el(id){return document.getElementById(id)}
+  function sync(){
+    if(bar.hidden)return;
+    var header=el('view')&&el('view').querySelector('.bar');
+    if(header)bar.style.setProperty('--eqe-edit-top',Math.ceil(header.getBoundingClientRect().height)+'px');
+    var paste=el('quickChordPaste'),undo=el('quickChordUndo');
+    if(paste)paste.disabled=!(blockDuplicateMode&&blockDuplicateArmedForPaste&&blockPasteStart!==null);
+    if(undo){var stack=(typeof chordUndoStacks!=='undefined'&&current>=0)?(chordUndoStacks[current]||[]):[];undo.disabled=!stack.length}
+  }
+  function activate(){if(current<0)return;bar.hidden=false;sync()}
+  function close(){bar.hidden=true}
+  var edit=el('quickEditSongBtn');
+  if(edit)edit.addEventListener('click',function(){activate();var menu=el('quickEditMenu');if(menu)menu.hidden=true;edit.setAttribute('aria-expanded','false')});
+  var chords=el('quickChordChords');if(chords)chords.onclick=function(){activate();if(!editingChords)el('chordMode').click();sync()};
+  var lyrics=el('quickChordLyrics');if(lyrics)lyrics.onclick=function(){activate();el('editLyrics').click()};
+  var copy=el('quickChordCopy');if(copy)copy.onclick=function(){activate();startBlockDuplicate();sync()};
+  var paste=el('quickChordPaste');if(paste)paste.onclick=function(){commitBlockPaste();sync()};
+  var undo=el('quickChordUndo');if(undo)undo.onclick=function(){undoChordChange();sync()};
+  var save=el('quickChordSave');if(save)save.onclick=function(){if(current<0)return;el('saveChordEdit').click();close()};
+  var view=el('view');if(view)view.addEventListener('click',function(){setTimeout(sync,0)});
+  window.addEventListener('resize',sync);
+  var previousOpen=openSong;openSong=function(i){close();return previousOpen(i)};
+  var previousClose=closeSong;closeSong=function(){close();return previousClose()};
+})();
+</script>\n</body></html>
