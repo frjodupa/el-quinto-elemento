@@ -2917,12 +2917,13 @@ function handleBlockDuplicateLine(li){
     if(blockDuplicateStart===null){blockDuplicateStart=li;blockDuplicateEnd=li}
     else{blockDuplicateStart=Math.min(blockDuplicateStart,li);blockDuplicateEnd=Math.max(blockDuplicateEnd,li)}
   }else{
-    if(blockPasteStart===null){blockPasteStart=li;blockPasteEnd=li}
-    else{
-      var first=Math.min(blockPasteStart,li),last=Math.max(blockPasteStart,li);
-      if(last-first+1>blockCopiedSnapshot.length){
-        blockPasteStart=li;blockPasteEnd=li;
-      }else{blockPasteStart=first;blockPasteEnd=last}
+    // A single tap chooses the first destination line; full range follows automatically.
+    // Re-tapping another line replaces the destination, never silently extends it.
+    blockPasteStart=li;
+    blockPasteEnd=li+blockCopiedSnapshot.length-1;
+    if(blockPasteEnd>=getSongText(current).split('\\n').length){
+      blockPasteStart=null;blockPasteEnd=null;
+      alert('No quedan suficientes líneas desde este destino para pegar el bloque.');
     }
   }
   renderLyrics();return true;
