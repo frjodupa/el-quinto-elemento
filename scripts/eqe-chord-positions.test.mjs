@@ -18,4 +18,8 @@ const overlapped=copyChordLines({...base,lines:{0:'DO',1:'RE'}},0,2,1,['a','b','
 assert.equal(overlapped.lines[1],'DO');
 assert.equal(overlapped.lines[2],'RE');
 assert.equal(JSON.stringify(base),original,'original must never change');
-console.log('EQE character chord module: 11 assertions passed');
+assert.equal(placeAtCharacter(base,0,0,'DO','').positions['0'][0].offset,0);
+assert.throws(()=>placeAtCharacter(base,0,1,'DO',''),RangeError);
+const blank=copyChordLines({positions:{'0':[{offset:0,chord:'DO'}]}},0,1,1,['',''],false);
+assert.deepEqual(blank.positions['1'],[{offset:0,chord:'DO'}]);
+console.log('EQE chord module: baseline and empty-line regression assertions passed');
