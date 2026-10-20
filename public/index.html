@@ -2921,7 +2921,7 @@ function handleBlockDuplicateLine(li){
     // Re-tapping another line replaces the destination, never silently extends it.
     blockPasteStart=li;
     blockPasteEnd=li+blockCopiedSnapshot.length-1;
-    if(blockPasteEnd>=getSongText(current).split('\\n').length){
+    if(blockPasteEnd>=getSongText(current).split('\n').length){
       blockPasteStart=null;blockPasteEnd=null;
       alert('No quedan suficientes líneas desde este destino para pegar el bloque.');
     }
