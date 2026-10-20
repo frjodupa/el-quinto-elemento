@@ -2860,12 +2860,14 @@ function updateDuplicateChordBanner(){
   }else if(!blockDuplicateArmedForPaste){
     var last=(blockDuplicateEnd===null?blockDuplicateStart:blockDuplicateEnd);
     var total=last-blockDuplicateStart+1;
-    msg='<strong>Seleccionadas líneas '+(blockDuplicateStart+1)+'–'+(last+1)+' ('+total+').</strong> Ajusta tocando otra línea y, cuando esté correcto, pulsa <b>PEGAR</b> en la barra superior.';
+    msg='<strong>Seleccionadas líneas '+(blockDuplicateStart+1)+'–'+(last+1)+' ('+total+').</strong> Ajusta tocando otra línea y, cuando esté correcto, pulsa <b>COPIAR</b>.';
   }else{
     var total2=blockDuplicateEnd-blockDuplicateStart+1;
     msg='<strong>Bloque copiado: '+total2+' línea'+(total2===1?'':'s')+'.</strong> Toca ahora la primera línea de la estrofa o estribillo de destino.';
   }
-  b.innerHTML='<span>'+msg+'</span><button id="cancelBlockDuplicate" type="button">Cancelar</button>';
+  b.innerHTML='<span>'+msg+'</span>'+(blockDuplicateStart!==null&&!blockDuplicateArmedForPaste?'<button id="copyBlockDuplicate" type="button">Copiar acordes</button>':'')+'<button id="cancelBlockDuplicate" type="button">Cancelar</button>';
+  var copy=document.getElementById('copyBlockDuplicate');
+  if(copy)copy.onclick=function(){blockDuplicateArmedForPaste=true;updateDuplicateChordBanner()};
   var cancel=document.getElementById('cancelBlockDuplicate');
   if(cancel)cancel.onclick=cancelBlockDuplicate;
 }
@@ -2954,6 +2956,15 @@ function handleBlockDuplicateLine(li){
 
   if(!confirm(msg))return true;
 
+  // Take a snapshot first: overlapping source/destination must not erase originals.
+  var sourceLines=[];
+  var sourceWords=[];
+  for(var off=0;off<count;off++)sourceLines.push(d.lines[start+off]||'');
+  Object.keys(d.words||{}).forEach(function(k){
+    var parts=String(k).split(':');
+    var ln=Number(parts[0]),wi=Number(parts[1]);
+    if(ln>=start&&ln<=end)sourceWords.push({off:ln-start,wi:wi,val:d.words[k]});
+  });
   // Limpiar destino para que sea una copia exacta.
   for(var j=0;j<count;j++){
     delete d.lines[dest+j];
@@ -2965,20 +2976,12 @@ function handleBlockDuplicateLine(li){
 
   // Copiar acordes de línea.
   for(var off=0;off<count;off++){
-    var srcLine=start+off,target=dest+off;
-    if(d.lines[srcLine])d.lines[target]=d.lines[srcLine];
+    var target=dest+off;
+    if(sourceLines[off])d.lines[target]=sourceLines[off];
   }
 
-  // Copiar acordes por palabra manteniendo posición relativa.
-  var wordCopies=[];
-  Object.keys(d.words||{}).forEach(function(k){
-    var parts=String(k).split(':');
-    var ln=Number(parts[0]),wi=Number(parts[1]);
-    if(ln>=start&&ln<=end){
-      wordCopies.push({off:ln-start,wi:wi,val:d.words[k]});
-    }
-  });
-  wordCopies.forEach(function(item){
+  // Recreate word chords from the immutable selection snapshot.
+  sourceWords.forEach(function(item){
     d.words[(dest+item.off)+':'+item.wi]=item.val;
   });
 
