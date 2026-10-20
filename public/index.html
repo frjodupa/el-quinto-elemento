@@ -6724,6 +6724,33 @@ body.lightTheme .internetSearchLaunch{
     return source==='cifraclub'?'CifraClub':'Ultimate Guitar';
   }
 
+  // Complementary discovery: links only. External pages remain under user review.
+  // Do not treat GitHub repositories as verified transcriptions of the recording.
+  function appendExternalResearch(query){
+    var block=document.createElement('section');
+    block.className='internetSearchState';
+    var heading=document.createElement('strong');
+    heading.textContent='Contrastar otras fuentes';
+    block.appendChild(heading);
+    var explanation=document.createElement('div');
+    explanation.textContent='Consulta otras plataformas y proyectos públicos. Verifica artista, versión y acordes antes de importar. No se modifica ninguna canción.';
+    explanation.style.margin='8px 0';
+    block.appendChild(explanation);
+    var targets=[
+      {name:'Chordify',url:'https://chordify.net/search/'+encodeURIComponent(query)},
+      {name:'Songsterr',url:'https://www.songsterr.com/?pattern='+encodeURIComponent(query)},
+      {name:'GitHub · proyectos y transcripciones',url:'https://github.com/search?q='+encodeURIComponent(query+' chords')+'&type=repositories'}
+    ];
+    targets.forEach(function(t){
+      var link=document.createElement('a');
+      link.href=t.url;link.textContent=t.name+' ↗';
+      link.target='_blank';link.rel='noopener noreferrer';
+      link.style.cssText='display:inline-block;margin:4px 10px 4px 0;color:#e6c36a;text-decoration:underline';
+      block.appendChild(link);
+    });
+    host.appendChild(block);
+  }
+
   function renderResults(query,results,errors){
     host.innerHTML='';
     var summary=document.createElement('div');
@@ -6736,6 +6763,7 @@ body.lightTheme .internetSearchLaunch{
       empty.className='internetSearchState';
       empty.textContent='No se encontraron resultados utilizables.'+(errors&&errors.length?' Una de las fuentes respondió con error.':'');
       host.appendChild(empty);
+      appendExternalResearch(query);
       return;
     }
 
@@ -6755,6 +6783,7 @@ body.lightTheme .internetSearchLaunch{
       row.appendChild(info);row.appendChild(use);box.appendChild(row);
     });
     host.appendChild(box);
+    appendExternalResearch(query);
   }
 
   function showSearchMessage(message){
