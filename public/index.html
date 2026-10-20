@@ -3258,7 +3258,16 @@ function renderLyrics(){
     var body=document.createElement('div');body.className='lineBody';
     if(lc){var c=document.createElement('span');c.className='lineChord'+(editingChords?' clickable':'');c.textContent=lc;if(editingChords)c.onclick=function(){openPicker({mode:'line',line:li,existing:lc,label:'Acordes de línea: '+line})};body.appendChild(c)}
     if(line===''){
-      if(editingChords){
+      if(editingChords && charChordMode() && !blockDuplicateMode){
+        var emptyCell=document.createElement('span');emptyCell.className='eqeCharCell';
+        var chord=charChordAt(d,li,0);
+        var chordLabel=document.createElement('span');chordLabel.className='eqeCharChord';chordLabel.textContent=chord?chord.chord:'＋';
+        var spaceLabel=document.createElement('span');spaceLabel.className='eqeCharLetter';spaceLabel.textContent='\u00a0';
+        emptyCell.appendChild(chordLabel);emptyCell.appendChild(spaceLabel);
+        emptyCell.title='Posición virtual de acorde en línea vacía';
+        emptyCell.onclick=function(){openPicker({mode:'character',line:li,offset:0,existing:chord?chord.chord:'',label:'Línea vacía · acorde'})};
+        body.appendChild(emptyCell);
+      }else if(editingChords){
         var emptyWrap=document.createElement('div');
         emptyWrap.className='emptyLyricLine';
         var emptyLabel=document.createElement('span');
