@@ -2931,7 +2931,7 @@ function commitBlockPaste(){
   if(!blockDuplicateMode||!blockDuplicateArmedForPaste||!blockCopiedSnapshot||blockPasteStart===null)return;
   var count=blockCopiedSnapshot.length;
   if(blockPasteEnd-blockPasteStart+1!==count){alert('Selecciona exactamente '+count+' líneas de destino.');return}
-  var lines=getSongText(current).split('\\n'),data=getChordData(current),existing=false;
+  var lines=getSongText(current).split('\n'),data=getChordData(current),existing=false;
   if(blockPasteStart+count>lines.length){alert('Destino fuera de la canción');return}
   for(var j=0;j<count;j++){
     var line=blockPasteStart+j;
