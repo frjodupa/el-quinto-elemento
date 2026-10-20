@@ -5082,6 +5082,15 @@ buildPicker();render('');bindGlobalUndoButtons();
 
 <script>
 const APP_VERSION=82;
+// La etiqueta muestra la versión real del código cargado en este dispositivo,
+// nunca la versión remota (que puede estar disponible pero aún no instalada).
+(function(){
+  var badge=document.querySelector('.uiVersion');
+  if(!badge)return;
+  badge.textContent='v'+APP_VERSION;
+  badge.title='Versión de la aplicación cargada en este dispositivo: v'+APP_VERSION;
+  badge.setAttribute('aria-label','Versión instalada '+APP_VERSION);
+})();
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
