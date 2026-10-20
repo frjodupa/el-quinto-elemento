@@ -8,7 +8,7 @@ export function characterCount(text) {
 }
 export function placeAtCharacter(data, line, offset, chord, lyrics) {
   if (!Number.isSafeInteger(line) || line < 0) throw new RangeError('line');
-  const count = characterCount(lyrics);
+  const count = Math.max(1, characterCount(lyrics)); // virtual slot for genuinely empty lines
   if (!Number.isSafeInteger(offset) || offset < 0 || offset >= count) throw new RangeError('offset');
   const next = cloneChordData(data);
   next.positions ||= {};
