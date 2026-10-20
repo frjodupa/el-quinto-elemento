@@ -1877,6 +1877,10 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
 .eqeCharChord{font-size:.65em;color:#e6c36a;font-weight:700;line-height:1.5;white-space:nowrap}
 .eqeCharLetter{line-height:1.3;white-space:pre}
 #eqeCharacterModeButton{background:#282c35;color:#e6c36a;border:1px solid #b19a62;border-radius:8px;padding:8px;font:inherit}
+.eqeCharGrid{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;gap:0}
+.eqeCharCell{flex:0 0 1ch;min-width:1ch;position:relative}
+.eqeCharLetter{white-space:pre}
+.eqeCharChord{pointer-events:none}
 </style></head><body>
 <button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
 
@@ -2948,7 +2952,7 @@ function handleBlockDuplicateLine(li){
 
   for(var x=0;x<count;x++){
     var targetLine=dest+x;
-    if(d.lines[targetLine])existing=true;
+    if(d.lines[targetLine]||(d.positions&&Array.isArray(d.positions[String(targetLine)])&&d.positions[String(targetLine)].length))existing=true;
     Object.keys(d.words||{}).forEach(function(k){
       if(Number(String(k).split(':')[0])===targetLine)existing=true;
     });
@@ -2966,7 +2970,11 @@ function handleBlockDuplicateLine(li){
   // Take a snapshot first: overlapping source/destination must not erase originals.
   var sourceLines=[];
   var sourceWords=[];
-  for(var off=0;off<count;off++)sourceLines.push(d.lines[start+off]||'');
+  var sourcePositions=[];
+  for(var off=0;off<count;off++){
+    sourceLines.push(d.lines[start+off]||'');
+    sourcePositions.push(JSON.parse(JSON.stringify((d.positions||{})[String(start+off)]||[])));
+  }
   Object.keys(d.words||{}).forEach(function(k){
     var parts=String(k).split(':');
     var ln=Number(parts[0]),wi=Number(parts[1]);
@@ -2975,6 +2983,7 @@ function handleBlockDuplicateLine(li){
   // Limpiar destino para que sea una copia exacta.
   for(var j=0;j<count;j++){
     delete d.lines[dest+j];
+    if(d.positions)delete d.positions[String(dest+j)];
   }
   Object.keys(d.words||{}).forEach(function(k){
     var ln=Number(String(k).split(':')[0]);
@@ -2985,6 +2994,7 @@ function handleBlockDuplicateLine(li){
   for(var off=0;off<count;off++){
     var target=dest+off;
     if(sourceLines[off])d.lines[target]=sourceLines[off];
+    if(sourcePositions[off].length){if(!d.positions)d.positions={};d.positions[String(target)]=sourcePositions[off];}
   }
 
   // Recreate word chords from the immutable selection snapshot.
@@ -3268,7 +3278,7 @@ function renderLyrics(){
         body.appendChild(document.createTextNode('\u00a0'));
       }
     }else{
-      if(charChordMode() && editingChords){
+      if(charChordMode() && editingChords && !blockDuplicateMode){
         var charWrap=document.createElement('div');charWrap.className='eqeCharGrid';
         Array.from(line).forEach(function(letter,offset){
           var cell=document.createElement('span');cell.className='eqeCharCell';
