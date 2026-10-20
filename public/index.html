@@ -1881,6 +1881,8 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
 .eqeCharCell{flex:0 0 1ch;min-width:1ch;position:relative}
 .eqeCharLetter{white-space:pre}
 .eqeCharChord{pointer-events:none}
+.eqePositionSummary{display:flex;flex-wrap:wrap;gap:5px;margin:2px 0 6px}
+.eqePositionChip{color:#e6c36a;border:1px solid rgba(230,195,106,.4);border-radius:6px;padding:2px 6px;font-size:.75em;font-weight:700}
 </style></head><body>
 <button id="quickExportV63" type="button" aria-label="Exportar cancionero v62">⤓ Exportar v62</button>
 
@@ -3362,6 +3364,23 @@ function renderLyrics(){
         wrap.appendChild(token);
         body.appendChild(wrap)
       });
+    }
+    // Keep the original word editor/rendering intact, but never hide new position chords.
+    // The marker contains an exact character offset; no lyric text is rewritten.
+    if(!(charChordMode() && editingChords && !blockDuplicateMode)){
+      var storedPositions=(d.positions||{})[String(li)];
+      if(Array.isArray(storedPositions)&&storedPositions.length){
+        var positionStrip=document.createElement('div');
+        positionStrip.className='eqePositionSummary';
+        positionStrip.setAttribute('aria-label','Acordes por carácter de esta línea');
+        storedPositions.forEach(function(item){
+          var chip=document.createElement('span');chip.className='eqePositionChip';
+          chip.textContent=item.chord+' · '+(item.offset+1);
+          chip.title='Acorde '+item.chord+' en carácter '+(item.offset+1);
+          positionStrip.appendChild(chip);
+        });
+        body.insertBefore(positionStrip,body.firstChild);
+      }
     }
     row.appendChild(body);ly.appendChild(row);
     if(placingInstrumental)addInstrumentSlot(li+1);
