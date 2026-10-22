@@ -42,9 +42,8 @@ const server=http.createServer(async(req,res)=>{
  await pages[0].evaluate(()=>window.eqeSyncNow());await pages[1].evaluate(()=>window.eqeSyncNow());
  assert.equal(await pages[1].locator('#eqeSyncConflicts details').count(),1);
  assert.equal(await pages[1].evaluate(()=>localStorage.getItem('quintoElemento.lyrics.v1.0')),'RIGHT');
- const details=pages[1].locator('#eqeSyncConflicts details');await details.evaluate(el=>el.open=true);
- // Inspect the actual controls even while Settings is closed, then open it.
- await pages[1].evaluate(()=>document.getElementById('settingsModal').classList.add('on'));
+ await pages[1].locator('#settingsIndexBtn').click();
+ const details=pages[1].locator('#eqeSyncConflicts details');await details.locator('summary').click();
  await pages[1].getByRole('button',{name:'Conservar este dispositivo',exact:true}).click();
  await pages[1].getByRole('button',{name:'Aplicar selección y sincronizar',exact:true}).click();
  await pages[1].waitForFunction(()=>!document.querySelector('#eqeSyncConflicts'));
