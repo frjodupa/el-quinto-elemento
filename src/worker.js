@@ -595,6 +595,11 @@ async function fetchInternetSong(source,id,url) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // Git-connected version previews inherit the production D1 binding.
+    // Block every API before any schema, backup or sync operation can run.
+    if (url.hostname.endsWith('-crimson-rice-1fe1.joseduqueparedes.workers.dev') && url.pathname.startsWith('/api/')) {
+      return json({ error: 'Vista de pruebas: acceso a los datos compartidos bloqueado', code: 'PREVIEW_ISOLATED' }, 403);
+    }
 
     if (url.pathname === "/api/song-search") {
       if (request.method !== "GET") return new Response("Method Not Allowed", { status: 405 });
@@ -934,3 +939,4 @@ export default {
     return assetResponse;
   }
 };
+

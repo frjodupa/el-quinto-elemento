@@ -1,5 +1,17 @@
 {
   "schema_version": 1,
   "project": "el-quinto-elemento",
-  "incidents": []
+  "incidents": [
+    {
+      "id": "EQE-SYNC-COPIAS-DISTINTAS-20261022",
+      "symptom": "Copias distintas blocks cross-device sync; UI displays fixed v80",
+      "evidence": "Original pushLocal sends full snapshot, HTTP 409 only sets status; header fixed v80, app 82, export build 83, CSS/JS 97",
+      "previous_attempts": "Existing optimistic CAS prevents stale overwrite but does not reconcile edits",
+      "verified_diagnosis": "No persisted shared base or three-way reconciliation; version sources diverge",
+      "solution": "Candidate v98: per-song/pass three-way merge, explicit conflicts, durable local journal, retries and canonical loaded version",
+      "tests": "23 Node sync tests; PWA/assets/inline checks; existing navigation/global/PASMA tests pass. Browser CI configured; physical validation pending",
+      "status": "IMPLEMENTED_NOT_PUBLISHED",
+      "next_action": "Verify CI and deployed assets; complete Mac/iPhone exports and physical tests; authorize publication separately"
+    }
+  ]
 }

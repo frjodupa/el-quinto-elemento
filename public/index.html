@@ -2213,7 +2213,7 @@ body.lightTheme .duplicateChordBanner strong{color:#332606}
   <div class="top directHome">
     <div class="directHomeHead">
       <div class="directIdentity">
-        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v80</span></div>
+        <div class="brand">EL QUINTO ELEMENTO <span class="uiVersion">v98</span></div>
         <div class="directMeta">
           <span class="count" id="count"></span>
           <span id="appStatus" class="appStatus">Comprobando…</span>
@@ -4381,46 +4381,7 @@ buildPicker();render('');bindGlobalUndoButtons();
     }).join('');
     var date=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
     var backUrl=escapeHtml(location.href);
-    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}.printTools{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.printTools button{padding:12px 16px;border:1px solid #aaa;border-radius:9px;background:#f5f5f5;color:#111;font-size:16px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}.printTools{display:none!important}}</style></head><body><nav class="printTools"><button type="button" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}else if(history.length>1){history.back()}else{window.location.href=this.dataset.backUrl}" data-back-url="'+backUrl+'">← Volver al cancionero</button><button type="button" id="savePdfBtn">Guardar PDF</button><button type="button" id="sharePdfBtn">Compartir PDF</button><button type="button" id="printNativeBtn">Imprimir</button></nav><h1>'+escapeHtml(p.name)+'</h1><p class="printMeta">'+(p.songs||[]).length+' canciones · El Quinto Elemento · Fecha de impresión: '+date+'</p><ol>'+items+'</ol><script src="'+escapeHtml(new URL('./pass-pdf.js?v=93',location.href).href)+'"><\/script><script>
-(function(){
-  async function qePasteIntoLyrics(openEditorFirst){
-    if(typeof current==='undefined'||current<0){alert('Abre una canción primero.');return}
-    if(openEditorFirst && typeof openLyricEditor==='function')openLyricEditor();
-    var box=document.getElementById('lyricEditorText');
-    if(!box)return;
-    try{
-      if(navigator.clipboard && navigator.clipboard.readText){
-        var txt=await navigator.clipboard.readText();
-        if(!txt){box.focus();alert('El portapapeles está vacío.');return}
-        var start=typeof box.selectionStart==='number'?box.selectionStart:box.value.length;
-        var end=typeof box.selectionEnd==='number'?box.selectionEnd:start;
-        var before=box.value.slice(0,start),after=box.value.slice(end);
-        var needsBreak=before && !/\n$/.test(before) && txt && !/^\n/.test(txt);
-        box.value=before+(needsBreak?'\n':'')+txt+after;
-        var pos=(before+(needsBreak?'\n':'')+txt).length;
-        box.setSelectionRange(pos,pos);box.focus();
-        return;
-      }
-    }catch(e){}
-    box.focus();
-    box.setSelectionRange(box.value.length,box.value.length);
-    alert('Safari no ha dado acceso automático al portapapeles. Mantén pulsado dentro de la letra y toca “Pegar”.');
-  }
-  window.addEventListener('load',function(){
-    var p=document.getElementById('lyricEditorPaste');
-    if(p)p.addEventListener('click',function(){qePasteIntoLyrics(false)});
-    var qp=document.getElementById('quickEditPasteBtn');
-    if(qp)qp.addEventListener('click',function(){
-      var menu=document.getElementById('quickEditMenu');
-      var trigger=document.getElementById('quickEditSongBtn');
-      if(menu)menu.hidden=true;
-      if(trigger)trigger.setAttribute('aria-expanded','false');
-      qePasteIntoLyrics(true);
-    });
-  });
-})();
-</script>
-</body></html>';
+    return '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapeHtml(p.name)+'</title><style>body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#111;margin:36px}.printTools{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}.printTools button{padding:12px 16px;border:1px solid #aaa;border-radius:9px;background:#f5f5f5;color:#111;font-size:16px}h1{margin:0 0 6px;font-size:28px}p{color:#666;margin:0 0 24px}ol{padding-left:34px}li{padding:9px 4px;border-bottom:1px solid #ddd;font-size:18px}@media print{body{margin:18mm}.printTools{display:none!important}}</style></head><body><nav class="printTools"><button type="button" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close()}else if(history.length>1){history.back()}else{window.location.href=this.dataset.backUrl}" data-back-url="'+backUrl+'">← Volver al cancionero</button><button type="button" id="savePdfBtn">Guardar PDF</button><button type="button" id="sharePdfBtn">Compartir PDF</button><button type="button" id="printNativeBtn">Imprimir</button></nav><h1>'+escapeHtml(p.name)+'</h1><p class="printMeta">'+(p.songs||[]).length+' canciones · El Quinto Elemento · Fecha de impresión: '+date+'</p><ol>'+items+'</ol><script src="'+escapeHtml(new URL('./pass-pdf.js?v=93',location.href).href)+'"><\/script></body></html>';
   }
     function escapeHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
   var sharePassBtn=document.getElementById('sharePassBtn');
@@ -4573,6 +4534,14 @@ buildPicker();render('');bindGlobalUndoButtons();
     else detailSongs.scrollTop=origin.scrollTop||0;
     return true;
   };
+  window.addEventListener('eqe:sync-applied',function(){
+    renderPasses();
+    if(detailModal.classList.contains('on') && currentPassId){
+      var updated=getPass(currentPassId);
+      if(updated)openPassDetail(currentPassId);
+      else detailModal.classList.remove('on');
+    }
+  });
   window.clearActivePass=function(){
     window.activePass=null;
     var old=document.getElementById('activePassBadge');
@@ -4583,239 +4552,12 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 <script>
 
-(function(){
-  var PREFIX='quintoElemento.';
-  var META_DIRTY='qeSync.dirty';
-  var META_REMOTE_TS='qeSync.remoteTs';
-  var applyingRemote=false;
-  var syncTimer=0;
-  var pollingTimer=0;
-  var statusEl=null;
-  var detailEl=null;
-  var buttonEl=null;
 
-  function byId(id){return document.getElementById(id)}
-  function setStatus(text,detail){
-    statusEl=statusEl||byId('cloudSyncStatus');
-    detailEl=detailEl||byId('cloudSyncDetail');
-    if(statusEl)statusEl.textContent=text;
-    if(detailEl && detail!==undefined)detailEl.textContent=detail;
-  }
-
-  function collectState(){
-    var out={};
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i);
-      if(k && k.indexOf(PREFIX)===0){
-        out[k]=localStorage.getItem(k);
-      }
-    }
-    return out;
-  }
-
-  function hasState(obj){
-    return obj && Object.keys(obj).length>0;
-  }
-
-  function applyState(obj){
-    applyingRemote=true;
-    try{
-      var remove=[];
-      for(var i=0;i<localStorage.length;i++){
-        var k=localStorage.key(i);
-        if(k && k.indexOf(PREFIX)===0)remove.push(k);
-      }
-      remove.forEach(function(k){localStorage.removeItem(k)});
-      Object.keys(obj||{}).forEach(function(k){
-        if(k.indexOf(PREFIX)===0)localStorage.setItem(k,String(obj[k]));
-      });
-    }finally{
-      applyingRemote=false;
-    }
-  }
-
-  async function apiGet(){
-    var r=await fetch('/api/sync?ts='+Date.now(),{cache:'no-store'});
-    if(!r.ok)throw new Error('GET '+r.status);
-    return await r.json();
-  }
-
-  async function apiPut(state,expectedUpdatedAt){
-    var r=await fetch('/api/sync',{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({data:state,expectedUpdatedAt:Number(expectedUpdatedAt||0)})
-    });
-    if(!r.ok){
-      var reason={};
-      try{reason=await r.json()}catch(e){}
-      var error=new Error(String(reason.error||'Error sincronizando '+r.status));
-      error.httpStatus=r.status;
-      error.cloudCode=reason.code||'';
-      throw error;
-    }
-    return await r.json();
-  }
-
-  async function pushLocal(){
-    if(!navigator.onLine)return false;
-    setStatus('☁ Guardando en la nube…','Enviando cambios de este dispositivo.');
-    var expected=Number(localStorage.getItem(META_REMOTE_TS)||0);
-    var res=await apiPut(collectState(),expected);
-    localStorage.setItem(META_DIRTY,'0');
-    localStorage.setItem(META_REMOTE_TS,String(res.updatedAt||0));
-    setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
-    return true;
-  }
-
-  function refreshAfterCloudPull(){
-    try{
-      // D1 can add custom songs while this PWA tab remains open. Rebuild the
-      // catalogue instead of displaying an outdated 72-song in-memory list.
-      if(typeof songs!=='undefined' && Array.isArray(songs) &&
-         typeof baseSongCount==='number' && typeof loadCustomSongs==='function'){
-        var refreshed=loadCustomSongs();
-        var before=songs.length;
-        if(Array.isArray(refreshed)){
-          customSongs=refreshed;
-          songs.splice(baseSongCount);
-          refreshed.forEach(function(s){
-            if(s && s.title && s.text) songs.push({
-              title:normalizeMasterTitle(s.title),
-              text:normalizeMasterText(s.text)
-            });
-          });
-          var counter=document.getElementById('count');
-          if(counter)counter.textContent=songs.length+' canciones';
-          if(before!==songs.length)window.activePass=null;
-        }
-      }
-      if(typeof render==='function')render();
-      if(typeof current!=='undefined' && current>=0 && songs[current]){
-        if(typeof getSongTitle==='function' && typeof st!=='undefined' && st)st.textContent=getSongTitle(current);
-        if(typeof renderLyrics==='function')renderLyrics();
-      }
-      if(window.updateTransposeUI)window.updateTransposeUI();
-    }catch(e){console.error('Refresh cloud songbook:',e)}
-  }
-
-  async function pullRemote(allowReload){
-    if(!navigator.onLine)return false;
-    var res=await apiGet();
-    var remote=res && res.data ? res.data : null;
-    var remoteTs=Number(res && res.updatedAt || 0);
-    var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
-
-    if(remote && remoteTs>localTs){
-      setStatus('☁ Recibiendo cambios…','Actualizando este dispositivo con la última versión.');
-      applyState(remote);
-      localStorage.setItem(META_REMOTE_TS,String(remoteTs));
-      localStorage.setItem(META_DIRTY,'0');
-      refreshAfterCloudPull();
-      setStatus('☁ Sincronizado','Cambios recibidos sin recargar la app.');
-      return true;
-    }
-    setStatus('☁ Sincronizado','Este dispositivo está al día.');
-    return false;
-  }
-
-  async function syncNow(manual){
-    if(!navigator.onLine){
-      setStatus('☁ Sin conexión','Los cambios se guardan aquí y se sincronizarán cuando vuelva internet.');
-      return;
-    }
-    try{
-      var dirty=localStorage.getItem(META_DIRTY)==='1';
-      if(dirty){
-        await pushLocal();
-      }else{
-        var remote=await apiGet();
-        if(remote && remote.data){
-          var remoteTs=Number(remote.updatedAt||0);
-          var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
-          if(remoteTs>localTs){
-            applyState(remote.data);
-            localStorage.setItem(META_REMOTE_TS,String(remoteTs));
-            localStorage.setItem(META_DIRTY,'0');
-            refreshAfterCloudPull();
-            setStatus('☁ Sincronizado','Datos recibidos sin recargar la app.');
-            return;
-          }
-        }else{
-          var local=collectState();
-          if(hasState(local))await pushLocal();
-        }
-        setStatus('☁ Sincronizado','Este dispositivo está al día.');
-      }
-    }catch(e){
-      if(e && e.httpStatus===409){
-        setStatus('⚠ Copias distintas','La nube contiene una versión más reciente. Tus cambios locales se conservan. Exporta una copia antes de sincronizar de nuevo.');
-      }else{
-        setStatus('☁ Sincronización pendiente','No se pudo conectar con Cloudflare. Se reintentará automáticamente.');
-      }
-    }
-  }
-
-  function schedulePush(){
-    if(applyingRemote)return;
-    try{localStorage.setItem(META_DIRTY,'1')}catch(e){}
-    clearTimeout(syncTimer);
-    syncTimer=setTimeout(function(){syncNow(false)},900);
-  }
-
-  // Interceptar cambios de la app sin modificar cada función existente.
-  var nativeSet=Storage.prototype.setItem;
-  var nativeRemove=Storage.prototype.removeItem;
-  Storage.prototype.setItem=function(k,v){
-    nativeSet.call(this,k,v);
-    if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
-  };
-  Storage.prototype.removeItem=function(k){
-    nativeRemove.call(this,k);
-    if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
-  };
-
-  window.addEventListener('online',function(){syncNow(false)});
-  window.addEventListener('offline',function(){
-    setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
-  });
-
-  window.addEventListener('load',function(){
-    statusEl=byId('cloudSyncStatus');
-    detailEl=byId('cloudSyncDetail');
-    buttonEl=byId('cloudSyncNow');
-    if(buttonEl)buttonEl.addEventListener('click',function(){syncNow(true)});
-
-    if(!navigator.onLine){
-      setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
-      return;
-    }
-
-    syncNow(false);
-    clearInterval(pollingTimer);
-    pollingTimer=setInterval(function(){
-      if(navigator.onLine && localStorage.getItem(META_DIRTY)!=='1'){
-        pullRemote(false);
-      }
-    },30000);
-  });
-})();
 
 </script>
 <script>
 
-(function(){
-  window.addEventListener('load',function(){
-    var modal=document.getElementById('settingsModal');
-    var syncBtn=document.getElementById('cloudSyncNow');
-    if(syncBtn && modal){
-      syncBtn.addEventListener('click',function(){
-        modal.classList.remove('on');
-        modal.setAttribute('aria-hidden','true');
-      });
-    }
-  });
-})();
+// Settings stays open so sync progress and conflicts can be reviewed.
 
 </script>
 <script>
@@ -4944,7 +4686,8 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 
 <script>
-const APP_VERSION=82;
+const APP_VERSION=98;
+document.querySelectorAll('.uiVersion').forEach(function(el){el.textContent='v'+APP_VERSION;el.title='Versión del código cargado en este dispositivo'});
 const appStatus=document.getElementById('appStatus');
 const appUpdateBtn=document.getElementById('appUpdateBtn');
 const updateToast=document.getElementById('updateToast');
@@ -4991,7 +4734,8 @@ function hideUpdate(){
 
 async function checkUpdate(manual){
   const v=await remoteVersion();
-  if(v!==null && v>APP_VERSION){
+  if(v===null){if(manual)alert('No se pudo comprobar la versión. Versión cargada: v'+APP_VERSION);return;}
+  if(v>APP_VERSION){
     showUpdate(v);
   }else{
     hideUpdate();
@@ -5000,6 +4744,8 @@ async function checkUpdate(manual){
 }
 
 async function installLatest(){
+  if(document.querySelector('#view.editing,.lyricEditorModal.on')){alert('Guarda y cierra el editor antes de actualizar.');return;}
+  if(localStorage.getItem('qeSync.journal.v2')){alert('Hay una recuperación de datos pendiente. Exporta una copia antes de actualizar.');return;}
   if(!navigator.onLine){
     alert('Necesitas conexión para actualizar.');
     return;
@@ -5013,12 +4759,12 @@ async function installLatest(){
     if('serviceWorker' in navigator){
       const regs=await navigator.serviceWorker.getRegistrations();
       for(const reg of regs){
-        try{await reg.unregister()}catch(e){}
+        if(new URL(reg.scope).pathname===new URL('./',location.href).pathname){try{await reg.update()}catch(e){}}
       }
     }
     if('caches' in window){
       const keys=await caches.keys();
-      await Promise.all(keys.map(function(k){return caches.delete(k)}));
+      await Promise.all(keys.filter(function(k){return k.indexOf('quinto-elemento-v')===0}).map(function(k){return caches.delete(k)}));
     }
   }catch(e){}
 
@@ -5033,7 +4779,7 @@ if(updateNowBtn)updateNowBtn.onclick=installLatest;
 if('serviceWorker' in navigator){
   window.addEventListener('load',async function(){
     try{
-      await navigator.serviceWorker.register('./sw.js?v=82',{updateViaCache:'none'});
+      await navigator.serviceWorker.register('./sw.js?v=98',{updateViaCache:'none'});
     }catch(e){}
     // Una comprobación al abrir. Sin bucles, sin recargas automáticas.
     setTimeout(function(){checkUpdate(false)},350);
@@ -6713,10 +6459,14 @@ body.lightTheme .internetSearchLaunch{
 })();
 </script>
 <style id="premium-stage-import">/* Late import intentionally overrides all legacy presentation styles. */
-@import url("./premium.css?v=97");
+@import url("./premium.css?v=98");
+.eqeSyncConflicts{grid-column:1/-1;max-height:45vh;overflow:auto;padding:12px}
+.eqeSyncConflicts pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow:auto;font-size:13px}
+.eqeSyncConflicts button{margin:6px;min-height:44px}
+.eqeSyncConflicts summary{cursor:pointer;padding:12px;font-weight:700}
 </style>
 <script defer src="./premium-icons.js?v=78"></script>
-<script defer src="./song-quick-edit.js?v=97"></script>
+<script defer src="./song-quick-edit.js?v=98"></script>
 <script id="v63-export-script">
 (function(){
   var btn=document.getElementById('quickExportV63');
@@ -6846,7 +6596,7 @@ body.lightTheme .internetSearchLaunch{
       var payload={
         format:'quinto-elemento-v62-export',
         version:79,
-        buildVersion:83,
+        buildVersion:APP_VERSION,
         createdAt:new Date().toISOString(),
         source:location.href,
         cancionero:cancionero,
@@ -6887,4 +6637,47 @@ body.lightTheme .internetSearchLaunch{
   btn.addEventListener('click',exportSongbook);
 })();
 </script>
+<script>
+(function(){
+  async function qePasteIntoLyrics(openEditorFirst){
+    if(typeof current==='undefined'||current<0){alert('Abre una canción primero.');return}
+    if(openEditorFirst && typeof openLyricEditor==='function')openLyricEditor();
+    var box=document.getElementById('lyricEditorText');
+    if(!box)return;
+    try{
+      if(navigator.clipboard && navigator.clipboard.readText){
+        var txt=await navigator.clipboard.readText();
+        if(!txt){box.focus();alert('El portapapeles está vacío.');return}
+        var start=typeof box.selectionStart==='number'?box.selectionStart:box.value.length;
+        var end=typeof box.selectionEnd==='number'?box.selectionEnd:start;
+        var before=box.value.slice(0,start),after=box.value.slice(end);
+        var needsBreak=before && !/\n$/.test(before) && txt && !/^\n/.test(txt);
+        box.value=before+(needsBreak?'\n':'')+txt+after;
+        var pos=(before+(needsBreak?'\n':'')+txt).length;
+        box.setSelectionRange(pos,pos);box.focus();
+        return;
+      }
+    }catch(e){}
+    box.focus();
+    box.setSelectionRange(box.value.length,box.value.length);
+    alert('Safari no ha dado acceso automático al portapapeles. Mantén pulsado dentro de la letra y toca “Pegar”.');
+  }
+  window.addEventListener('load',function(){
+    var p=document.getElementById('lyricEditorPaste');
+    if(p)p.addEventListener('click',function(){qePasteIntoLyrics(false)});
+    var qp=document.getElementById('quickEditPasteBtn');
+    if(qp)qp.addEventListener('click',function(){
+      var menu=document.getElementById('quickEditMenu');
+      var trigger=document.getElementById('quickEditSongBtn');
+      if(menu)menu.hidden=true;
+      if(trigger)trigger.setAttribute('aria-expanded','false');
+      qePasteIntoLyrics(true);
+    });
+  });
+})();
+
+</script>
+<script src="./sync-merge.js?v=98"></script>
+<script src="./sync-client.js?v=98"></script>
 </body></html>
+
