@@ -1,0 +1,36 @@
+name: EQE - Sincronización y versión
+on:
+  pull_request:
+    paths:
+      - 'public/index.html'
+      - 'public/sync-*.js'
+      - 'public/sw.js'
+      - 'public/version.json'
+      - 'scripts/test-sync*.cjs'
+      - '.github/workflows/test-sync.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/test-sync.cjs
+      - run: node scripts/test-sync-assets.cjs
+      - run: node scripts/test-eqe-global-regressions.cjs
+      - run: node scripts/test-pass-return-navigation.cjs
+      - name: Install isolated browser test runtime
+        run: |
+          npm install --no-save --ignore-scripts playwright@1.62.1
+          npx playwright install --with-deps chromium webkit
+      - name: Three devices in Chromium
+        run: node scripts/test-sync-browser.cjs
+      - name: Three devices in WebKit
+        env:
+          EQE_BROWSER: webkit
+        run: node scripts/test-sync-browser.cjs

@@ -1,13 +1,15 @@
-const CACHE='quinto-elemento-v82';
+const CACHE='quinto-elemento-v98';
 const CORE=[
   './',
   './index.html',
-  './manifest.webmanifest?v=82',
+  './manifest.webmanifest?v=98',
   './version.json',
+  './sync-merge.js?v=98',
+  './sync-client.js?v=98',
   './pdf-chords-v44.json',
-  './premium.css?v=97',
+  './premium.css?v=98',
   './premium-icons.js?v=77',
-  './song-quick-edit.js?v=97',
+  './song-quick-edit.js?v=98',
   './premium-icon-192.png?v=77',
   './premium-icon-512.png?v=77',
   './premium-icon-maskable-512.png?v=77',
@@ -22,7 +24,7 @@ self.addEventListener('install',event=>{
 self.addEventListener('activate',event=>{
   event.waitUntil(
     caches.keys()
-      .then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+      .then(keys=>Promise.all(keys.filter(k=>k.indexOf('quinto-elemento-v')===0 && k!==CACHE).map(k=>caches.delete(k))))
       .then(()=>self.clients.claim())
   );
 });
@@ -64,6 +66,7 @@ self.addEventListener('fetch',event=>{
     event.respondWith(
       fetchWithTimeout(req,2500)
         .then(resp=>{
+          if(!resp.ok)throw new Error('Version HTTP '+resp.status);
           const copy=resp.clone();
           caches.open(CACHE).then(cache=>cache.put('./version.json',copy));
           return resp;
@@ -77,6 +80,7 @@ self.addEventListener('fetch',event=>{
     event.respondWith(
       fetchWithTimeout(req,2500)
         .then(resp=>{
+          if(!resp.ok)throw new Error('Navigation HTTP '+resp.status);
           const copy=resp.clone();
           caches.open(CACHE).then(cache=>cache.put('./index.html',copy));
           return resp;
@@ -90,6 +94,7 @@ self.addEventListener('fetch',event=>{
     caches.match(req).then(cached=>{
       if(cached)return cached;
       return fetch(req).then(resp=>{
+        if(!resp.ok)return resp;
         const copy=resp.clone();
         caches.open(CACHE).then(cache=>cache.put(req,copy));
         return resp;
@@ -97,3 +102,4 @@ self.addEventListener('fetch',event=>{
     })
   );
 });
+
