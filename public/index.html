@@ -4557,18 +4557,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 </script>
 <script>
 
-(function(){
-  window.addEventListener('load',function(){
-    var modal=document.getElementById('settingsModal');
-    var syncBtn=document.getElementById('cloudSyncNow');
-    if(syncBtn && modal){
-      syncBtn.addEventListener('click',function(){
-        modal.classList.remove('on');
-        modal.setAttribute('aria-hidden','true');
-      });
-    }
-  });
-})();
+// Settings stays open so sync progress and conflicts can be reviewed.
 
 </script>
 <script>

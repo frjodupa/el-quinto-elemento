@@ -18,13 +18,18 @@ check('lyrics and chord coordinates stay atomic',()=>{
 });
 check('first upgrade does not guess which legacy song wins',()=>{assert.equal(M.merge(null,song(0,'IPAD'),song(0,'CLOUD'),71).conflicts.length,1)});
 check('first upgrade accepts remote-only song',()=>{const r=M.merge(null,{},song(0,'CLOUD'),71);assert.equal(r.data[lyric(0)],'CLOUD')});
+check('literal lyrics preserve quotes, null and numeric-looking text',()=>{for(const text of ['"HOLA"','null','1.00'])assert.equal(M.merge({},song(0,text),{},71).data[lyric(0)],text)});
 check('JSON property ordering is not a conflict',()=>{assert.equal(M.merge(null,{[chord(0)]:'{"lines":{},"words":{}}'},{[chord(0)]:'{"words":{},"lines":{}}'},71).conflicts.length,0)});
 check('delete propagates only from known baseline',()=>{assert.equal(M.merge(song(0,'X'),{},song(0,'X'),71).data[lyric(0)],undefined)});
 check('delete versus edit is retained as conflict',()=>{assert.equal(M.merge(song(0,'X'),{},song(0,'Y'),71).conflicts.length,1)});
 check('explicit resolution preserves complete selected song',()=>{const l=song(0,'IPAD'),r=song(0,'CLOUD');assert.deepEqual(M.merge(null,l,r,71,{'song:0':'local'}).data,l)});
 check('two simultaneous additions cannot overwrite the same song id',()=>{
  const k=P+'customSongs.v1',b={[k]:'[]'},l={[k]:'[{"title":"A","text":"A"}]'},r={[k]:'[{"title":"B","text":"B"}]'};
- assert.equal(M.merge(b,l,r,71).conflicts[0].id,'song:71');
+ assert.equal(M.merge(b,l,r,71).conflicts[0].id,'catalogue');
+});
+check('catalogue collision never attaches a pass to another song',()=>{
+ const k=P+'customSongs.v1',p=P+'passes.v1',b={[k]:'[]'},l={[k]:'[{"title":"A","text":"A"}]',[p]:'[{"id":"only-local","songs":[71]}]'},r={[k]:'[{"title":"B","text":"B"}]'};
+ const x=M.merge(b,l,r,71,{catalogue:'remote'});assert.equal(x.data[p],undefined);assert.equal(JSON.parse(x.data[k])[0].title,'B');
 });
 check('pass edit and unrelated song edit combine',()=>{
  const k=P+'passes.v1',pass={id:'a',name:'PASE',songs:[0]},b={...song(0,'A'),[k]:JSON.stringify([pass])};

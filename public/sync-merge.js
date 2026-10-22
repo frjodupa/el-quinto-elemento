@@ -22,7 +22,9 @@
       if(k===CUSTOM||k===PASSES)return;
       var m=/^quintoElemento\.(?:lyrics\.v1|chords\.v2|title\.v1|artist\.v1|transpose\.v1|fontSize\.song|autoScrollSpeed\.song)\.(\d+)$/.exec(k);
       var id=m?'song:'+m[1]:'key:'+k;
-      (units[id]||(units[id]={}))[k]=parse(v);
+      // Only structured storage records are JSON. A lyric can itself be a
+      // quoted phrase, "null" or a number; never reinterpret that text.
+      (units[id]||(units[id]={}))[k]=(k.indexOf(PREFIX+'chords.')===0||k.indexOf(PREFIX+'internetImportBackup.')===0)?parse(v):v;
     });
     if(Object.prototype.hasOwnProperty.call(state||{},CUSTOM)){
       var custom=parse(state[CUSTOM]);
@@ -56,6 +58,17 @@
   }
   function merge(base,local,remote,baseCount,choices){
     var b=base===null?null:split(base,baseCount),l=split(local,baseCount),r=split(remote,baseCount),out={},conflicts=[];
+    var collision=Object.keys(l).some(function(id){
+      return id.indexOf('song:')===0&&l[id].custom&&r[id]&&r[id].custom&&
+        (!b||!b[id]||!b[id].custom)&&l[id].custom.title!==r[id].custom.title;
+    });
+    if(collision){
+      // New songs created offline can claim the same legacy numeric id.
+      // Never attach one side's pass references to the other side's song.
+      var selected=choices&&choices.catalogue;
+      if(selected==='local'||selected==='remote')return {data:join(selected==='local'?l:r,baseCount),conflicts:[]};
+      return {data:null,conflicts:[{id:'catalogue',base:base,local:local,remote:remote}]};
+    }
     var ids=new Set(Object.keys(l).concat(Object.keys(r),Object.keys(b||{})));
     ids.forEach(function(id){
       var bv=b&&b[id],lv=l[id],rv=r[id],chosen;

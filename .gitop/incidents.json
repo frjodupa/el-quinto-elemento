@@ -9,7 +9,7 @@
       "previous_attempts": "Existing optimistic CAS prevents stale overwrite but does not reconcile edits",
       "verified_diagnosis": "No persisted shared base or three-way reconciliation; version sources diverge",
       "solution": "Candidate v98: per-song/pass three-way merge, explicit conflicts, durable local journal, retries and canonical loaded version",
-      "tests": "20 Node sync tests; PWA/assets/inline checks; existing navigation/global/PASMA tests pass. Browser CI configured; physical validation pending",
+      "tests": "22 Node sync tests; PWA/assets/inline checks; existing navigation/global/PASMA tests pass. Browser CI configured; physical validation pending",
       "status": "IMPLEMENTED_NOT_PUBLISHED",
       "next_action": "Verify CI and deployed assets; complete Mac/iPhone exports and physical tests; authorize publication separately"
     }

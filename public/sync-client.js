@@ -73,6 +73,7 @@
     a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1000);
   }
   function conflictLabel(c){
+    if(c.id==='catalogue')return 'Dos canciones nuevas comparten identificador: revisar las copias completas y sus pases';
     if(c.id.indexOf('song:')===0){var id=Number(c.id.slice(5));return 'Canción: '+(typeof getSongTitle==='function'&&songs[id]?getSongTitle(id):('nueva '+(id+1)))}
     if(c.id.indexOf('pass:')===0)return 'Pase: '+((c.local&&c.local.pass||c.remote&&c.remote.pass||{}).name||c.id);
     return 'Ajuste: '+c.id.replace('key:'+P,'');
