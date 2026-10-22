@@ -7,6 +7,8 @@ on:
       - 'public/sw.js'
       - 'public/version.json'
       - 'scripts/test-sync*.cjs'
+      - 'scripts/test-preview-guard.mjs'
+      - 'src/worker.js'
       - '.github/workflows/test-sync.yml'
   workflow_dispatch:
 permissions:
@@ -22,6 +24,7 @@ jobs:
           node-version: '22'
       - run: node scripts/test-sync.cjs
       - run: node scripts/test-sync-assets.cjs
+      - run: node scripts/test-preview-guard.mjs
       - run: node scripts/test-eqe-global-regressions.cjs
       - run: node scripts/test-pass-return-navigation.cjs
       - name: Install isolated browser test runtime

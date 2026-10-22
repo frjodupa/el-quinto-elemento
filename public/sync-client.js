@@ -142,7 +142,7 @@
       }
       status('☁ Cambios pendientes','Otro dispositivo está guardando. Se reintentará automáticamente.');schedule();
     }catch(e){
-      status('⚠ Sincronización pendiente',e&&e.name==='QuotaExceededError'?'Falta espacio. Exporta una copia; los cambios pendientes se conservan.':'No se ha completado. Tus cambios locales se conservan y se reintentará.');
+      status(e&&e.status===403?'Vista de pruebas':'⚠ Sincronización pendiente',e&&e.status===403?'Esta vista no tiene acceso a los datos compartidos.':e&&e.name==='QuotaExceededError'?'Falta espacio. Exporta una copia; los cambios pendientes se conservan.':'No se ha completado. Tus cambios locales se conservan y se reintentará.');
       console.error('EQE sync:',e);
     }finally{busy=false}
   }
