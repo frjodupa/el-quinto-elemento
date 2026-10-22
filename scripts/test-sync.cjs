@@ -62,6 +62,7 @@ function device(server){
  const ipad=device(server),mac=device(server),iphone=device(server);
  await ipad.sync();await mac.sync();await iphone.sync();
  assert.equal(ipad.state()[lyric(0)],'A');total++;console.log('PASS new device downloads shared state');
+ const parallel=device(server);await Promise.all([parallel.sync(),parallel.sync()]);assert.equal(parallel.status(),'☁ Sincronizado');assert.equal(parallel.errors.length,0);total++;console.log('PASS overlapping sync callers await reconciliation');
  ipad.storage.setItem(lyric(0),'IPAD');mac.storage.setItem(lyric(1),'MAC');iphone.storage.setItem(lyric(2),'IPHONE');
  await ipad.sync();await mac.sync();await iphone.sync();await ipad.sync();await mac.sync();
  for(const d of [ipad,mac,iphone]){assert.deepEqual(d.state(),server.data);assert.equal(d.status(),'☁ Sincronizado');assert.equal(d.errors.length,0)}

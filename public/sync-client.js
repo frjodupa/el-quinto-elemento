@@ -3,7 +3,7 @@
   'use strict';
   var M=window.EQESyncMerge,P='quintoElemento.',BASE='qeSync.base.v2',JOURNAL='qeSync.journal.v2';
   var rawSet=Storage.prototype.setItem,rawRemove=Storage.prototype.removeItem;
-  var busy=false,applying=false,timer=0,pending=null;
+  var busy=false,applying=false,timer=0,pending=null,inFlight=null;
   var baseCount=typeof baseSongCount==='number'?baseSongCount:71;
   function get(k){return localStorage.getItem(k)}
   function put(k,v){rawSet.call(localStorage,k,String(v))}
@@ -99,7 +99,14 @@
     apply.onclick=function(){if(!pending)return;var p=pending;sync(p)};box.appendChild(apply);
     status('⚠ Revisar diferencias','Se conservan las dos copias. Los cambios sin conflicto se combinarán al terminar la revisión.');
   }
-  async function sync(resolution){
+  function sync(resolution){
+    // Manual sync must wait for an online/focus-triggered sync already in
+    // progress, then reconcile any edits made during that round.
+    if(inFlight)return inFlight.then(function(){return sync(resolution)});
+    inFlight=performSync(resolution).finally(function(){inFlight=null});
+    return inFlight;
+  }
+  async function performSync(resolution){
     if(busy)return;
     if(!navigator.onLine){status('☁ Sin conexión','Los cambios siguen guardados aquí. Se enviarán al recuperar conexión.');return}
     if(editing()){status('☁ Cambios guardados aquí','La sincronización continuará cuando cierres el editor.');return}
