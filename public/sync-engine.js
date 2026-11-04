@@ -11,6 +11,37 @@
   }
   function eql(a,b){return a.exists===b.exists && (!a.exists||a.value===b.value)}
   function val(obj,key){return {exists:own(obj,key),value:obj[key]}}
+  function jsonArray(raw){try{var v=JSON.parse(raw);return Array.isArray(v)?v:null}catch(e){return null}}
+  function prefixArray(a,b){
+    return a.length<=b.length&&a.every(function(v,i){return JSON.stringify(v)===JSON.stringify(b[i])});
+  }
+  function special(k,b,l,r){
+    // Only combine append-only lists when existing indices are guaranteed stable.
+    if(k==='quintoElemento.customSongs.v1'){
+      var la=jsonArray(l.value),ra=jsonArray(r.value);
+      if(!la||!ra)return null;
+      if(prefixArray(la,ra))return r;
+      if(prefixArray(ra,la))return l;
+      return null;
+    }
+    if(k==='quintoElemento.passes.v1'){
+      var lp=jsonArray(l.value),rp=jsonArray(r.value);
+      if(!lp||!rp)return null;
+      var byId=new Map(),out=[];
+      for(var i=0;i<lp.length;i++){
+        if(!lp[i]||typeof lp[i].id!=='string'||byId.has(lp[i].id))return null;
+        byId.set(lp[i].id,lp[i]);out.push(lp[i]);
+      }
+      for(var j=0;j<rp.length;j++){
+        var pass=rp[j];if(!pass||typeof pass.id!=='string')return null;
+        if(byId.has(pass.id)){
+          if(JSON.stringify(byId.get(pass.id))!==JSON.stringify(pass))return null;
+        }else{byId.set(pass.id,pass);out.push(pass)}
+      }
+      return {exists:true,value:JSON.stringify(out)};
+    }
+    return null;
+  }
   function merge(base,local,remote){
     var known=base!==null && base!==undefined;
     base=clean(base);local=clean(local);remote=clean(remote);
@@ -23,14 +54,9 @@
         else if(eql(r,b))chosen=l;
       } else if(!l.exists)chosen=r;
       else if(!r.exists)chosen=l;
+      if(chosen===null&&l.exists&&r.exists)chosen=special(k,b,l,r);
       if(chosen===null){conflicts.push({key:k,base:b.exists?b.value:null,local:l.exists?l.value:null,remote:r.exists?r.value:null});return}
       if(chosen.exists)result[k]=chosen.value;
-    });
-    // Arrays of custom songs use positional indices in chord/lyric/pass keys.
-    // Concurrent independent appends require a separate index migration and
-    // must never be auto-concatenated or reordered by a generic JSON merge.
-    SPECIAL.forEach(function(k){
-      if(!conflicts.some(function(c){return c.key===k}))return;
     });
     return {merged:result,conflicts:conflicts,hasConflicts:conflicts.length>0};
   }
