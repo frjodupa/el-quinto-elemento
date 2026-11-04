@@ -49,3 +49,11 @@ Diagnóstico comprobado por lectura del código de `main`. Diseño propuesto; no
 - CI `EQE - Verificar sincronización segura (rama aislada)` run 41825449110: SUCCESS en conciliación, sintaxis, regresiones.
 - Pendiente P0: UI de resolución guiada de conflictos con copias recuperables, autenticación/autorización del API D1 compartido, pruebas reales de Safari iPad + escritorio + iPhone y staging con aislamiento de datos.
 - Restricción: NO fusionar a main, desplegar ni importar/restaurar en iPad hasta resolver bloqueos P0. Export JSON iPad (2026-11-04T09:28:35.118Z) permanece referencia, fuera de GitHub.
+
+## RESTRICCIÓN P0 INNEGOCIABLE — iPad de directo intocable (instrucción del usuario)
+- Prohibido actualizar, reinstalar, restaurar, importar, borrar caché, alterar localStorage o ejecutar pruebas de sincronización en el iPad de directo.
+- Prohibida cualquier publicación, cambio de Worker, Service Worker, API, redirección o ajuste que pueda aplicar cambios indirectamente al iPad durante su funcionamiento normal.
+- NO usar el iPad como dispositivo de validación; pruebas solo con datos ficticios y dispositivos/perfiles alternativos aislados y sin conexión al D1 real.
+- Las canciones ausentes del iPad se incorporarán manualmente por el usuario si lo estima oportuno.
+- El JSON anteriormente exportado es únicamente referencia de recuperación y no se importa ni se publica.
+- La solución multidispositivo debe mantenerse completamente fuera de producción hasta que exista una estrategia explícita de exclusión del iPad y autorización nueva y específica del usuario para cualquier despliegue. La autorización para seguir desarrollando NO equivale a autorización de publicar.
