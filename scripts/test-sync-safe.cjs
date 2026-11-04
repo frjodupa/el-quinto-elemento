@@ -3,7 +3,7 @@ const vm=require('node:vm');
 const fs=require('node:fs');
 const context={};vm.runInNewContext(fs.readFileSync('public/sync-engine.js','utf8'),context);
 const merge=context.QESyncEngine.merge;
-const A='quintoElemento.chords.v2.4',B='quintoElemento.lyrics.v1.4',C='quintoElemento.customSongs.v1',D='quintoElemento.passes.v1';
+const A='quintoElemento.chords.v2.4',B='quintoElemento.lyrics.v1.5',C='quintoElemento.customSongs.v1',D='quintoElemento.passes.v1';
 function check(name,b,l,r,expected,conflictCount){const x=merge(b,l,r);assert.equal(x.conflicts.length,conflictCount,name);if(!conflictCount)assert.deepEqual(JSON.parse(JSON.stringify(x.merged)),expected,name);console.log('PASS '+name)}
 check('disjoint edits',{[A]:'old',[B]:'old'},{[A]:'new',[B]:'old'},{[A]:'old',[B]:'remote'},{[A]:'new',[B]:'remote'},0);
 check('same edit',{[A]:'old'},{[A]:'new'},{[A]:'new'},{[A]:'new'},0);
@@ -69,4 +69,25 @@ function chord(words,intro='DO'){return JSON.stringify({lines:{},words,intro,int
   const r=chord({'0:0':'SOL','0:1':'FA'});
   assert.equal(merge({[key]:b},{[key]:l},{[key]:r}).conflicts.length,1);
   console.log('PASS chord deletion-versus-edit conflict protected');
+}
+
+{
+ const lyrics='quintoElemento.lyrics.v1.47';
+ const chords='quintoElemento.chords.v2.47';
+ const base={[lyrics]:'LINE ONE\\nLINE TWO',[chords]:chord({'1:0':'DO'})};
+ const local={...base,[lyrics]:'LINE ONE\\nNEW LINE\\nLINE TWO'};
+ const remote={...base,[chords]:chord({'1:0':'SOL'})};
+ const got=merge(base,local,remote);
+ assert.equal(got.hasConflicts,true);
+ assert.ok(got.conflicts.some(c=>c.key==='song:47:lyrics-chords'));
+ console.log('PASS protect shifted chord anchors after remote chord + local lyric edit');
+}
+{
+ const lyrics='quintoElemento.lyrics.v1.47';
+ const chords='quintoElemento.chords.v2.47';
+ const base={[lyrics]:'LINE ONE',[chords]:chord({'0:0':'DO'})};
+ const local={...base,[lyrics]:'LINE ONE UPDATED'};
+ const remote={...base,[lyrics]:'LINE ONE',[chords]:chord({'0:0':'DO'})};
+ assert.equal(merge(base,local,remote).hasConflicts,false);
+ console.log('PASS safe single-device lyric edit');
 }
