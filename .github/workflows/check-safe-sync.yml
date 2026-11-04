@@ -17,6 +17,8 @@ jobs:
           node-version: '22'
       - name: Pruebas de conciliación sin acceso a nube
         run: node scripts/test-sync-safe.cjs
+      - name: Verificar revisión de conflictos sin escrituras
+        run: node scripts/test-sync-conflict-review.cjs
       - name: Validar sintaxis del motor y scripts de index.html
         run: |
           node --check public/sync-engine.js
