@@ -23,7 +23,7 @@ jobs:
           node - <<'NODE'
           const fs=require('fs'),vm=require('vm');
           const s=fs.readFileSync('public/index.html','utf8');
-          const scripts=[...s.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)];
+          const scripts=[...s.matchAll(new RegExp('<script>([\\\\s\\\\S]*?)</script>','g'))];
           let count=0;
           scripts.forEach(m=>{if(m[1].trim()){new vm.Script(m[1]);count++}});
           if(!s.includes('<script src="./sync-engine.js"></script>'))throw Error('falta motor');
