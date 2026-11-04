@@ -15,7 +15,33 @@
   function prefixArray(a,b){
     return a.length<=b.length&&a.every(function(v,i){return JSON.stringify(v)===JSON.stringify(b[i])});
   }
+  function isRecord(x){return x!==null&&typeof x==='object'&&!Array.isArray(x)}
+  function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+  function mergeRecord(base,local,remote){
+    if(!isRecord(base)||!isRecord(local)||!isRecord(remote))return null;
+    var out={},conflict=false;
+    var keys=new Set(Object.keys(base).concat(Object.keys(local),Object.keys(remote)));
+    keys.forEach(function(k){
+      var b=val(base,k),l=val(local,k),r=val(remote,k),selected=null;
+      if(eql(l,r)||l.exists&&r.exists&&same(l.value,r.value))selected=l;
+      else if(eql(l,b)||l.exists&&b.exists&&same(l.value,b.value))selected=r;
+      else if(eql(r,b)||r.exists&&b.exists&&same(r.value,b.value))selected=l;
+      else if(b.exists&&l.exists&&r.exists&&isRecord(b.value)&&isRecord(l.value)&&isRecord(r.value)){
+        var nested=mergeRecord(b.value,l.value,r.value);
+        if(nested!==null)selected={exists:true,value:nested};
+      }
+      if(selected===null){conflict=true;return}
+      if(selected.exists)out[k]=selected.value;
+    });
+    return conflict?null:out;
+  }
   function special(k,b,l,r){
+    if(/^quintoElemento\\.chords\\.v2\\.\\d+$/.test(k)&&b.exists&&l.exists&&r.exists){
+      var bc=safeJson(b.value),lc=safeJson(l.value),rc=safeJson(r.value);
+      var merged=mergeRecord(bc,lc,rc);
+      return merged===null?null:{exists:true,value:JSON.stringify(merged)};
+    }
+
     // Only combine append-only lists when existing indices are guaranteed stable.
     if(k==='quintoElemento.customSongs.v1'){
       var la=jsonArray(l.value),ra=jsonArray(r.value);
