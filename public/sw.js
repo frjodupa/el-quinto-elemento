@@ -4,6 +4,7 @@ const CORE=[
   './index.html',
   './manifest.webmanifest?v=82',
   './version.json',
+  './sync-engine.js',
   './pdf-chords-v44.json',
   './premium.css?v=97',
   './premium-icons.js?v=77',
