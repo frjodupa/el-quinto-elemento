@@ -15,3 +15,19 @@ check('delete vs edit',{[A]:'old'},{},{[A]:'mac'},null,1);
 check('custom songs concurrent', {[C]:'[]'},{[C]:'[{"title":"A"}]'},{[C]:'[{"title":"B"}]'},null,1);
 check('pass concurrent', {[D]:'[]'},{[D]:'[1]'},{[D]:'[2]'},null,1);
 check('no local edits',{[A]:'old'},{[A]:'old'},{[A]:'mac'},{[A]:'mac'},0);
+
+check('desktop appends song without changing earlier indexes',null,
+ {[C]:'[{"title":"A"}]',[A]:'ipad chords'},
+ {[C]:'[{"title":"A"},{"title":"B"}]',[A]:'old chords'},
+ null,1); // Same existing chord key differs and must remain protected.
+check('desktop adds song and iPad edits an independent chord',null,
+ {[C]:'[{"title":"A"}]',[A]:'ipad chords'},
+ {[C]:'[{"title":"A"},{"title":"B"}]'},
+ {[C]:'[{"title":"A"},{"title":"B"}]',[A]:'ipad chords'},0);
+check('two independent pass additions',null,
+ {[D]:'[{"id":"p1","name":"Uno","songs":[1]}]'},
+ {[D]:'[{"id":"p2","name":"Dos","songs":[2]}]'},
+ {[D]:'[{"id":"p1","name":"Uno","songs":[1]},{"id":"p2","name":"Dos","songs":[2]}]'},0);
+check('existing pass edited differently',null,
+ {[D]:'[{"id":"p1","name":"Uno","songs":[1]}]'},
+ {[D]:'[{"id":"p1","name":"Uno","songs":[2]}]'},null,1);
