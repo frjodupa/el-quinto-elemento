@@ -4645,10 +4645,23 @@ buildPicker();render('');bindGlobalUndoButtons();
       return;
     }
     if(!snapshot(local))return;
+    // Edits can happen while the GET is in flight; never upload a stale
+    // snapshot that would ignore a newer rehearsal adjustment.
+    if(!equal(read(),local)){pending=true;return}
     if(!equal(result.merged,cloud)){
       show('☁ Enviando cambios compatibles…','Conservando los cambios de cada dispositivo.');
       var updated=await request('PUT',{data:result.merged,expectedUpdatedAt:revision});
       revision=Number(updated.updatedAt||0);
+    }
+    // If an edit landed during PUT, anchor the confirmed cloud revision
+    // without clearing the local dirty flag and retry the new local data.
+    if(!equal(read(),local)){
+      localStorage.setItem(BASE,JSON.stringify(result.merged));
+      localStorage.setItem(REV,String(revision));
+      localStorage.setItem(DIRTY,'1');
+      pending=true;
+      show('☁ Ajustes nuevos pendientes','Se ha detectado una edición durante la sincronización; se conservará y reintentará.');
+      return;
     }
     if(!equal(local,result.merged))apply(result.merged);
     saveBaseline(result.merged,revision);
