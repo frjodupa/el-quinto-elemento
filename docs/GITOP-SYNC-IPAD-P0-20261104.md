@@ -41,3 +41,11 @@
 
 ## Estado
 Diagnóstico comprobado por lectura del código de `main`. Diseño propuesto; no implementado todavía. No hay prueba de integración ni despliegue. Mantener la copia exportada del iPad y las instantáneas Cloudflare intactas.
+
+
+## Snapshot 2026-11-04 (continuación)
+- Nuevo control conservador de dependencias entre `lyrics.v1.<songIndex>` y `chords.v2.<songIndex>`: si dos dispositivos editan letra y acordes de la misma canción por separado, se registra un conflicto `song:<id>:lyrics-chords` y no se realiza PUT automático. Evita desplazar posiciones de acordes al cambiar la estructura de una letra.
+- Pruebas nuevas: protección ante cambios cruzados y edición de letra no conflictiva.
+- CI `EQE - Verificar sincronización segura (rama aislada)` run 41825449110: SUCCESS en conciliación, sintaxis, regresiones.
+- Pendiente P0: UI de resolución guiada de conflictos con copias recuperables, autenticación/autorización del API D1 compartido, pruebas reales de Safari iPad + escritorio + iPhone y staging con aislamiento de datos.
+- Restricción: NO fusionar a main, desplegar ni importar/restaurar en iPad hasta resolver bloqueos P0. Export JSON iPad (2026-11-04T09:28:35.118Z) permanece referencia, fuera de GitHub.
