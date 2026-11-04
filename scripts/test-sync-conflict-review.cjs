@@ -1,0 +1,18 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const source=fs.readFileSync('public/sync-conflict-review.js','utf8');
+new vm.Script(source,{filename:'sync-conflict-review.js'});
+const context={};
+vm.runInNewContext(source,context);
+assert.equal(context.QESyncReview.describe({key:'quintoElemento.customSongs.v1'}),'Canciones nuevas o personalizadas');
+assert.equal(context.QESyncReview.describe({key:'quintoElemento.passes.v1'}),'Pases y orden de canciones');
+assert.equal(context.QESyncReview.describe({type:'cross-field',key:'song:47:lyrics-chords'}),'Letra y acordes de la misma canción');
+assert.match(context.QESyncReview.describe({key:'quintoElemento.chords.v2.47'}),/47/);
+assert.doesNotMatch(source,/fetch\s*\(|XMLHttpRequest|localStorage[.]setItem|\.put\s*\(/);
+const html=fs.readFileSync('public/index.html','utf8');
+const sw=fs.readFileSync('public/sw.js','utf8');
+assert.ok(html.includes('<script src="./sync-conflict-review.js"></script>'));
+assert.ok(html.includes('window.QESyncReview.show('));
+assert.ok(sw.includes("'./sync-conflict-review.js'"));
+console.log('PASS conflict review read-only, descriptive and included in offline PWA');
