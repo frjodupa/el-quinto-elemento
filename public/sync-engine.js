@@ -36,7 +36,7 @@
     return conflict?null:out;
   }
   function special(k,b,l,r){
-    if(/^quintoElemento\\.chords\\.v2\\.\\d+$/.test(k)&&b.exists&&l.exists&&r.exists){
+    if(/^quintoElemento[.]chords[.]v2[.][0-9]+$/.test(k)&&b.exists&&l.exists&&r.exists){
       var bc=safeJson(b.value),lc=safeJson(l.value),rc=safeJson(r.value);
       var merged=mergeRecord(bc,lc,rc);
       return merged===null?null:{exists:true,value:JSON.stringify(merged)};
