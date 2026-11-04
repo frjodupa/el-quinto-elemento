@@ -4582,6 +4582,7 @@ buildPicker();render('');bindGlobalUndoButtons();
 
 </script>
 <script src="./sync-engine.js"></script>
+<script src="./sync-conflict-review.js"></script>
 <script>
 (function(){
   'use strict';
@@ -4640,10 +4641,14 @@ buildPicker();render('');bindGlobalUndoButtons();
     var result=window.QESyncEngine.merge(base,local,cloud);
     if(result.hasConflicts){
       show('⚠ Copias distintas: '+result.conflicts.length+' conflictos',
-        'No se ha sustituido ningún arreglo. Mantén el JSON del iPad y no restaures versiones antiguas.');
+        'Tus arreglos se conservan. Revisa las diferencias y exporta ambas versiones.');
+      if(window.QESyncReview)window.QESyncReview.show({
+        conflicts:result.conflicts,local:local,remote:cloud,revision:revision
+      });
       localStorage.setItem(DIRTY,'1');
       return;
     }
+    if(window.QESyncReview)window.QESyncReview.hide();
     if(!snapshot(local))return;
     // Edits can happen while the GET is in flight; never upload a stale
     // snapshot that would ignore a newer rehearsal adjustment.
