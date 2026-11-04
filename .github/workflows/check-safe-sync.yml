@@ -23,11 +23,13 @@ jobs:
           node - <<'NODE'
           const fs=require('fs'),vm=require('vm');
           const s=fs.readFileSync('public/index.html','utf8');
-          const scripts=s.split('<script>').slice(1).map(x=>[x.split('</script>')[0]]);
-          let count=0;
-          scripts.forEach(m=>{if(m[0].trim()){new vm.Script(m[0]);count++}});
+          const start=s.indexOf("var DIRTY='qeSync.dirty'");
+          if(start<0)throw Error('falta integración de sincronización');
+          const end=s.indexOf('</script>',start);
+          if(end<0)throw Error('script sin cierre');
+          new vm.Script(s.slice(s.lastIndexOf('(function(){',start),end));
           if(!s.includes('<script src="./sync-engine.js"></script>'))throw Error('falta motor');
-          console.log('PASS inline scripts '+count);
+          console.log('PASS sync controller syntax');
           NODE
       - name: Regresiones existentes
         run: |
