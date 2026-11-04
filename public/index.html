@@ -4581,243 +4581,126 @@ buildPicker();render('');bindGlobalUndoButtons();
 })();
 
 </script>
+<script src="./sync-engine.js"></script>
+<script src="./sync-conflict-review.js"></script>
 <script>
-
 (function(){
+  'use strict';
   var PREFIX='quintoElemento.';
-  var META_DIRTY='qeSync.dirty';
-  var META_REMOTE_TS='qeSync.remoteTs';
-  var applyingRemote=false;
-  var syncTimer=0;
-  var pollingTimer=0;
-  var statusEl=null;
-  var detailEl=null;
-  var buttonEl=null;
-
-  function byId(id){return document.getElementById(id)}
-  function setStatus(text,detail){
-    statusEl=statusEl||byId('cloudSyncStatus');
-    detailEl=detailEl||byId('cloudSyncDetail');
-    if(statusEl)statusEl.textContent=text;
-    if(detailEl && detail!==undefined)detailEl.textContent=detail;
+  var DIRTY='qeSync.dirty', REV='qeSync.remoteTs', BASE='qeSync.base.v2';
+  var applying=false, busy=false, timer=0, pending=false;
+  var status,detail,button;
+  function show(s,d){status=status||document.getElementById('cloudSyncStatus');
+    detail=detail||document.getElementById('cloudSyncDetail');
+    if(status)status.textContent=s;if(detail)detail.textContent=d;
   }
-
-  function collectState(){
-    var out={};
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i);
-      if(k && k.indexOf(PREFIX)===0){
-        out[k]=localStorage.getItem(k);
-      }
-    }
-    return out;
-  }
-
-  function hasState(obj){
-    return obj && Object.keys(obj).length>0;
-  }
-
-  function applyState(obj){
-    applyingRemote=true;
-    try{
-      var remove=[];
-      for(var i=0;i<localStorage.length;i++){
-        var k=localStorage.key(i);
-        if(k && k.indexOf(PREFIX)===0)remove.push(k);
-      }
-      remove.forEach(function(k){localStorage.removeItem(k)});
-      Object.keys(obj||{}).forEach(function(k){
-        if(k.indexOf(PREFIX)===0)localStorage.setItem(k,String(obj[k]));
-      });
-    }finally{
-      applyingRemote=false;
-    }
-  }
-
-  async function apiGet(){
-    var r=await fetch('/api/sync?ts='+Date.now(),{cache:'no-store'});
-    if(!r.ok)throw new Error('GET '+r.status);
-    return await r.json();
-  }
-
-  async function apiPut(state,expectedUpdatedAt){
-    var r=await fetch('/api/sync',{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({data:state,expectedUpdatedAt:Number(expectedUpdatedAt||0)})
-    });
-    if(!r.ok){
-      var reason={};
-      try{reason=await r.json()}catch(e){}
-      var error=new Error(String(reason.error||'Error sincronizando '+r.status));
-      error.httpStatus=r.status;
-      error.cloudCode=reason.code||'';
-      throw error;
-    }
-    return await r.json();
-  }
-
-  async function pushLocal(){
-    if(!navigator.onLine)return false;
-    setStatus('☁ Guardando en la nube…','Enviando cambios de este dispositivo.');
-    var expected=Number(localStorage.getItem(META_REMOTE_TS)||0);
-    var res=await apiPut(collectState(),expected);
-    localStorage.setItem(META_DIRTY,'0');
-    localStorage.setItem(META_REMOTE_TS,String(res.updatedAt||0));
-    setStatus('☁ Sincronizado','Cambios guardados en Cloudflare.');
+  function read(){var x={};for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);if(k&&k.indexOf(PREFIX)===0)x[k]=localStorage.getItem(k);
+  }return x}
+  function equal(a,b){var ak=Object.keys(a).sort(),bk=Object.keys(b).sort();
+    return ak.length===bk.length&&ak.every(function(k,i){return k===bk[i]&&a[k]===b[k]})}
+  function snapshot(state){try{
+    localStorage.setItem('qeSync.safety.v2',JSON.stringify({at:Date.now(),data:state}));
     return true;
-  }
-
-  function refreshAfterCloudPull(){
-    try{
-      // D1 can add custom songs while this PWA tab remains open. Rebuild the
-      // catalogue instead of displaying an outdated 72-song in-memory list.
-      if(typeof songs!=='undefined' && Array.isArray(songs) &&
-         typeof baseSongCount==='number' && typeof loadCustomSongs==='function'){
-        var refreshed=loadCustomSongs();
-        var before=songs.length;
-        if(Array.isArray(refreshed)){
-          customSongs=refreshed;
-          songs.splice(baseSongCount);
-          refreshed.forEach(function(s){
-            if(s && s.title && s.text) songs.push({
-              title:normalizeMasterTitle(s.title),
-              text:normalizeMasterText(s.text)
-            });
-          });
-          var counter=document.getElementById('count');
-          if(counter)counter.textContent=songs.length+' canciones';
-          if(before!==songs.length)window.activePass=null;
-        }
-      }
-      if(typeof render==='function')render();
-      if(typeof current!=='undefined' && current>=0 && songs[current]){
-        if(typeof getSongTitle==='function' && typeof st!=='undefined' && st)st.textContent=getSongTitle(current);
-        if(typeof renderLyrics==='function')renderLyrics();
-      }
-      if(window.updateTransposeUI)window.updateTransposeUI();
-    }catch(e){console.error('Refresh cloud songbook:',e)}
-  }
-
-  async function pullRemote(allowReload){
-    if(!navigator.onLine)return false;
-    var res=await apiGet();
-    var remote=res && res.data ? res.data : null;
-    var remoteTs=Number(res && res.updatedAt || 0);
-    var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
-
-    if(remote && remoteTs>localTs){
-      setStatus('☁ Recibiendo cambios…','Actualizando este dispositivo con la última versión.');
-      applyState(remote);
-      localStorage.setItem(META_REMOTE_TS,String(remoteTs));
-      localStorage.setItem(META_DIRTY,'0');
-      refreshAfterCloudPull();
-      setStatus('☁ Sincronizado','Cambios recibidos sin recargar la app.');
-      return true;
+  }catch(e){show('⚠ Sincronización detenida','No hay espacio para una copia de seguridad local. Exporta tus datos antes de continuar.');return false}}
+  function apply(data){var keys=Object.keys(data);
+    applying=true;try{
+      var old=Object.keys(read());old.forEach(function(k){if(!Object.prototype.hasOwnProperty.call(data,k))localStorage.removeItem(k)});
+      keys.forEach(function(k){if(localStorage.getItem(k)!==data[k])localStorage.setItem(k,data[k])});
+    }finally{applying=false}
+    if(typeof loadCustomSongs==='function'&&typeof songs!=='undefined'&&typeof baseSongCount==='number'){
+      try{var x=loadCustomSongs();if(Array.isArray(x)){
+        customSongs=x;songs.splice(baseSongCount);x.forEach(function(s){if(s&&s.title&&s.text)songs.push({title:s.title,text:s.text})});
+        var counter=document.getElementById('count');if(counter)counter.textContent=songs.length+' canciones';
+      }}catch(e){console.error('Actualización del catálogo',e)}
     }
-    setStatus('☁ Sincronizado','Este dispositivo está al día.');
-    return false;
+    try{if(typeof render==='function')render();if(typeof renderLyrics==='function')renderLyrics();
+      if(window.updateTransposeUI)window.updateTransposeUI()}catch(e){console.error('Render tras sincronización',e)}
   }
-
-  async function syncNow(manual){
-    if(!navigator.onLine){
-      setStatus('☁ Sin conexión','Los cambios se guardan aquí y se sincronizarán cuando vuelva internet.');
-      return;
-    }
-    try{
-      var dirty=localStorage.getItem(META_DIRTY)==='1';
-      if(dirty){
-        await pushLocal();
-      }else{
-        var remote=await apiGet();
-        if(remote && remote.data){
-          var remoteTs=Number(remote.updatedAt||0);
-          var localTs=Number(localStorage.getItem(META_REMOTE_TS)||0);
-          if(remoteTs>localTs){
-            applyState(remote.data);
-            localStorage.setItem(META_REMOTE_TS,String(remoteTs));
-            localStorage.setItem(META_DIRTY,'0');
-            refreshAfterCloudPull();
-            setStatus('☁ Sincronizado','Datos recibidos sin recargar la app.');
-            return;
-          }
-        }else{
-          var local=collectState();
-          if(hasState(local))await pushLocal();
-        }
-        setStatus('☁ Sincronizado','Este dispositivo está al día.');
-      }
-    }catch(e){
-      if(e && e.httpStatus===409){
-        setStatus('⚠ Copias distintas','La nube contiene una versión más reciente. Tus cambios locales se conservan. Exporta una copia antes de sincronizar de nuevo.');
-      }else{
-        setStatus('☁ Sincronización pendiente','No se pudo conectar con Cloudflare. Se reintentará automáticamente.');
-      }
-    }
+  async function request(method,body){
+    var response=await fetch('/api/sync'+(method==='GET'?'?ts='+Date.now():''),
+      {method:method,cache:'no-store',headers:{'Content-Type':'application/json'},
+       body:body?JSON.stringify(body):undefined});
+    var data=await response.json();
+    if(!response.ok){var error=new Error(data.error||'HTTP '+response.status);error.status=response.status;error.code=data.code;throw error}
+    return data;
   }
-
-  function schedulePush(){
-    if(applyingRemote)return;
-    try{localStorage.setItem(META_DIRTY,'1')}catch(e){}
-    clearTimeout(syncTimer);
-    syncTimer=setTimeout(function(){syncNow(false)},900);
+  function baseState(){var raw=localStorage.getItem(BASE);if(!raw)return null;
+    try{var obj=JSON.parse(raw);return obj&&typeof obj==='object'&&!Array.isArray(obj)?obj:null}catch(e){return null}}
+  function saveBaseline(state,revision){
+    // Keep dirty state until the baseline is durably persisted.
+    localStorage.setItem(BASE,JSON.stringify(state));
+    localStorage.setItem(REV,String(revision));
+    localStorage.setItem(DIRTY,'0');
   }
-
-  // Interceptar cambios de la app sin modificar cada función existente.
-  var nativeSet=Storage.prototype.setItem;
-  var nativeRemove=Storage.prototype.removeItem;
-  Storage.prototype.setItem=function(k,v){
-    nativeSet.call(this,k,v);
-    if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
-  };
-  Storage.prototype.removeItem=function(k){
-    nativeRemove.call(this,k);
-    if(this===localStorage && !applyingRemote && String(k).indexOf(PREFIX)===0) schedulePush();
-  };
-
-  window.addEventListener('online',function(){syncNow(false)});
-  window.addEventListener('offline',function(){
-    setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
-  });
-
-  window.addEventListener('load',function(){
-    statusEl=byId('cloudSyncStatus');
-    detailEl=byId('cloudSyncDetail');
-    buttonEl=byId('cloudSyncNow');
-    if(buttonEl)buttonEl.addEventListener('click',function(){syncNow(true)});
-
-    if(!navigator.onLine){
-      setStatus('☁ Sin conexión','La app sigue funcionando offline. Se sincronizará al recuperar internet.');
-      return;
-    }
-
-    syncNow(false);
-    clearInterval(pollingTimer);
-    pollingTimer=setInterval(function(){
-      if(navigator.onLine && localStorage.getItem(META_DIRTY)!=='1'){
-        pullRemote(false);
-      }
-    },30000);
-  });
-})();
-
-</script>
-<script>
-
-(function(){
-  window.addEventListener('load',function(){
-    var modal=document.getElementById('settingsModal');
-    var syncBtn=document.getElementById('cloudSyncNow');
-    if(syncBtn && modal){
-      syncBtn.addEventListener('click',function(){
-        modal.classList.remove('on');
-        modal.setAttribute('aria-hidden','true');
+  async function reconcile(){
+    var local=read(),remote=await request('GET'),cloud=window.QESyncEngine.clean(remote.data||{});
+    var revision=Number(remote.updatedAt||0),base=baseState(),known=Number(localStorage.getItem(REV)||0);
+    // An old baseline cannot be trusted if server revision changed independently
+    // before the engine was installed. A missing baseline forces conservative merge.
+    var result=window.QESyncEngine.merge(base,local,cloud);
+    if(result.hasConflicts){
+      show('⚠ Copias distintas: '+result.conflicts.length+' conflictos',
+        'Tus arreglos se conservan. Revisa las diferencias y exporta ambas versiones.');
+      if(window.QESyncReview)window.QESyncReview.show({
+        conflicts:result.conflicts,local:local,remote:cloud,revision:revision
       });
+      localStorage.setItem(DIRTY,'1');
+      return;
     }
+    if(window.QESyncReview)window.QESyncReview.hide();
+    if(!snapshot(local))return;
+    // Edits can happen while the GET is in flight; never upload a stale
+    // snapshot that would ignore a newer rehearsal adjustment.
+    if(!equal(read(),local)){pending=true;return}
+    if(!equal(result.merged,cloud)){
+      show('☁ Enviando cambios compatibles…','Conservando los cambios de cada dispositivo.');
+      var updated=await request('PUT',{data:result.merged,expectedUpdatedAt:revision});
+      revision=Number(updated.updatedAt||0);
+    }
+    // If an edit landed during PUT, anchor the confirmed cloud revision
+    // without clearing the local dirty flag and retry the new local data.
+    if(!equal(read(),local)){
+      localStorage.setItem(BASE,JSON.stringify(result.merged));
+      localStorage.setItem(REV,String(revision));
+      localStorage.setItem(DIRTY,'1');
+      pending=true;
+      show('☁ Ajustes nuevos pendientes','Se ha detectado una edición durante la sincronización; se conservará y reintentará.');
+      return;
+    }
+    if(!equal(local,result.merged))apply(result.merged);
+    saveBaseline(result.merged,revision);
+    show('☁ Sincronizado','Cambios compatibles comprobados y guardados en Cloudflare.');
+  }
+  async function syncNow(){
+    if(busy){pending=true;return}
+    if(!navigator.onLine){show('☁ Sin conexión','Los cambios se guardan en este dispositivo.');return}
+    busy=true;if(button)button.disabled=true;
+    try{do{pending=false;await reconcile()}while(pending)}catch(e){
+      show(e.status===409?'⚠ Copias distintas':'☁ Sincronización pendiente',
+        e.status===409?'La nube cambió durante la operación; no se sobrescribió ninguna versión.':
+        'No se pudo completar: '+String(e.message||e));
+    }finally{busy=false;if(button)button.disabled=false}
+  }
+  function schedule(){if(applying)return;
+    try{localStorage.setItem(DIRTY,'1')}catch(e){}
+    clearTimeout(timer);timer=setTimeout(syncNow,900);
+  }
+  var nativeSet=Storage.prototype.setItem,nativeRemove=Storage.prototype.removeItem;
+  Storage.prototype.setItem=function(k,v){nativeSet.call(this,k,v);
+    if(this===localStorage&&String(k).indexOf(PREFIX)===0&&!applying)schedule()};
+  Storage.prototype.removeItem=function(k){nativeRemove.call(this,k);
+    if(this===localStorage&&String(k).indexOf(PREFIX)===0&&!applying)schedule()};
+  window.addEventListener('online',syncNow);
+  window.addEventListener('offline',function(){show('☁ Sin conexión','Los cambios locales se mantienen.')});
+  window.addEventListener('load',function(){
+    button=document.getElementById('cloudSyncNow');
+    if(button)button.addEventListener('click',syncNow);
+    syncNow();setInterval(function(){if(navigator.onLine)syncNow()},30000);
   });
 })();
-
 </script>
+
 <script>
 /* v52 · Importación segura de LA PASMA (NUEVA)
    No sobrescribe canciones existentes: sólo añade títulos ausentes
@@ -6616,8 +6499,26 @@ body.lightTheme .internetSearchLaunch{
     if(!results.length){
       var empty=document.createElement('div');
       empty.className='internetSearchState';
-      empty.textContent='No se encontraron resultados utilizables.'+(errors&&errors.length?' Una de las fuentes respondió con error.':'');
+      var failed=Array.isArray(errors)?errors:[];
+      var sources=failed.map(function(e){return sourceName(e.source)}).filter(Boolean);
+      empty.textContent='No se encontraron resultados importables.'+
+        (sources.length?' Error en: '+sources.join(', ')+'.':' Las fuentes no devolvieron coincidencias.');
       host.appendChild(empty);
+      var help=document.createElement('div');
+      help.className='internetSearchToolbar';
+      [['Abrir búsqueda en CifraClub','https://www.cifraclub.com/busca/?q='+encodeURIComponent(query)],
+       ['Abrir búsqueda en Ultimate Guitar','https://www.ultimate-guitar.com/search.php?search_type=title&value='+encodeURIComponent(query)]
+      ].forEach(function(entry){
+        var a=document.createElement('a');
+        a.href=entry[1];a.target='_blank';a.rel='noopener noreferrer';
+        a.textContent=entry[0];
+        a.className='internetSearchLaunch';
+        a.style.textDecoration='none';
+        help.appendChild(a);
+      });
+      var info=document.createElement('small');
+      info.textContent='Enlaces de consulta externa: no importan ni modifican canciones o acordes.';
+      host.appendChild(help);host.appendChild(info);
       return;
     }
 

@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const source=fs.readFileSync('public/index.html','utf8');
+assert.match(source,/Error en: ['"]\s*\+sources\.join\(', '\)/,'provider errors must identify source');
+assert.match(source,/https:\/\/www\.cifraclub\.com\/busca\/\?q=/);
+assert.match(source,/https:\/\/www\.ultimate-guitar\.com\/search\.php\?search_type=title&value=/);
+assert.match(source,/encodeURIComponent\(query\)/,'query must be URL encoded');
+assert.match(source,/a\.target='_blank'/);
+assert.match(source,/a\.rel='noopener noreferrer'/);
+assert.match(source,/no importan ni modifican canciones o acordes/);
+console.log('PASS fallback external search is read-only and links are encoded');

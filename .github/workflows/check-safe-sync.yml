@@ -1,0 +1,42 @@
+name: EQE - Verificar sincronización segura (rama aislada)
+on:
+  push:
+    branches:
+      - gitop/sync-safe-ipad-20261104
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pruebas de conciliación sin acceso a nube
+        run: node scripts/test-sync-safe.cjs
+      - name: Verificar revisión de conflictos sin escrituras
+        run: node scripts/test-sync-conflict-review.cjs
+      - name: Validar sintaxis del motor y scripts de index.html
+        run: |
+          node --check public/sync-engine.js
+          node - <<'NODE'
+          const fs=require('fs'),vm=require('vm');
+          const s=fs.readFileSync('public/index.html','utf8');
+          const start=s.indexOf("var DIRTY='qeSync.dirty'");
+          if(start<0)throw Error('falta integración de sincronización');
+          const end=s.indexOf('</script>',start);
+          if(end<0)throw Error('script sin cierre');
+          new vm.Script(s.slice(s.lastIndexOf('(function(){',start),end));
+          if(!s.includes('<script src="./sync-engine.js"></script>'))throw Error('falta motor');
+          console.log('PASS sync controller syntax');
+          NODE
+      - name: Verificar alternativa de búsqueda sin alterar el iPad
+        run: node scripts/test-internet-search-fallback.cjs
+      - name: Regresiones existentes
+        run: |
+          node scripts/test-pwa-version.cjs
+          node scripts/test-repeated-chords.cjs
+          node scripts/test-eqe-global-regressions.cjs

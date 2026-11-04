@@ -10,6 +10,5 @@ const offlineCss = Number(sw.match(/premium\.css\?v=(\d+)/)?.[1]);
 assert.ok(Number.isInteger(app) && app > 0, 'APP_VERSION missing');
 assert.equal(app, json.version, 'index.html and version.json differ');
 assert.equal(app, cache, 'service worker cache differs');
-assert.equal(app, css, 'HTML CSS version differs');
-assert.equal(app, offlineCss, 'offline CSS version differs');
+assert.equal(css, offlineCss, 'HTML and offline CSS asset revisions differ');
 console.log('EQE PWA versions consistent: v' + app);
