@@ -25,7 +25,7 @@ jobs:
           const s=fs.readFileSync('public/index.html','utf8');
           const scripts=s.split('<script>').slice(1).map(x=>[x.split('</script>')[0]]);
           let count=0;
-          scripts.forEach(m=>{if(m[1].trim()){new vm.Script(m[1]);count++}});
+          scripts.forEach(m=>{if(m[0].trim()){new vm.Script(m[0]);count++}});
           if(!s.includes('<script src="./sync-engine.js"></script>'))throw Error('falta motor');
           console.log('PASS inline scripts '+count);
           NODE
