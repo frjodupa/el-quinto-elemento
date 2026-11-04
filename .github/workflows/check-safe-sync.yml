@@ -33,6 +33,8 @@ jobs:
           if(!s.includes('<script src="./sync-engine.js"></script>'))throw Error('falta motor');
           console.log('PASS sync controller syntax');
           NODE
+      - name: Verificar alternativa de búsqueda sin alterar el iPad
+        run: node scripts/test-internet-search-fallback.cjs
       - name: Regresiones existentes
         run: |
           node scripts/test-pwa-version.cjs
