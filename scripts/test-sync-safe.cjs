@@ -31,3 +31,42 @@ check('two independent pass additions',null,
 check('existing pass edited differently',null,
  {[D]:'[{"id":"p1","name":"Uno","songs":[1]}]'},
  {[D]:'[{"id":"p1","name":"Uno","songs":[2]}]'},null,1);
+
+function chord(words,intro='DO'){return JSON.stringify({lines:{},words,intro,introText:'',instrumentals:{},instrumentalsText:{},references:[]})}
+{
+  const key='quintoElemento.chords.v2.47';
+  const b=chord({'0:0':'DO','1:0':'FA'});
+  const l=chord({'0:0':'RE','1:0':'FA'});
+  const r=chord({'0:0':'DO','1:0':'SOL'});
+  const merged=merge({[key]:b},{[key]:l},{[key]:r});
+  assert.equal(merged.conflicts.length,0,'separate chord positions must merge');
+  const final=JSON.parse(merged.merged[key]);
+  assert.equal(final.words['0:0'],'RE');assert.equal(final.words['1:0'],'SOL');
+  console.log('PASS independent chord positions within same song');
+}
+{
+  const key='quintoElemento.chords.v2.47';
+  const b=chord({'0:0':'DO'});
+  const l=chord({'0:0':'RE'});
+  const r=chord({'0:0':'MI'});
+  assert.equal(merge({[key]:b},{[key]:l},{[key]:r}).conflicts.length,1);
+  console.log('PASS conflicting same chord position protected');
+}
+{
+  const key='quintoElemento.chords.v2.47';
+  const b=chord({'0:0':'DO'},'DO');
+  const l=chord({'0:0':'RE'},'DO');
+  const r=chord({'0:0':'DO'},'SOL');
+  const result=merge({[key]:b},{[key]:l},{[key]:r});
+  assert.equal(result.conflicts.length,0);
+  assert.equal(JSON.parse(result.merged[key]).intro,'SOL');
+  console.log('PASS independent intro and chord changes');
+}
+{
+  const key='quintoElemento.chords.v2.47';
+  const b=chord({'0:0':'DO','0:1':'FA'});
+  const l=chord({'0:1':'FA'});
+  const r=chord({'0:0':'SOL','0:1':'FA'});
+  assert.equal(merge({[key]:b},{[key]:l},{[key]:r}).conflicts.length,1);
+  console.log('PASS chord deletion-versus-edit conflict protected');
+}
