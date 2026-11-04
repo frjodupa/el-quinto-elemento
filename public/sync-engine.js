@@ -84,6 +84,36 @@
       if(chosen===null){conflicts.push({key:k,base:b.exists?b.value:null,local:l.exists?l.value:null,remote:r.exists?r.value:null});return}
       if(chosen.exists)result[k]=chosen.value;
     });
+    // A lyric line edit can move the word indices used to anchor chords.
+    // Cross-device edits of lyrics and chord positions on the same song
+    // must be reviewed together, even if the storage keys are different.
+    var suffixes=new Set();
+    keys.forEach(function(k){
+      var m=/^quintoElemento[.](?:lyrics[.]v1|chords[.]v2)[.]([0-9]+)$/.exec(k);
+      if(m)suffixes.add(m[1]);
+    });
+    suffixes.forEach(function(id){
+      var lk='quintoElemento.lyrics.v1.'+id;
+      var ck='quintoElemento.chords.v2.'+id;
+      var lb=val(base,lk),cb=val(base,ck);
+      var lyricsLocal=!eql(val(local,lk),lb),lyricsRemote=!eql(val(remote,lk),lb);
+      var chordsLocal=!eql(val(local,ck),cb),chordsRemote=!eql(val(remote,ck),cb);
+      if(!known){
+        lyricsLocal=own(local,lk)&&own(remote,lk)&&local[lk]!==remote[lk];
+        lyricsRemote=lyricsLocal;
+        chordsLocal=own(local,ck)&&own(remote,ck)&&local[ck]!==remote[ck];
+        chordsRemote=chordsLocal;
+      }
+      var cross=known
+        ? (lyricsLocal&&chordsRemote&&!lyricsRemote&&!chordsLocal) ||
+          (lyricsRemote&&chordsLocal&&!lyricsLocal&&!chordsRemote)
+        : lyricsLocal&&chordsLocal;
+      if(cross){
+        conflicts.push({key:'song:'+id+':lyrics-chords',type:'cross-field',
+          reason:'La letra y los acordes de esta canción cambiaron en dispositivos diferentes; sus posiciones pueden haberse desplazado.',
+          local:null,remote:null,base:null});
+      }
+    });
     return {merged:result,conflicts:conflicts,hasConflicts:conflicts.length>0};
   }
   function safeJson(value){try{var x=JSON.parse(value);return x&&typeof x==='object'&&!Array.isArray(x)?x:null}catch(e){return null}}
