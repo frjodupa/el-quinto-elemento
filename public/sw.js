@@ -5,6 +5,7 @@ const CORE=[
   './manifest.webmanifest?v=82',
   './version.json',
   './sync-engine.js',
+  './sync-conflict-review.js',
   './pdf-chords-v44.json',
   './premium.css?v=97',
   './premium-icons.js?v=77',
