@@ -6499,8 +6499,26 @@ body.lightTheme .internetSearchLaunch{
     if(!results.length){
       var empty=document.createElement('div');
       empty.className='internetSearchState';
-      empty.textContent='No se encontraron resultados utilizables.'+(errors&&errors.length?' Una de las fuentes respondió con error.':'');
+      var failed=Array.isArray(errors)?errors:[];
+      var sources=failed.map(function(e){return sourceName(e.source)}).filter(Boolean);
+      empty.textContent='No se encontraron resultados importables.'+
+        (sources.length?' Error en: '+sources.join(', ')+'.':' Las fuentes no devolvieron coincidencias.');
       host.appendChild(empty);
+      var help=document.createElement('div');
+      help.className='internetSearchToolbar';
+      [['Abrir búsqueda en CifraClub','https://www.cifraclub.com/busca/?q='+encodeURIComponent(query)],
+       ['Abrir búsqueda en Ultimate Guitar','https://www.ultimate-guitar.com/search.php?search_type=title&value='+encodeURIComponent(query)]
+      ].forEach(function(entry){
+        var a=document.createElement('a');
+        a.href=entry[1];a.target='_blank';a.rel='noopener noreferrer';
+        a.textContent=entry[0];
+        a.className='internetSearchLaunch';
+        a.style.textDecoration='none';
+        help.appendChild(a);
+      });
+      var info=document.createElement('small');
+      info.textContent='Enlaces de consulta externa: no importan ni modifican canciones o acordes.';
+      host.appendChild(help);host.appendChild(info);
       return;
     }
 
