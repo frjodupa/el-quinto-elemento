@@ -91,3 +91,13 @@ function chord(words,intro='DO'){return JSON.stringify({lines:{},words,intro,int
  assert.equal(merge(base,local,remote).hasConflicts,false);
  console.log('PASS safe single-device lyric edit');
 }
+
+// Ensure a full cloud snapshot cannot silently replace rehearsal settings after a storage error.
+{
+ const fs=require('node:fs');
+ const html=fs.readFileSync('public/index.html','utf8');
+ assert.ok(html.includes('STORAGE_APPLY_FAILED'),'storage failure must be surfaced');
+ assert.ok(html.includes('STORAGE_ROLLBACK_FAILED'),'failed rollback must be surfaced');
+ assert.ok(html.includes('Object.keys(original).forEach'),'local keys must be restored');
+ console.log('PASS local storage recovery guard present');
+}
