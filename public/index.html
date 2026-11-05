@@ -4700,9 +4700,17 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(!navigator.onLine){show('☁ Sin conexión','Los cambios se guardan en este dispositivo.');return}
     busy=true;if(button)button.disabled=true;
     try{do{pending=false;await reconcile()}while(pending)}catch(e){
-      show(e.status===409?'⚠ Copias distintas':'☁ Sincronización pendiente',
-        e.status===409?'La nube cambió durante la operación; no se sobrescribió ninguna versión.':
-        'No se pudo completar: '+String(e.message||e));
+      var failure=String(e&&e.message||e);
+      if(failure==='STORAGE_APPLY_FAILED'||failure==='STORAGE_ROLLBACK_FAILED'){
+        show('⚠ Protección de arreglos locales',
+          failure==='STORAGE_ROLLBACK_FAILED'
+            ? 'Restauración local incompleta. No sincronices; conserva la copia de seguridad y solicita recuperación.'
+            : 'Error al guardar datos: se recuperó la versión local. La nube no se ha aplicado.');
+      }else{
+        show(e.status===409?'⚠ Copias distintas':'☁ Sincronización pendiente',
+          e.status===409?'La nube cambió durante la operación; no se sobrescribió ninguna versión.':
+          'No se pudo completar: '+failure);
+      }
     }finally{busy=false;if(button)button.disabled=false}
   }
   function schedule(){if(applying)return;
