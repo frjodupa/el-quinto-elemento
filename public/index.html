@@ -4603,11 +4603,34 @@ buildPicker();render('');bindGlobalUndoButtons();
     localStorage.setItem('qeSync.safety.v2',JSON.stringify({at:Date.now(),data:state}));
     return true;
   }catch(e){show('⚠ Sincronización detenida','No hay espacio para una copia de seguridad local. Exporta tus datos antes de continuar.');return false}}
-  function apply(data){var keys=Object.keys(data);
+  function apply(data){var keys=Object.keys(data),original=read(),failure=null,rollbackFailure=null;
+    // Backup already persisted by snapshot() before entering this function.
+    // Write additions and updates first; only remove obsolete keys at the end.
     applying=true;try{
-      var old=Object.keys(read());old.forEach(function(k){if(!Object.prototype.hasOwnProperty.call(data,k))localStorage.removeItem(k)});
-      keys.forEach(function(k){if(localStorage.getItem(k)!==data[k])localStorage.setItem(k,data[k])});
+      try{
+        keys.forEach(function(k){if(localStorage.getItem(k)!==data[k])localStorage.setItem(k,data[k])});
+        Object.keys(original).forEach(function(k){
+          if(!Object.prototype.hasOwnProperty.call(data,k))localStorage.removeItem(k);
+        });
+      }catch(e){
+        failure=e;
+        // Best-effort rollback. If storage itself is broken the persisted
+        // qeSync.safety.v2 snapshot remains available for manual recovery.
+        try{
+          Object.keys(original).forEach(function(k){localStorage.setItem(k,original[k])});
+          Object.keys(read()).forEach(function(k){
+            if(!Object.prototype.hasOwnProperty.call(original,k))localStorage.removeItem(k);
+          });
+        }catch(rollbackError){rollbackFailure=rollbackError}
+      }
     }finally{applying=false}
+    if(failure){
+      try{localStorage.setItem(DIRTY,'1')}catch(e){}
+      show('⚠ Cambios locales protegidos',rollbackFailure
+        ? 'Error de almacenamiento y restauración incompleta. No sincronices: conserva y exporta la copia de seguridad.'
+        : 'No se pudo aplicar la nube. Se restauraron los ajustes anteriores; no se enviaron cambios.');
+      throw new Error(rollbackFailure?'STORAGE_ROLLBACK_FAILED':'STORAGE_APPLY_FAILED');
+    }
     if(typeof loadCustomSongs==='function'&&typeof songs!=='undefined'&&typeof baseSongCount==='number'){
       try{var x=loadCustomSongs();if(Array.isArray(x)){
         customSongs=x;songs.splice(baseSongCount);x.forEach(function(s){if(s&&s.title&&s.text)songs.push({title:s.title,text:s.text})});
@@ -4677,9 +4700,17 @@ buildPicker();render('');bindGlobalUndoButtons();
     if(!navigator.onLine){show('☁ Sin conexión','Los cambios se guardan en este dispositivo.');return}
     busy=true;if(button)button.disabled=true;
     try{do{pending=false;await reconcile()}while(pending)}catch(e){
-      show(e.status===409?'⚠ Copias distintas':'☁ Sincronización pendiente',
-        e.status===409?'La nube cambió durante la operación; no se sobrescribió ninguna versión.':
-        'No se pudo completar: '+String(e.message||e));
+      var failure=String(e&&e.message||e);
+      if(failure==='STORAGE_APPLY_FAILED'||failure==='STORAGE_ROLLBACK_FAILED'){
+        show('⚠ Protección de arreglos locales',
+          failure==='STORAGE_ROLLBACK_FAILED'
+            ? 'Restauración local incompleta. No sincronices; conserva la copia de seguridad y solicita recuperación.'
+            : 'Error al guardar datos: se recuperó la versión local. La nube no se ha aplicado.');
+      }else{
+        show(e.status===409?'⚠ Copias distintas':'☁ Sincronización pendiente',
+          e.status===409?'La nube cambió durante la operación; no se sobrescribió ninguna versión.':
+          'No se pudo completar: '+failure);
+      }
     }finally{busy=false;if(button)button.disabled=false}
   }
   function schedule(){if(applying)return;

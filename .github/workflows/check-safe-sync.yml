@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - gitop/sync-safe-ipad-20261104
+      - gitop/sync-qa-final-20261105
   workflow_dispatch:
 permissions:
   contents: read

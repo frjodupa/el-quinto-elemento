@@ -91,3 +91,74 @@ function chord(words,intro='DO'){return JSON.stringify({lines:{},words,intro,int
  assert.equal(merge(base,local,remote).hasConflicts,false);
  console.log('PASS safe single-device lyric edit');
 }
+
+// Ensure a full cloud snapshot cannot silently replace rehearsal settings after a storage error.
+{
+ const fs=require('node:fs');
+ const html=fs.readFileSync('public/index.html','utf8');
+ assert.ok(html.includes('STORAGE_APPLY_FAILED'),'storage failure must be surfaced');
+ assert.ok(html.includes('STORAGE_ROLLBACK_FAILED'),'failed rollback must be surfaced');
+ assert.ok(html.includes('Object.keys(original).forEach'),'local keys must be restored');
+ console.log('PASS local storage recovery guard present');
+}
+
+// Exercise the actual apply() code with simulated browser storage failures.
+{
+ const html=fs.readFileSync('public/index.html','utf8');
+ const first=html.indexOf('  function apply(data){var keys=Object.keys(data),original=read()');
+ const last=html.indexOf('  async function request(method,body){',first);
+ assert.ok(first>0&&last>first,'sync apply block found');
+ const applySource=html.slice(first,last);
+ function fixture(failAt,rollbackFails){
+   const entries=new Map([
+     ['quintoElemento.lyrics.v1.4','ORIGINAL ENSAYO'],
+     ['quintoElemento.chords.v2.4','RE'],
+     ['qeSync.safety.v2','SAFE SNAPSHOT']
+   ]);
+   let writes=0,failed=false;
+   const storage={
+     getItem(k){return entries.has(k)?entries.get(k):null},
+     setItem(k,v){
+       if(String(k).startsWith('quintoElemento.')){
+         writes++;
+         if(failAt&&writes===failAt){failed=true;throw Error('QuotaExceededError')}
+         if(rollbackFails&&failed)throw Error('QuotaExceededError rollback');
+       }
+       entries.set(k,String(v));
+     },
+     removeItem(k){entries.delete(k)},
+     key(i){return [...entries.keys()][i]||null},
+     get length(){return entries.size}
+   };
+   const ctx={
+     localStorage:storage,applying:false,DIRTY:'qeSync.dirty',
+     read(){const out={};for(const [k,v] of entries){
+       if(k.startsWith('quintoElemento.'))out[k]=v;
+     }return out},
+     show(){},window:{}
+   };
+   vm.runInNewContext(applySource+'; globalThis.testApply=apply;',ctx);
+   return {apply:ctx.testApply,entries};
+ }
+ const target={
+   'quintoElemento.lyrics.v1.4':'REMOTE LYRICS',
+   'quintoElemento.customSongs.v1':'[]'
+ };
+ const ok=fixture(0,false);
+ ok.apply(target);
+ assert.equal(ok.entries.get('quintoElemento.lyrics.v1.4'),'REMOTE LYRICS');
+ assert.equal(ok.entries.has('quintoElemento.chords.v2.4'),false);
+ console.log('PASS snapshot apply on healthy storage');
+ const full=fixture(2,false);
+ assert.throws(()=>full.apply(target),/STORAGE_APPLY_FAILED/);
+ assert.equal(full.entries.get('quintoElemento.lyrics.v1.4'),'ORIGINAL ENSAYO');
+ assert.equal(full.entries.get('quintoElemento.chords.v2.4'),'RE');
+ assert.equal(full.entries.has('quintoElemento.customSongs.v1'),false);
+ assert.equal(full.entries.get('qeSync.dirty'),'1');
+ assert.equal(full.entries.get('qeSync.safety.v2'),'SAFE SNAPSHOT');
+ console.log('PASS quota failure restores rehearsal state');
+ const unrecoverable=fixture(2,true);
+ assert.throws(()=>unrecoverable.apply(target),/STORAGE_ROLLBACK_FAILED/);
+ assert.equal(unrecoverable.entries.get('qeSync.safety.v2'),'SAFE SNAPSHOT');
+ console.log('PASS rollback failure detected and snapshot retained');
+}
